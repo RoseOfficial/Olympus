@@ -149,4 +149,34 @@ public static class RoleActionPushers
                 onDispatched?.Invoke(ctx2);
             });
     }
+
+    /// <summary>
+    /// Pushes Peloton while out of combat and moving, when the buff is not already
+    /// present. Peloton only functions out of combat, so callers invoke this from
+    /// the pre-combat branch of their BuffModule.
+    /// </summary>
+    /// <param name="ctx">Rotation context.</param>
+    /// <param name="scheduler">Scheduler queue.</param>
+    /// <param name="behavior">Per-rotation AbilityBehavior carrying the toggle delegate.</param>
+    /// <param name="isMoving">Whether the player is currently moving.</param>
+    /// <param name="priority">Scheduler priority for the push.</param>
+    /// <param name="onDispatched">Optional callback invoked when the candidate dispatches.</param>
+    public static void TryPushPeloton(
+        IRotationContext ctx,
+        RotationScheduler scheduler,
+        AbilityBehavior behavior,
+        bool isMoving,
+        int priority,
+        Action<IRotationContext>? onDispatched = null)
+    {
+        if (ctx.InCombat) return;
+        if (!isMoving) return;
+
+        var player = ctx.Player;
+        if (player.Level < RoleActions.Peloton.MinLevel) return;
+        if (ctx.ActionService.PlayerHasStatus(RoleActions.Peloton.AppliedStatusId.GetValueOrDefault())) return;
+        if (!ctx.ActionService.IsActionReady(RoleActions.Peloton.ActionId)) return;
+
+        scheduler.PushOgcd(behavior, player.GameObjectId, priority, onDispatched);
+    }
 }

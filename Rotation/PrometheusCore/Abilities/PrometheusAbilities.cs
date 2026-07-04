@@ -87,4 +87,5 @@ public static class PrometheusAbilities
 
     // --- Role ---
     public static readonly AbilityBehavior HeadGraze = new() { Action = RoleActions.HeadGraze, Toggle = cfg => cfg.RangedShared.EnableHeadGraze };
+    public static readonly AbilityBehavior Peloton = new() { Action = RoleActions.Peloton, Toggle = cfg => cfg.RangedShared.EnablePeloton };
 }

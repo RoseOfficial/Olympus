@@ -9,4 +9,9 @@ public sealed class RangedSharedConfig
     /// Whether to use Head Graze for enemy cast interrupts.
     /// </summary>
     public bool EnableHeadGraze { get; set; } = true;
+
+    /// <summary>
+    /// Whether to apply Peloton automatically while moving out of combat.
+    /// </summary>
+    public bool EnablePeloton { get; set; } = true;
 }

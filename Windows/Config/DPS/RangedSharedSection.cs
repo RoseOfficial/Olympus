@@ -41,5 +41,19 @@ public sealed class RangedSharedSection
 
             ConfigUIHelpers.EndIndent();
         }
+
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.RangedShared.Movement, "Movement"), "RangedMove"))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RangedShared.EnablePeloton, "Auto Peloton out of combat"),
+                () => config.RangedShared.EnablePeloton,
+                v => config.RangedShared.EnablePeloton = v,
+                null, save,
+                actionId: RoleActions.Peloton.ActionId);
+
+            ConfigUIHelpers.EndIndent();
+        }
     }
 }

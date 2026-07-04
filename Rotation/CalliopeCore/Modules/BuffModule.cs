@@ -4,6 +4,7 @@ using Olympus.Data;
 using Olympus.Rotation.CalliopeCore.Abilities;
 using Olympus.Rotation.CalliopeCore.Context;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services;
 using Olympus.Services.Training;
@@ -37,6 +38,8 @@ public sealed class BuffModule : ICalliopeModule
     {
         if (!context.InCombat)
         {
+            RoleActionPushers.TryPushPeloton(context, scheduler, CalliopeAbilities.Peloton, isMoving, priority: 10,
+                onDispatched: _ => context.Debug.BuffState = "Peloton (pre-combat)");
             context.Debug.BuffState = "Not in combat";
             return;
         }

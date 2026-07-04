@@ -482,3 +482,102 @@ public class RoleActionPushersRampartTests
         Assert.Single(scheduler.InspectOgcdQueue());  // Push happens despite co-tank overlap
     }
 }
+
+public class RoleActionPushersPelotonTests
+{
+    private static AbilityBehavior PelotonBehavior() => new()
+    {
+        Action = RoleActions.Peloton,
+        Toggle = _ => true,
+    };
+
+    private static (Mock<IRotationContext> ctx, Mock<IActionService> actionService) BuildContext(
+        bool inCombat = false,
+        byte playerLevel = 90,
+        bool actionReady = true,
+        bool pelotonActive = false)
+    {
+        var player = MockBuilders.CreateMockPlayerCharacter(level: playerLevel);
+        player.SetupGet(p => p.GameObjectId).Returns(123ul);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(a => a.IsActionReady(RoleActions.Peloton.ActionId)).Returns(actionReady);
+        actionService.Setup(a => a.PlayerHasStatus(RoleActions.Peloton.AppliedStatusId.GetValueOrDefault())).Returns(pelotonActive);
+
+        var ctx = new Mock<IRotationContext>();
+        ctx.SetupGet(c => c.Player).Returns(player.Object);
+        ctx.SetupGet(c => c.ActionService).Returns(actionService.Object);
+        ctx.SetupGet(c => c.InCombat).Returns(inCombat);
+
+        return (ctx, actionService);
+    }
+
+    [Fact]
+    public void Skips_When_In_Combat()
+    {
+        var (ctx, _) = BuildContext(inCombat: true);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushPeloton(ctx.Object, scheduler, PelotonBehavior(), isMoving: true, priority: 10);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Not_Moving()
+    {
+        var (ctx, _) = BuildContext();
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushPeloton(ctx.Object, scheduler, PelotonBehavior(), isMoving: false, priority: 10);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Level_Too_Low()
+    {
+        var (ctx, _) = BuildContext(playerLevel: (byte)(RoleActions.Peloton.MinLevel - 1));
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushPeloton(ctx.Object, scheduler, PelotonBehavior(), isMoving: true, priority: 10);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Peloton_Already_Active()
+    {
+        var (ctx, _) = BuildContext(pelotonActive: true);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushPeloton(ctx.Object, scheduler, PelotonBehavior(), isMoving: true, priority: 10);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_OnCooldown()
+    {
+        var (ctx, _) = BuildContext(actionReady: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushPeloton(ctx.Object, scheduler, PelotonBehavior(), isMoving: true, priority: 10);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Pushes_When_OutOfCombat_And_Moving()
+    {
+        var (ctx, _) = BuildContext();
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushPeloton(ctx.Object, scheduler, PelotonBehavior(), isMoving: true, priority: 10);
+
+        var queue = scheduler.InspectOgcdQueue();
+        var candidate = Assert.Single(queue);
+        Assert.Equal(RoleActions.Peloton.ActionId, candidate.Behavior.Action.ActionId);
+        Assert.Equal(10, candidate.Priority);
+    }
+}

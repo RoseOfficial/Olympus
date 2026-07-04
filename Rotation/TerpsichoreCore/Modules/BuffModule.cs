@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.TerpsichoreCore.Abilities;
 using Olympus.Rotation.TerpsichoreCore.Context;
@@ -50,6 +51,9 @@ public sealed class BuffModule : ITerpsichoreModule
             TryPushClosedPosition(context, scheduler);
             if (!context.IsDancing && !context.HasStandardFinish)
                 TryPushStandardStep(context, scheduler);
+            if (!context.IsDancing)
+                RoleActionPushers.TryPushPeloton(context, scheduler, TerpsichoreAbilities.Peloton, isMoving, priority: 10,
+                    onDispatched: _ => context.Debug.BuffState = "Peloton (pre-combat)");
             context.Debug.BuffState = context.IsDancing ? "Dancing (pre-pull)" : "Not in combat";
             return;
         }

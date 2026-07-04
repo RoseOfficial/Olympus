@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.PrometheusCore.Abilities;
 using Olympus.Rotation.PrometheusCore.Context;
@@ -38,6 +39,8 @@ public sealed class BuffModule : IPrometheusModule
     {
         if (!context.InCombat)
         {
+            RoleActionPushers.TryPushPeloton(context, scheduler, PrometheusAbilities.Peloton, isMoving, priority: 10,
+                onDispatched: _ => context.Debug.BuffState = "Peloton (pre-combat)");
             context.Debug.BuffState = "Not in combat";
             return;
         }

@@ -934,6 +934,8 @@ public static class LocalizedStrings
         public const string Description = "config.job.ranged_shared.description";
         public const string Interrupts = "config.job.ranged_shared.interrupts";
         public const string EnableHeadGraze = "config.job.ranged_shared.enable_head_graze";
+        public const string Movement = "config.job.ranged_shared.movement";
+        public const string EnablePeloton = "config.job.ranged_shared.enable_peloton";
     }
 
     /// <summary>Keys for Caster shared settings (BLM/SMN/RDM/PCT).</summary>
