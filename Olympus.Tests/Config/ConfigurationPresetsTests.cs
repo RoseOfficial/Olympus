@@ -303,8 +303,21 @@ public class ConfigurationPresetsTests
     }
 
     // ──────────────────────────────────────────────────────────────
-    // Proactive: explicitly sets party coordination burst-awareness flags to true
+    // Proactive: sets the master EnablePartyCoordination switch AND sub-feature flags
     // ──────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Proactive_EnablesPartyCoordinationMasterSwitch()
+    {
+        var config = new Configuration();
+        config.PartyCoordination.EnablePartyCoordination = false;
+
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Proactive);
+
+        // The master switch must be on for sub-features to have any runtime effect.
+        // partyCoordinationService is created conditionally at startup based on this flag.
+        Assert.True(config.PartyCoordination.EnablePartyCoordination);
+    }
 
     [Fact]
     public void Proactive_ExplicitlyEnablesPartyCoordinationBurstFlags()

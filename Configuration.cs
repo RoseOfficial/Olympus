@@ -129,6 +129,34 @@ public sealed class Configuration : IPluginConfiguration
     public PictomancerConfig Pictomancer { get; set; } = new();
 
     /// <summary>
+    /// Called by Dalamud after JSON deserialization.
+    /// Applies any pending schema migrations before the configuration is used.
+    /// </summary>
+    public void OnDeserialized()
+    {
+        MigrateIfNeeded();
+    }
+
+    /// <summary>
+    /// Applies pending schema migrations in version order.
+    /// To add a future migration: add a new branch below, increment Version in that branch,
+    /// and document which fields changed. Migrations run on every plugin load until the
+    /// user saves, which writes the updated Version back to disk.
+    /// </summary>
+    private void MigrateIfNeeded()
+    {
+        if (Version < 2)
+        {
+            // v1 -> v2 (shipped ~2026-04-27): per-job Lucid Dreaming, Second Wind, Bloodbath,
+            // and True North toggles were consolidated into CasterShared and MeleeShared.
+            // The old JSON fields (BlackMage.EnableLucidDreaming, Viper.EnableSecondWind, etc.)
+            // no longer exist on the config classes and are silently dropped by the deserializer.
+            // Old values are unrecoverable; new shared configs receive their defaults.
+            Version = 2;
+        }
+    }
+
+    /// <summary>
     /// Resets all configuration values to their defaults.
     /// Preserves Enabled state and window visibility settings.
     /// </summary>
@@ -177,6 +205,9 @@ public sealed class Configuration : IPluginConfiguration
         Sage = new SageConfig();
         Tank = new TankConfig();
         PartyCoordination = new PartyCoordinationConfig();
+        Consumables = new ConsumablesConfig();
+        Movement = new MovementConfig();
+        Input = new InputConfig();
 
         // Reset DPS configs
         MeleeShared = new MeleeSharedConfig();

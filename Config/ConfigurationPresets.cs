@@ -522,7 +522,11 @@ public static class ConfigurationPresets
             config.Tank.UseRampartOnCooldown = false; // Save for tankbusters
         }
 
-        // Party Coordination - enable burst awareness and buff coordination
+        // Party Coordination - enable master switch and burst/buff coordination.
+        // The master switch is required: partyCoordinationService is created conditionally
+        // at startup and its methods guard on this flag at runtime. Without it, the
+        // sub-feature flags below have no effect.
+        config.PartyCoordination.EnablePartyCoordination = true;
         config.PartyCoordination.EnableHealerBurstAwareness = true;
         config.PartyCoordination.EnableRaidBuffCoordination = true;
         config.PartyCoordination.CooldownOverlapWindowSeconds = 3.0f;
