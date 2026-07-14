@@ -317,7 +317,7 @@ public static class ActionIds
 
     // DRK oGCD Defensive
     public const uint ShadowWall = 3636;
-    public const uint ShadowedVigil = 36924;
+    public const uint ShadowedVigil = 36927;
     public const uint TheBlackestNight = 7393;
     public const uint DarkMind = 3634;
     public const uint LivingDead = 3638;

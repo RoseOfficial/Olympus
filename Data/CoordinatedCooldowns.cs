@@ -25,11 +25,11 @@ public static class CoordinatedCooldowns
         // Warrior
         ActionIds.ShakeItOff,               // Party barrier + self cleanse
 
-        // Dark Knight (using literal IDs since not all are in ActionIds.cs)
-        36927,                              // Dark Missionary - 10% magic damage reduction
+        // Dark Knight
+        ActionIds.DarkMissionary,           // 10% magic damage reduction, 15s
 
         // Gunbreaker
-        36934,                              // Heart of Light - 10% magic damage reduction
+        ActionIds.HeartOfLight,             // 10% magic damage reduction, 15s
     };
 
     /// <summary>
@@ -45,8 +45,8 @@ public static class CoordinatedCooldowns
         ActionIds.DivineVeil,
         ActionIds.PassageOfArms,
         ActionIds.ShakeItOff,
-        36927,                              // Dark Missionary
-        36934,                              // Heart of Light
+        ActionIds.DarkMissionary,           // DRK - 10% magic damage reduction
+        ActionIds.HeartOfLight,             // GNB - 10% magic damage reduction
 
         // White Mage
         ActionIds.Temperance,               // 10% mitigation + healing boost
@@ -117,6 +117,18 @@ public static class CoordinatedCooldowns
     };
 
     /// <summary>
+    /// Role-action debuffs applied to enemies that benefit from coordination.
+    /// Feint and Addle reduce physical or magic damage dealt by the target;
+    /// stacking two instances on the same cast provides no additional benefit.
+    /// Window = debuff duration (15s), not the 90s recast.
+    /// </summary>
+    public static readonly HashSet<uint> PartyDebuffs = new()
+    {
+        RoleActions.Feint.ActionId,         // Melee DPS - 10% physical damage reduction, 15s
+        RoleActions.Addle.ActionId,         // Caster DPS - 10% magic damage reduction, 15s
+    };
+
+    /// <summary>
     /// Checks if an action is a personal defensive that should be coordinated between tanks.
     /// </summary>
     public static bool IsPersonalDefensive(uint actionId)
@@ -135,6 +147,14 @@ public static class CoordinatedCooldowns
         => Interrupts.Contains(actionId);
 
     /// <summary>
+    /// Checks if an action is a role-action debuff (Feint, Addle) that should be coordinated.
+    /// Two instances of the same debuff on one enemy provide no extra benefit,
+    /// so the first broadcast claims the slot for the full debuff duration.
+    /// </summary>
+    public static bool IsPartyDebuff(uint actionId)
+        => PartyDebuffs.Contains(actionId);
+
+    /// <summary>
     /// Maps action IDs to their recast time in milliseconds.
     /// Used when recast time isn't available from the game API.
     /// </summary>
@@ -145,8 +165,12 @@ public static class CoordinatedCooldowns
         { ActionIds.DivineVeil, 90_000 },
         { ActionIds.PassageOfArms, 120_000 },
         { ActionIds.ShakeItOff, 90_000 },
-        { 36927, 90_000 },                  // Dark Missionary
-        { 36934, 90_000 },                  // Heart of Light
+        { ActionIds.DarkMissionary, 90_000 },
+        { ActionIds.HeartOfLight, 90_000 },
+
+        // Role-action debuffs
+        { RoleActions.Feint.ActionId, 90_000 },
+        { RoleActions.Addle.ActionId, 90_000 },
 
         // Healer cooldowns
         { ActionIds.Temperance, 120_000 },

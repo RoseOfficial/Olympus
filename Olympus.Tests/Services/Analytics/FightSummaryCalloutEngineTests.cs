@@ -560,6 +560,46 @@ public class FightSummaryCalloutEngineTests
         Assert.Contains("never applied", callouts[0].Title);
     }
 
+    // Verifies each job's PrimaryDotActions entry uses the correct canonical action ID.
+    // One cast of the canonical ID in a 120s fight → Warning (25% uptime).
+    // A wrong ID → Critical "never applied", which would fail this test.
+    [Theory]
+    // WHM: ActionIds.Dia (final form)
+    [InlineData(JobRegistry.WhiteMage, 16532u)]
+    // SCH: ActionIds.Biolysis
+    [InlineData(JobRegistry.Scholar, 16540u)]
+    // SCH: lower variant ActionIds.Bio also recognized
+    [InlineData(JobRegistry.Scholar, 17864u)]
+    // AST: ActionIds.CombustIII
+    [InlineData(JobRegistry.Astrologian, 16554u)]
+    // SGE: ActionIds.EukrasianDosisIII
+    [InlineData(JobRegistry.Sage, 24314u)]
+    // BRD: CausticBite (ActionId 7406) and Stormbite (ActionId 7407) both recognized
+    [InlineData(JobRegistry.Bard, 7406u)]
+    [InlineData(JobRegistry.Bard, 7407u)]
+    // BLM: HighThunder (ActionId 36986)
+    [InlineData(JobRegistry.BlackMage, 36986u)]
+    // DRG: ChaoticSpring (ActionId 25772)
+    [InlineData(JobRegistry.Dragoon, 25772u)]
+    // MNK: Demolish (ActionId 66)
+    [InlineData(JobRegistry.Monk, 66u)]
+    // SAM: Higanbana (ActionId 7489)
+    [InlineData(JobRegistry.Samurai, 7489u)]
+    // RPR: Shadow of Death (ActionId 24378)
+    [InlineData(JobRegistry.Reaper, 24378u)]
+    public void GenerateDoTCallouts_CanonicalDotId_ProducesWarnNotNeverApplied(uint jobId, uint dotActionId)
+    {
+        // One cast in a 120s fight = 30/120 = 25% uptime → Warning severity.
+        // If the ID is unrecognized the engine produces Critical "never applied" instead.
+        var history = new List<ActionAttempt> { MakeSuccessfulAttempt(dotActionId, 0f) };
+
+        var callouts = FightSummaryCalloutEngine.GenerateDoTCallouts(history, jobId, 120f);
+
+        Assert.Single(callouts);
+        Assert.Equal(CalloutSeverity.Warning, callouts[0].Severity);
+        Assert.DoesNotContain("never applied", callouts[0].Title);
+    }
+
     #endregion
 
     #region Generate (Top-Level) Tests

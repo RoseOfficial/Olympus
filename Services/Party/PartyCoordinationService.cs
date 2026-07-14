@@ -1686,12 +1686,13 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (message.InstanceId == _instanceId)
             return;
 
-        // Track party mitigations, personal defensives, and invulnerabilities for coordination
+        // Track party mitigations, personal defensives, invulnerabilities, and party debuffs for coordination
         var isPartyMitigation = CoordinatedCooldowns.IsCoordinatedCooldown(message.ActionId);
         var isPersonalDefensive = CoordinatedCooldowns.IsPersonalDefensive(message.ActionId);
         var isInvulnerability = CoordinatedCooldowns.IsInvulnerability(message.ActionId);
+        var isPartyDebuff = CoordinatedCooldowns.IsPartyDebuff(message.ActionId);
 
-        if (!isPartyMitigation && !isPersonalDefensive && !isInvulnerability)
+        if (!isPartyMitigation && !isPersonalDefensive && !isInvulnerability && !isPartyDebuff)
         {
             if (_config.LogCoordinationEvents)
                 _log.Debug("[PartyCoord] Ignoring non-coordinated cooldown: action {0}", message.ActionId);
@@ -1720,7 +1721,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             list.Add(info);
         }
 
-        var cdType = isInvulnerability ? "invulnerability" : (isPersonalDefensive ? "personal defensive" : "party mitigation");
+        var cdType = isInvulnerability ? "invulnerability" : (isPersonalDefensive ? "personal defensive" : (isPartyDebuff ? "party debuff" : "party mitigation"));
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Tracked remote {0}: action {1}, recast {2}ms from instance {3}",
                 cdType, message.ActionId, info.RecastTimeMs, message.InstanceId);
