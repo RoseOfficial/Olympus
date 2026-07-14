@@ -55,13 +55,6 @@ public sealed record AbilityBehavior
     public (byte Level, ActionDefinition Replacement)[]? LevelReplacements { get; init; }
 
     /// <summary>
-    /// Charge-source action ID when it differs from <see cref="Action"/>.
-    /// MCH GaussRound to DoubleCheck at level 92: charges are queried on the
-    /// level-appropriate ID, not the base.
-    /// </summary>
-    public uint? ChargeSource { get; init; }
-
-    /// <summary>
     /// When true, cast-time GCD damage is blocked if <c>MechanicCastGate.ShouldBlock</c>
     /// predicts a raidwide or tank buster before the cast completes.
     /// Instants (CastTime = 0) are never blocked regardless.
@@ -71,9 +64,10 @@ public sealed record AbilityBehavior
     /// <summary>
     /// Per-ability targeting strategy override. When set, the scheduler re-resolves the
     /// dispatch target at dispatch time via <c>TargetingService.FindEnemy</c> using this
-    /// strategy, instead of using the target ID the module pushed. Falls back to the
-    /// pushed target ID if the strategy resolves no result. Results are memoised per
-    /// strategy across the dispatch pass to avoid redundant enemy scans.
+    /// strategy and the ability's range, instead of using the target ID the module pushed.
+    /// Falls back to the pushed target ID if the strategy resolves no result. Results are
+    /// memoised per (strategy, range) pair across the dispatch pass to avoid redundant scans
+    /// while correctly handling two abilities with the same strategy but different ranges.
     /// Null means use the pushed target ID as-is (existing behaviour).
     /// </summary>
     public EnemyTargetingStrategy? TargetingOverride { get; init; }

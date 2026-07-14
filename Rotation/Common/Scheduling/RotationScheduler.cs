@@ -114,10 +114,13 @@ public sealed class RotationScheduler
             return cmp != 0 ? cmp : a.InsertionOrder.CompareTo(b.InsertionOrder);
         });
 
-        // Memo for per-ability targeting overrides: each distinct strategy is resolved at
-        // most once per dispatch pass and the result is reused for subsequent candidates
-        // with the same strategy. Only allocated when at least one candidate carries an override.
-        Dictionary<EnemyTargetingStrategy, ulong>? overrideMemo = null;
+        // Memo for per-ability targeting overrides: each distinct (strategy, range) pair is
+        // resolved at most once per dispatch pass and the result is reused for subsequent
+        // candidates with the same strategy and range. Range is included in the key because
+        // two abilities with the same strategy but different ranges may resolve to different
+        // enemies (e.g. a 3f melee ability and a 25f ranged ability both using HighestHp).
+        // Only allocated when at least one candidate carries an override.
+        Dictionary<(EnemyTargetingStrategy Strategy, float Range), ulong>? overrideMemo = null;
 
         foreach (var candidate in queue)
         {
@@ -186,12 +189,10 @@ public sealed class RotationScheduler
 
             // Gate: cooldown / charges
             //
-            // ChargeSource: pre-check charges. Only failing when actually out of charges
-            // (GetCurrentCharges is stable across the global GCD roll for charge-based actions).
-            //
-            // Non-charge oGCDs: pre-check via IsActionReady. oGCDs have their own cooldown
-            // groups separate from the global GCD (group 57), so GetCurrentCharges reflects
-            // only the oGCD's own state.
+            // Non-charge oGCDs: pre-check via IsActionReady. IsActionReady operates on the
+            // level-resolved effective.ActionId, so charge-based actions with level replacements
+            // (e.g. MCH GaussRound -> DoubleCheck at Lv.92) are automatically checked against
+            // the replacement's charge stack — no separate ChargeSource field is needed.
             //
             // Non-charge GCDs: skip the pre-check. For plain GCDs on the global recast group,
             // GetCurrentCharges returns 0 during the GCD roll — that would incorrectly reject
@@ -200,15 +201,7 @@ public sealed class RotationScheduler
             // delegates to UseAction which handles the queue window correctly; if the GCD
             // is on its own independent cooldown (Sonic Break, Gnashing Fang, etc.) UseAction
             // returns false and we fall through to DispatchRejected at the bottom of the loop.
-            if (candidate.Behavior.ChargeSource is { } chargeId)
-            {
-                if (_actionService.GetCurrentCharges(chargeId) == 0)
-                {
-                    RecordFail(candidate, $"Cooldown (no charges on {chargeId})");
-                    continue;
-                }
-            }
-            else if (isOgcd && !_actionService.IsActionReady(effective.ActionId))
+            if (isOgcd && !_actionService.IsActionReady(effective.ActionId))
             {
                 var remaining = _actionService.GetCooldownRemaining(effective.ActionId);
                 RecordFail(candidate, $"Cooldown {remaining:F1}s");
@@ -228,18 +221,19 @@ public sealed class RotationScheduler
             // Per-ability targeting override: re-resolve the dispatch target using the
             // declared strategy rather than the target ID the module pre-resolved at push
             // time. Falls back to the module-pushed ID when the service returns no result.
-            // Results are memoised per strategy to avoid redundant scans within this pass.
+            // Results are memoised per (strategy, range) pair to avoid redundant scans.
             var dispatchTargetId = candidate.TargetId;
             if (candidate.Behavior.TargetingOverride is { } overrideStrategy
                 && ctx.TargetingService is { } targetingSvc)
             {
-                if (overrideMemo is null || !overrideMemo.TryGetValue(overrideStrategy, out var memoHit))
+                var range = effective.Range > 0f ? effective.Range : 25f;
+                var memoKey = (overrideStrategy, range);
+                if (overrideMemo is null || !overrideMemo.TryGetValue(memoKey, out var memoHit))
                 {
-                    var range = effective.Range > 0f ? effective.Range : 25f;
                     var resolved = targetingSvc.FindEnemy(overrideStrategy, range, ctx.Player);
                     var resolvedId = resolved?.GameObjectId ?? candidate.TargetId;
-                    overrideMemo ??= new Dictionary<EnemyTargetingStrategy, ulong>(4);
-                    overrideMemo[overrideStrategy] = resolvedId;
+                    overrideMemo ??= new Dictionary<(EnemyTargetingStrategy Strategy, float Range), ulong>(4);
+                    overrideMemo[memoKey] = resolvedId;
                     dispatchTargetId = resolvedId;
                 }
                 else
@@ -275,7 +269,7 @@ public sealed class RotationScheduler
                 {
                     Dispatched = true,
                     Winner = candidate.Behavior,
-                    GateFailReasons = _lastFailReasons.ToArray(),
+                    GateFailReasons = _configuration.IsDebugWindowOpen ? _lastFailReasons.ToArray() : Array.Empty<string>(),
                 };
             }
 
@@ -286,12 +280,13 @@ public sealed class RotationScheduler
         {
             Dispatched = false,
             Winner = null,
-            GateFailReasons = _lastFailReasons.ToArray(),
+            GateFailReasons = _configuration.IsDebugWindowOpen ? _lastFailReasons.ToArray() : Array.Empty<string>(),
         };
     }
 
     private void RecordFail(in AbilityCandidate candidate, string reason)
     {
+        if (!_configuration.IsDebugWindowOpen) return;
         if (_lastFailReasons.Count >= 16) return;
         _lastFailReasons.Add($"{candidate.Behavior.Action.Name}: {reason}");
     }

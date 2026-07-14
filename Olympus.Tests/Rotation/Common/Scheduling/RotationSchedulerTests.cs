@@ -18,7 +18,9 @@ public class RotationSchedulerTests
     {
         actionService ??= new Mock<IActionService>();
         jobGauges ??= new Mock<IJobGauges>();
-        config ??= new Configuration();
+        // Tests that assert on GateFailReasons need IsDebugWindowOpen = true; callers that
+        // explicitly want it closed pass their own Configuration.
+        config ??= new Configuration { IsDebugWindowOpen = true };
         return new RotationScheduler(actionService.Object, jobGauges.Object, config);
     }
 
@@ -102,7 +104,7 @@ public class RotationSchedulerTests
     {
         var actionService = new Mock<IActionService>();
         actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
-        var config = new Configuration();
+        var config = new Configuration { IsDebugWindowOpen = true };
         var scheduler = Build(actionService, config: config);
 
         var behavior = TestBehaviors.InstantGcd(actionId: 4001) with { Toggle = _ => false };
@@ -379,24 +381,6 @@ public class RotationSchedulerTests
         actionService.Verify(x => x.ExecuteGcd(
             It.Is<ActionDefinition>(a => a.ActionId == 9101),
             It.IsAny<ulong>()), Times.Once);
-    }
-
-    [Fact]
-    public void Dispatch_ChargeSourceSet_QueriesCorrectActionForCharges()
-    {
-        var actionService = new Mock<IActionService>();
-        actionService.Setup(x => x.GetCurrentCharges(9999u)).Returns(1u);
-        actionService.Setup(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
-        var scheduler = Build(actionService);
-
-        var behavior = TestBehaviors.InstantOgcd(actionId: 9002) with { ChargeSource = 9999u };
-        var ctx = CreateContextWithPlayerLevel(80);
-        scheduler.PushOgcd(behavior, targetId: 0, priority: 10);
-
-        var result = scheduler.DispatchOgcd(ctx);
-
-        Assert.True(result.Dispatched);
-        actionService.Verify(x => x.GetCurrentCharges(9999u), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -735,5 +719,181 @@ public class RotationSchedulerTests
         actionService.Verify(x => x.ExecuteGcd(
             It.IsAny<ActionDefinition>(),
             999ul), Times.Once);
+    }
+
+    // --- Finding #28: GateFailReasons is empty (no allocation) when debug window is closed ---
+
+    [Fact]
+    public void Dispatch_DebugWindowClosed_GateFailReasonsEmpty_EvenOnGateFailure()
+    {
+        // When IsDebugWindowOpen is false (the default), RecordFail is a no-op.
+        // Even with a gate failure the returned GateFailReasons must be empty
+        // (no heap string or array allocated on the hot path).
+        var actionService = new Mock<IActionService>();
+        var config = new Configuration { IsDebugWindowOpen = false };
+        var scheduler = Build(actionService, config: config);
+
+        // A toggle that always returns false forces a "Toggle" gate failure every time.
+        var behavior = TestBehaviors.InstantGcd(actionId: 30001) with { Toggle = _ => false };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Empty(result.GateFailReasons);
+    }
+
+    [Fact]
+    public void Dispatch_DebugWindowOpen_GateFailReasonsPopulated()
+    {
+        // When IsDebugWindowOpen is true, gate failure reasons are recorded and returned.
+        var actionService = new Mock<IActionService>();
+        var config = new Configuration { IsDebugWindowOpen = true };
+        var scheduler = Build(actionService, config: config);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 30002) with { Toggle = _ => false };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("Toggle"));
+    }
+
+    // --- Finding #33: Memo key includes range — same strategy, different ranges resolve independently ---
+
+    private static ActionDefinition MakeActionWithRange(uint actionId, float range) => new()
+    {
+        ActionId = actionId,
+        Name = $"TestAction{actionId}",
+        MinLevel = 1,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = range,
+    };
+
+    [Fact]
+    public void Dispatch_TargetingOverride_SameStrategyAndRange_SecondCandidateReusesMemo()
+    {
+        // Two candidates share the same TargetingOverride strategy AND the same Range.
+        // The first candidate's ExecuteGcd is rejected (returns false), so the scheduler
+        // continues to the second candidate. Because (Strategy, Range) is identical, the
+        // second candidate must reuse the memo entry — FindEnemy must be called exactly
+        // once, not twice.
+        var actionService = new Mock<IActionService>();
+        actionService
+            .Setup(x => x.ExecuteGcd(It.Is<ActionDefinition>(a => a.ActionId == 32001), It.IsAny<ulong>()))
+            .Returns(false); // first candidate rejected at dispatch
+        actionService
+            .Setup(x => x.ExecuteGcd(It.Is<ActionDefinition>(a => a.ActionId == 32002), It.IsAny<ulong>()))
+            .Returns(true);  // second candidate succeeds
+        var scheduler = Build(actionService);
+
+        var resolvedEnemy = new Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        resolvedEnemy.Setup(e => e.GameObjectId).Returns(777ul);
+        var targetingService = new Mock<ITargetingService>();
+        targetingService
+            .Setup(s => s.FindEnemy(
+                EnemyTargetingStrategy.HighestHp,
+                25f,
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns(resolvedEnemy.Object);
+
+        var behaviorA = new AbilityBehavior
+        {
+            Action = MakeActionWithRange(actionId: 32001, range: 25f),
+            TargetingOverride = EnemyTargetingStrategy.HighestHp,
+        };
+        var behaviorB = new AbilityBehavior
+        {
+            Action = MakeActionWithRange(actionId: 32002, range: 25f),
+            TargetingOverride = EnemyTargetingStrategy.HighestHp,
+        };
+
+        var ctx = CreateContextWithTargetingService(80, targetingService.Object);
+        scheduler.PushGcd(behaviorA, targetId: 999, priority: 1); // evaluated first, rejected
+        scheduler.PushGcd(behaviorB, targetId: 999, priority: 2); // hits memo, dispatched
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        // FindEnemy called once — the second candidate reused the memoised resolution.
+        targetingService.Verify(
+            s => s.FindEnemy(
+                EnemyTargetingStrategy.HighestHp,
+                25f,
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()),
+            Times.Once);
+        // The second candidate dispatches to the memoised enemy (777).
+        actionService.Verify(
+            x => x.ExecuteGcd(It.Is<ActionDefinition>(a => a.ActionId == 32002), 777ul),
+            Times.Once);
+    }
+
+    [Fact]
+    public void Dispatch_TargetingOverride_SameStrategyDifferentRanges_ResolveIndependentlyWithinPass()
+    {
+        // Both candidates share TargetingOverride = HighestHp but have different Range values.
+        // The short-range candidate (priority 1, range 3f) is evaluated first and its
+        // ExecuteGcd is rejected, so the scheduler continues to the long-range candidate
+        // (priority 2, range 25f). With the range-inclusive memo key the long-range candidate
+        // gets its own FindEnemy call and resolves to enemy 200. Without the fix (key = strategy
+        // only), it would reuse the memo for (HighestHp -> enemy 100) and dispatch to 100 instead.
+        var actionService = new Mock<IActionService>();
+        // Short-range action: dispatch is rejected so the scheduler falls through.
+        actionService
+            .Setup(x => x.ExecuteGcd(It.Is<ActionDefinition>(a => a.ActionId == 31001), It.IsAny<ulong>()))
+            .Returns(false);
+        // Long-range action: dispatch succeeds.
+        actionService
+            .Setup(x => x.ExecuteGcd(It.Is<ActionDefinition>(a => a.ActionId == 31002), It.IsAny<ulong>()))
+            .Returns(true);
+        var scheduler = Build(actionService);
+
+        // HighestHp at range 3f resolves to enemy 100 (close target).
+        var closeEnemy = new Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        closeEnemy.Setup(e => e.GameObjectId).Returns(100ul);
+        // HighestHp at range 25f resolves to enemy 200 (higher HP but farther away).
+        var farEnemy = new Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        farEnemy.Setup(e => e.GameObjectId).Returns(200ul);
+
+        var targetingService = new Mock<ITargetingService>();
+        targetingService
+            .Setup(s => s.FindEnemy(EnemyTargetingStrategy.HighestHp, 3f,
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns(closeEnemy.Object);
+        targetingService
+            .Setup(s => s.FindEnemy(EnemyTargetingStrategy.HighestHp, 25f,
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns(farEnemy.Object);
+
+        var behaviorShort = new AbilityBehavior
+        {
+            Action = MakeActionWithRange(actionId: 31001, range: 3f),
+            TargetingOverride = EnemyTargetingStrategy.HighestHp,
+        };
+        var behaviorLong = new AbilityBehavior
+        {
+            Action = MakeActionWithRange(actionId: 31002, range: 25f),
+            TargetingOverride = EnemyTargetingStrategy.HighestHp,
+        };
+
+        var ctx = CreateContextWithTargetingService(80, targetingService.Object);
+        scheduler.PushGcd(behaviorShort, targetId: 999, priority: 1); // evaluated first
+        scheduler.PushGcd(behaviorLong, targetId: 999, priority: 2);  // falls through to this
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        // The long-range candidate must dispatch to its own resolution (enemy 200), not
+        // to the short-range candidate's memoised resolution (enemy 100).
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == 31002), 200ul), Times.Once);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == 31002), 100ul), Times.Never);
     }
 }

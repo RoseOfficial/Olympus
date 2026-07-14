@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Olympus.Rotation.Common.Scheduling;
@@ -7,11 +8,16 @@ namespace Olympus.Rotation.Common.Scheduling;
 /// </summary>
 public sealed class SchedulerDispatchResult
 {
+    /// <summary>
+    /// Singleton empty result for the no-candidates-in-queue path.
+    /// <c>Array.Empty&lt;string&gt;()</c> is used for <c>GateFailReasons</c>
+    /// so the shared instance cannot be mutated via a downcast to <c>IList&lt;string&gt;</c>.
+    /// </summary>
     public static readonly SchedulerDispatchResult Empty = new()
     {
         Dispatched = false,
         Winner = null,
-        GateFailReasons = new List<string>(),
+        GateFailReasons = Array.Empty<string>(),
     };
 
     /// <summary>True if a candidate was dispatched this frame.</summary>
