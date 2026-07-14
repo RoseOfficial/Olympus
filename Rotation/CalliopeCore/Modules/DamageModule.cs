@@ -416,8 +416,20 @@ public sealed class DamageModule : ICalliopeModule
         var level = context.Player.Level;
         if (target.MaxHp > 0 && (float)target.CurrentHp / target.MaxHp < context.Configuration.Bard.DotMinTargetHp) return;
 
+        // Resolve the target that will actually receive the DoT: prefer the highest-HP
+        // enemy (longest-lived), fall back to the primary strategy target when the service
+        // returns null. Checking DoT status on this target -- not on the primary strategy
+        // target -- ensures the gate and dispatch agree. Without this, in a boss+add phase
+        // where the primary strategy target is an add (no DoT) and the boss (highest HP)
+        // already has both DoTs, the gate fires on the add but dispatch redirects to the boss,
+        // refreshing a DoT that isn't due while leaving the add permanently uncovered.
+        var dotTarget = context.TargetingService.FindEnemy(
+            EnemyTargetingStrategy.HighestHp, FFXIVConstants.RangedTargetingRange, context.Player)
+            ?? target;
+
         // Stormbite first
-        if (!context.HasStormbite && context.Configuration.Bard.EnableStormbite && level >= BRDActions.Windbite.MinLevel)
+        if (!context.StatusHelper.HasStormbite(dotTarget, context.Player.EntityId)
+            && context.Configuration.Bard.EnableStormbite && level >= BRDActions.Windbite.MinLevel)
         {
             var action = BRDActions.GetStormbite((byte)level);
             var ability = action == BRDActions.Stormbite ? CalliopeAbilities.Stormbite : CalliopeAbilities.Windbite;
@@ -430,8 +442,7 @@ public sealed class DamageModule : ICalliopeModule
                     return;
                 }
 
-                scheduler.PushGcd(ability with { TargetingOverride = EnemyTargetingStrategy.HighestHp },
-                    target.GameObjectId, priority: 7,
+                scheduler.PushGcd(ability, dotTarget.GameObjectId, priority: 7,
                     onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = action.Name;
@@ -439,7 +450,7 @@ public sealed class DamageModule : ICalliopeModule
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(action.ActionId, action.Name)
                             .AsDot(0f)
-                            .Target(target.Name?.TextValue ?? "Target")
+                            .Target(dotTarget.Name?.TextValue ?? "Target")
                             .Reason($"{action.Name} applied (higher potency DoT)",
                                 "Stormbite (Windbite upgrade) is BRD's higher potency DoT. Apply first when DoTs are missing. " +
                                 "Both DoTs snapshot buffs when applied. Maintain 100% uptime on both DoTs.")
@@ -455,7 +466,8 @@ public sealed class DamageModule : ICalliopeModule
         }
 
         // Caustic Bite
-        if (!context.HasCausticBite && context.Configuration.Bard.EnableCausticBite && level >= BRDActions.VenomousBite.MinLevel)
+        if (!context.StatusHelper.HasCausticBite(dotTarget, context.Player.EntityId)
+            && context.Configuration.Bard.EnableCausticBite && level >= BRDActions.VenomousBite.MinLevel)
         {
             var action = BRDActions.GetCausticBite((byte)level);
             var ability = action == BRDActions.CausticBite ? CalliopeAbilities.CausticBite : CalliopeAbilities.VenomousBite;
@@ -468,8 +480,7 @@ public sealed class DamageModule : ICalliopeModule
                     return;
                 }
 
-                scheduler.PushGcd(ability with { TargetingOverride = EnemyTargetingStrategy.HighestHp },
-                    target.GameObjectId, priority: 7,
+                scheduler.PushGcd(ability, dotTarget.GameObjectId, priority: 7,
                     onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = action.Name;
@@ -477,7 +488,7 @@ public sealed class DamageModule : ICalliopeModule
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(action.ActionId, action.Name)
                             .AsDot(0f)
-                            .Target(target.Name?.TextValue ?? "Target")
+                            .Target(dotTarget.Name?.TextValue ?? "Target")
                             .Reason($"{action.Name} applied (poison DoT)",
                                 "Caustic Bite (Venomous Bite upgrade) is BRD's poison DoT. Apply second after Stormbite. " +
                                 "Both DoTs snapshot buffs when applied. Maintain 100% uptime on both DoTs.")

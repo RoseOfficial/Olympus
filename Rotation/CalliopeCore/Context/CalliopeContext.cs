@@ -232,8 +232,11 @@ public sealed class CalliopeContext : ICalliopeContext
             StormbiteRemaining = 0f;
         }
 
-        // Cooldown tracking - get charges from ActionService
-        BloodletterCharges = GetActionCharges(BRDActions.Bloodletter.ActionId);
+        // Cooldown tracking - get charges from ActionService using the level-appropriate action ID.
+        // At Lv.92+, Bloodletter is replaced by HeartbreakShot (ActionId 36975), which owns a
+        // separate charge stack. Querying the base Bloodletter ID (110) at Lv.92+ returns 0,
+        // causing the charge gate in BuffModule to block every frame.
+        BloodletterCharges = GetActionCharges(BRDActions.GetBloodletter((byte)player.Level).ActionId);
 
         // Update debug state
         UpdateDebugState();
