@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -70,6 +71,9 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
     // Training service for explaining rotation decisions (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable MCH gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _heat;
     private int _battery;
@@ -121,6 +125,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -147,11 +152,12 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _heat = SafeGameAccess.GetMchHeat(ErrorMetrics);
-        _battery = SafeGameAccess.GetMchBattery(ErrorMetrics);
-        _overheatRemaining = SafeGameAccess.GetMchOverheatTimer(ErrorMetrics);
-        _queenRemaining = SafeGameAccess.GetMchQueenTimer(ErrorMetrics);
-        _lastQueenBattery = SafeGameAccess.GetMchLastQueenBattery(ErrorMetrics);
+        var gauge = _jobGauges.Get<MCHGauge>();
+        _heat = gauge.Heat;
+        _battery = gauge.Battery;
+        _overheatRemaining = gauge.OverheatTimeRemaining / 1000f;
+        _queenRemaining = gauge.SummonTimeRemaining / 1000f;
+        _lastQueenBattery = gauge.LastSummonBatteryPower;
     }
 
     /// <inheritdoc />

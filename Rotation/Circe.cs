@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -70,6 +71,9 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     // Training service for decision explanations (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable RDM gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _blackMana;
     private int _whiteMana;
@@ -130,6 +134,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -157,9 +162,10 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _blackMana = SafeGameAccess.GetRdmBlackMana(ErrorMetrics);
-        _whiteMana = SafeGameAccess.GetRdmWhiteMana(ErrorMetrics);
-        _manaStacks = SafeGameAccess.GetRdmManaStacks(ErrorMetrics);
+        var gauge = _jobGauges.Get<RDMGauge>();
+        _blackMana = gauge.BlackMana;
+        _whiteMana = gauge.WhiteMana;
+        _manaStacks = gauge.ManaStacks;
 
         UpdateMeleeComboStep();
         UpdateMoulinetStep();

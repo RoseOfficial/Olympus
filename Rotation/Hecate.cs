@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -70,6 +71,9 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
     // Party coordination service (optional)
     private readonly IPartyCoordinationService? _partyCoordinationService;
 
+    // Dalamud job gauge service for reliable BLM gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _elementStacks;
     private float _elementTimer;
@@ -122,6 +126,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _trainingService = trainingService;
         _partyCoordinationService = partyCoordinationService;
@@ -148,12 +153,16 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _elementStacks = SafeGameAccess.GetBlmElementStacks(ErrorMetrics);
-        _elementTimer = SafeGameAccess.GetBlmElementTimer(ErrorMetrics);
-        _umbralHearts = SafeGameAccess.GetBlmUmbralHearts(ErrorMetrics);
-        _polyglotStacks = SafeGameAccess.GetBlmPolyglotStacks(ErrorMetrics);
-        _astralSoulStacks = SafeGameAccess.GetBlmAstralSoulStacks(ErrorMetrics);
-        _hasParadox = SafeGameAccess.GetBlmHasParadox(ErrorMetrics);
+        var gauge = _jobGauges.Get<BLMGauge>();
+        // BLMGauge exposes AstralFireStacks (byte, 0-3) and UmbralIceStacks (byte, 0-3)
+        // separately. Preserve the signed convention used downstream: positive = AF stacks,
+        // negative = UI stacks, 0 = no element active.
+        _elementStacks = gauge.AstralFireStacks > 0 ? (int)gauge.AstralFireStacks : -(int)gauge.UmbralIceStacks;
+        _elementTimer = gauge.EnochianTimer / 1000f;
+        _umbralHearts = gauge.UmbralHearts;
+        _polyglotStacks = gauge.PolyglotStacks;
+        _astralSoulStacks = gauge.AstralSoulStacks;
+        _hasParadox = gauge.IsParadoxActive;
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -72,6 +73,9 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
     // Training service for decision explanations (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable NIN gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _ninki;
     private int _kazematoi;
@@ -122,6 +126,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -150,8 +155,9 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _ninki = SafeGameAccess.GetNinNinki(ErrorMetrics);
-        _kazematoi = SafeGameAccess.GetNinKazematoi(ErrorMetrics);
+        var gauge = _jobGauges.Get<NINGauge>();
+        _ninki = gauge.Ninki;
+        _kazematoi = gauge.Kazematoi;
     }
 
     /// <summary>

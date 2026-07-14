@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -70,6 +71,9 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
     // Training service for explaining rotation decisions (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable DNC gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _esprit;
     private int _feathers;
@@ -122,6 +126,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -148,12 +153,15 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _esprit = SafeGameAccess.GetDncEsprit(ErrorMetrics);
-        _feathers = SafeGameAccess.GetDncFeathers(ErrorMetrics);
-        _isDancing = SafeGameAccess.IsDncDancing(ErrorMetrics);
-        _stepIndex = SafeGameAccess.GetDncStepIndex(ErrorMetrics);
-        _currentStep = SafeGameAccess.GetDncCurrentStep(ErrorMetrics);
-        _danceSteps = SafeGameAccess.GetDncDanceSteps(ErrorMetrics);
+        var gauge = _jobGauges.Get<DNCGauge>();
+        _esprit = gauge.Esprit;
+        _feathers = gauge.Feathers;
+        _isDancing = gauge.IsDancing;
+        _stepIndex = gauge.CompletedSteps;
+        var steps = gauge.Steps;
+        for (var i = 0; i < _danceSteps.Length; i++)
+            _danceSteps[i] = i < steps.Length ? (byte)steps[i] : (byte)0;
+        _currentStep = _stepIndex < _danceSteps.Length ? _danceSteps[_stepIndex] : (byte)0;
     }
 
     /// <inheritdoc />

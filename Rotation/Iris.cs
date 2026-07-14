@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -70,6 +71,9 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
     // Training service for decision explanations (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable PCT gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _paletteGauge;
     private int _whitePaint;
@@ -128,6 +132,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -154,16 +159,25 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _paletteGauge = SafeGameAccess.GetPctPaletteGauge(ErrorMetrics);
-        _whitePaint = SafeGameAccess.GetPctWhitePaint(ErrorMetrics);
-        _hasBlackPaint = SafeGameAccess.GetPctHasBlackPaint(ErrorMetrics);
-        _creatureMotif = SafeGameAccess.GetPctCreatureMotif(ErrorMetrics);
-        _hasWeaponCanvas = SafeGameAccess.GetPctHasWeaponCanvas(ErrorMetrics);
-        _hasLandscapeCanvas = SafeGameAccess.GetPctHasLandscapeCanvas(ErrorMetrics);
-        _mogReady = SafeGameAccess.GetPctMogReady(ErrorMetrics);
-        _madeenReady = SafeGameAccess.GetPctMadeenReady(ErrorMetrics);
+        var gauge = _jobGauges.Get<PCTGauge>();
+        _paletteGauge = gauge.PalleteGauge;
+        _whitePaint = gauge.Paint;
+        // CreatureFlags bit 0x10: used by SafeGameAccess as the black-paint indicator;
+        // Dalamud exposes no dedicated HasBlackPaint property, so derive from the same bit.
+        _hasBlackPaint = ((byte)gauge.CreatureFlags & 0x10) != 0;
+        // Creature motif type (0=None, 1=Pom, 2=Wing, 3=Claw, 4=Maw) from canvas flag bits.
+        var canvasFlags = (byte)gauge.CanvasFlags;
+        if ((canvasFlags & 0x01) != 0) _creatureMotif = 1;      // Pom
+        else if ((canvasFlags & 0x02) != 0) _creatureMotif = 2; // Wing
+        else if ((canvasFlags & 0x04) != 0) _creatureMotif = 3; // Claw
+        else if ((canvasFlags & 0x08) != 0) _creatureMotif = 4; // Maw
+        else _creatureMotif = 0;
+        _hasWeaponCanvas = gauge.WeaponMotifDrawn;
+        _hasLandscapeCanvas = gauge.LandscapeMotifDrawn;
+        _mogReady = gauge.MooglePortraitReady;
+        _madeenReady = gauge.MadeenPortraitReady;
 
-        // Read combo state from game
+        // Read combo state from game (not exposed by PCTGauge)
         _comboAction = SafeGameAccess.GetComboAction(ErrorMetrics);
         _comboTimer = SafeGameAccess.GetComboTimer(ErrorMetrics);
     }

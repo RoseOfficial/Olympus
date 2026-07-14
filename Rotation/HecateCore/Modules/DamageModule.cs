@@ -347,10 +347,10 @@ public sealed class DamageModule : IHecateModule
         if (context.PolyglotStacks >= maxPolyglot)
         {
             var (action, ability) = SelectPolyglotAction(context, level, useAoe);
-            if (action == null) return;
+            if (action == null || ability == null) return;
             if (level < action.MinLevel) return;
 
-            scheduler.PushGcd(ability!, target.GameObjectId, priority: 3,
+            scheduler.PushGcd(ability, target.GameObjectId, priority: 3,
                 onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = action.Name;
@@ -382,8 +382,8 @@ public sealed class DamageModule : IHecateModule
             if (context.PolyglotStacks <= cfg.PolyglotMovementReserve) return;
 
             var (action, ability) = SelectPolyglotAction(context, level, useAoe);
-            if (action == null || level < action.MinLevel) return;
-            scheduler.PushGcd(ability!, target.GameObjectId, priority: 3,
+            if (action == null || ability == null || level < action.MinLevel) return;
+            scheduler.PushGcd(ability, target.GameObjectId, priority: 3,
                 onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = action.Name;
@@ -726,8 +726,8 @@ public sealed class DamageModule : IHecateModule
         }
         else if (!context.HasThunderDoT || context.ThunderDoTRemaining < context.Configuration.BlackMage.ThunderRefreshThreshold)
         {
-            var thunderTargetHpPercent = target != null && target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
-            if (target != null && thunderTargetHpPercent < context.Configuration.BlackMage.ThunderMinTargetHp)
+            var thunderTargetHpPercent = target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
+            if (thunderTargetHpPercent < context.Configuration.BlackMage.ThunderMinTargetHp)
             {
                 // Target too low HP — skip Thunder
             }

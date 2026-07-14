@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -72,6 +73,9 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
     // Training service for decision explanations (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable SAM gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _kenki;
     private SAMActions.SenType _sen;
@@ -126,6 +130,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -160,9 +165,10 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _kenki = SafeGameAccess.GetSamKenki(ErrorMetrics);
-        _sen = (SAMActions.SenType)SafeGameAccess.GetSamSen(ErrorMetrics);
-        _meditation = SafeGameAccess.GetSamMeditation(ErrorMetrics);
+        var gauge = _jobGauges.Get<SAMGauge>();
+        _kenki = gauge.Kenki;
+        _sen = (SAMActions.SenType)gauge.Sen;
+        _meditation = gauge.MeditationStacks;
     }
 
     /// <summary>
