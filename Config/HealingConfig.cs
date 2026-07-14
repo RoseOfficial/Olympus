@@ -728,19 +728,6 @@ public sealed class HealingConfig
     public bool EnableCoHealerAwareness { get; set; } = true;
 
     /// <summary>
-    /// Threshold multiplier for healing when co-healer is present.
-    /// Reduces healing aggressiveness to let co-healer share the load.
-    /// e.g., 0.85 means reduce healing thresholds by 15% when co-healer is active.
-    /// Valid range: 0.5 to 1.0.
-    /// </summary>
-    private float _coHealerThresholdMultiplier = 0.85f;
-    public float CoHealerThresholdMultiplier
-    {
-        get => _coHealerThresholdMultiplier;
-        set => _coHealerThresholdMultiplier = Math.Clamp(value, 0.5f, 1f);
-    }
-
-    /// <summary>
     /// Time window (seconds) to consider co-healer as "active".
     /// Co-healer is considered active if they healed within this window.
     /// Valid range: 3 to 30.

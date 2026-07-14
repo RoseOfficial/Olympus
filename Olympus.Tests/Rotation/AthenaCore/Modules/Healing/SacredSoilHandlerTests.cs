@@ -71,10 +71,11 @@ public class SacredSoilHandlerTests
         // Act
         _handler.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert: SacredSoil pushed to oGCD queue at priority 30
+        // Assert: SacredSoil pushed to oGCD queue at priority 30 via ground-targeted path
         var ogcd = scheduler.InspectOgcdQueue();
         var candidate = Assert.Single(ogcd, c => c.Behavior == AthenaAbilities.SacredSoil);
         Assert.Equal(30, candidate.Priority);
+        Assert.True(candidate.GroundPosition.HasValue, "Sacred Soil must be pushed via PushGroundTargetedOgcd (GroundPosition must be set)");
     }
 
     [Fact]
@@ -338,10 +339,11 @@ public class SacredSoilHandlerTests
         // Act
         _handler.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert: coordination window expired — SacredSoil pushed normally
+        // Assert: coordination window expired — SacredSoil pushed via ground-targeted path
         var ogcd = scheduler.InspectOgcdQueue();
         var candidate = Assert.Single(ogcd, c => c.Behavior == AthenaAbilities.SacredSoil);
         Assert.Equal(30, candidate.Priority);
+        Assert.True(candidate.GroundPosition.HasValue, "Sacred Soil must be dispatched via ground-targeted path");
     }
 
     // -----------------------------------------------------------------------

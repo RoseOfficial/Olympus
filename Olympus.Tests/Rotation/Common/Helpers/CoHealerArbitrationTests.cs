@@ -259,4 +259,52 @@ public class CoHealerArbitrationTests
 
         coord.Verify(x => x.GetFreshestRemoteHealerGauge(5f), Times.Once);
     }
+
+    // -----------------------------------------------------------------------
+    // Normalization: when local and remote resources live on different scales,
+    // the comparison uses proportional fullness (fraction of cap), not raw count.
+    // WHM scenario: Tetragrammaton charges (cap 2) vs remote lily count (cap 3).
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Local = 1 of cap 2 (50% full), remote = 2 of cap 3 (67% full).
+    /// Remote is proportionally richer → defers.
+    /// </summary>
+    [Fact]
+    public void ShouldDefer_DifferentScales_RemoteProportionallyRicher_ReturnsTrue()
+    {
+        var coord = BuildCoord(MakeGauge(primaryResource: 2));
+
+        var result = CoHealerArbitration.ShouldDefer(
+            toggleEnabled: true,
+            coordination: coord.Object,
+            myResourceCount: 1,
+            overcapBiasThreshold: 2,   // Tetragrammaton cap
+            targetHpPercent: 0.60f,
+            hardFloor: 0.25f,
+            remoteResourceCap: 3);     // lily / seal / aetherflow / addersgall cap
+
+        Assert.True(result);
+    }
+
+    /// <summary>
+    /// Local = 1 of cap 2 (50% full), remote = 1 of cap 3 (33% full).
+    /// Local is proportionally richer → does not defer even though counts are equal.
+    /// </summary>
+    [Fact]
+    public void ShouldDefer_DifferentScales_LocalProportionallyRicher_ReturnsFalse()
+    {
+        var coord = BuildCoord(MakeGauge(primaryResource: 1));
+
+        var result = CoHealerArbitration.ShouldDefer(
+            toggleEnabled: true,
+            coordination: coord.Object,
+            myResourceCount: 1,
+            overcapBiasThreshold: 2,   // Tetragrammaton cap
+            targetHpPercent: 0.60f,
+            hardFloor: 0.25f,
+            remoteResourceCap: 3);     // lily cap
+
+        Assert.False(result);
+    }
 }

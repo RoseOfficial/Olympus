@@ -26,7 +26,8 @@ public static class CoHealerArbitration
     ///   2. A fresh co-healer gauge snapshot exists (age ≤ staleAgeSeconds).
     ///   3. The target's HP is above the hard floor (not a true emergency).
     ///   4. The local resource count is below the overcap bias threshold.
-    ///   5. The co-healer's primary resource is strictly greater than the local count.
+    ///   5. The co-healer's primary resource fraction (PrimaryResource / remoteResourceCap)
+    ///      is strictly greater than the local resource fraction (myResourceCount / overcapBiasThreshold).
     /// </summary>
     /// <param name="toggleEnabled">
     ///   Whether healer resource arbitration is enabled
@@ -57,6 +58,12 @@ public static class CoHealerArbitration
     ///   Maximum age for the remote gauge snapshot to be considered valid.
     ///   Defaults to 3 seconds to match the design-doc recommendation.
     /// </param>
+    /// <param name="remoteResourceCap">
+    ///   The maximum value of the remote healer's primary resource (denominator for
+    ///   the remote fraction). Defaults to 3 because all healer gauge primaries use
+    ///   a 0-3 scale (lily count, aetherflow stacks, addersgall stacks, seal count).
+    ///   Pass a different value only when the remote broadcast uses a different scale.
+    /// </param>
     public static bool ShouldDefer(
         bool toggleEnabled,
         IPartyCoordinationService? coordination,
@@ -64,7 +71,8 @@ public static class CoHealerArbitration
         int overcapBiasThreshold,
         float targetHpPercent,
         float hardFloor,
-        float staleAgeSeconds = 3f)
+        float staleAgeSeconds = 3f,
+        int remoteResourceCap = 3)
     {
         if (!toggleEnabled)
             return false;
@@ -82,6 +90,14 @@ public static class CoHealerArbitration
         if (myResourceCount >= overcapBiasThreshold)
             return false;
 
-        return remote.PrimaryResource > myResourceCount;
+        // Normalize both sides to a 0..1 fraction of their respective caps so
+        // the comparison is like-for-like. Without normalization, charge-based
+        // abilities (Tetragrammaton 0-2, Essential Dignity 0-2) would be compared
+        // directly against gauge primaries (lily count 0-3, seal count 0-3),
+        // making "2 lilies vs 1 Tetra charge" look like "richer remote" even when
+        // proportional fullness would not confirm that.
+        var localFraction = overcapBiasThreshold > 0 ? (float)myResourceCount / overcapBiasThreshold : 0f;
+        var remoteFraction = remoteResourceCap > 0 ? (float)remote.PrimaryResource / remoteResourceCap : 0f;
+        return remoteFraction > localFraction;
     }
 }

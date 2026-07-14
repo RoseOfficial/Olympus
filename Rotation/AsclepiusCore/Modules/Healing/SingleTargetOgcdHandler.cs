@@ -61,7 +61,7 @@ public sealed class SingleTargetOgcdHandler : IHealingHandler
         var capturedStacks = context.AddersgallStacks;
         var action = SGEActions.Druochole;
 
-        scheduler.PushOgcd(AsclepiusAbilities.Druochole, target.GameObjectId, priority: Priority,
+        scheduler.PushOgcd(AsclepiusAbilities.Druochole, target.GameObjectId, priority: Priority + 1,
             onDispatched: _ =>
             {
                 var healAmount = action.HealPotency * 10;
@@ -137,8 +137,9 @@ public sealed class SingleTargetOgcdHandler : IHealingHandler
         var capturedStacks = context.AddersgallStacks;
         var action = SGEActions.Taurochole;
 
-        // Taurochole has slightly higher priority than Druochole within this handler (matches legacy first-true-wins ordering)
-        scheduler.PushOgcd(AsclepiusAbilities.Taurochole, tank.GameObjectId, priority: Priority + 1,
+        // Taurochole (700 potency + 10% mit, cooldown-limited) wins contested frames over Druochole.
+        // Lower priority number dispatches first in the scheduler.
+        scheduler.PushOgcd(AsclepiusAbilities.Taurochole, tank.GameObjectId, priority: Priority,
             onDispatched: _ =>
             {
                 var healAmount = action.HealPotency * 10;

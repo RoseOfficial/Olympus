@@ -80,7 +80,7 @@ public sealed class SacredSoilHandler : IHealingHandler
         var capturedBurstImminent = burstImminent;
         var capturedPosition = player.Position;
 
-        scheduler.PushOgcd(AthenaAbilities.SacredSoil, player.GameObjectId, priority: Priority,
+        scheduler.PushGroundTargetedOgcd(AthenaAbilities.SacredSoil, capturedPosition, priority: Priority,
             onDispatched: _ =>
             {
                 context.AetherflowService.ConsumeStack();
