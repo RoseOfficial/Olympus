@@ -126,7 +126,8 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             partyCoordinationService,
             errorMetrics,
             tinctureDispatcher,
-            pullIntentService)
+            pullIntentService,
+            burstWindowService: burstWindowService)
     {
         // Initialize training service
         _trainingService = trainingService;

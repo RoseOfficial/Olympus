@@ -104,7 +104,8 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             partyCoordinationService,
             errorMetrics,
             tinctureDispatcher,
-            pullIntentService)
+            pullIntentService,
+            burstWindowService: burstWindowService)
     {
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;

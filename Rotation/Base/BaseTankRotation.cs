@@ -95,7 +95,8 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
         IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null,
         Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
-        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null,
+        IBurstWindowService? burstWindowService = null)
         : base(
             log,
             actionTracker,
@@ -111,6 +112,7 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
             playerStatsService,
             debuffDetectionService,
             errorMetrics,
+            burstWindowService: burstWindowService,
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
@@ -174,6 +176,9 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
 
         // Read combo state
         UpdateComboState();
+
+        // Update burst window tracking (pass current target for raid debuff detection)
+        BurstWindowService?.Update(player, TargetingService.GetUserEnemyTarget());
 
         // Update damage trend service with player entity ID (tanks track their own damage intake)
         if (inCombat)

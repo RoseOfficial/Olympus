@@ -89,7 +89,8 @@ public sealed class MitigationModule : IHephaestusModule
         var reason = $"TB in {secondsUntil:F1}s";
 
         // Priority 1: Heart of Corundum/Stone (short CD, push at timeline priority 1)
-        if (level >= GNBActions.HeartOfStone.MinLevel && !context.HasHeartOfCorundum)
+        // Skip when HP is at the Superbolide threshold — invuln takes the slot instead
+        if (level >= GNBActions.HeartOfStone.MinLevel && !context.HasHeartOfCorundum && hpPercent > 0.15f)
         {
             scheduler.PushOgcd(
                 GnbAbilities.HeartOfCorundum,
@@ -289,7 +290,7 @@ public sealed class MitigationModule : IHephaestusModule
         scheduler.PushOgcd(
             GnbAbilities.Superbolide,
             player.GameObjectId,
-            priority: 2,
+            priority: 1,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = GNBActions.Superbolide.Name;
@@ -693,6 +694,9 @@ public sealed class MitigationModule : IHephaestusModule
 
         var (avgHp, _, injuredCount) = context.PartyHealthMetrics;
         if (injuredCount < 3 && avgHp > 0.85f)
+            return;
+
+        if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return;
 
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);

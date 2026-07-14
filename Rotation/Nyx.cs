@@ -77,7 +77,8 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
                configuration, objectTable, partyList, targetingService, hpPredictionService,
                actionService, playerStatsService, debuffDetectionService, enmityService,
                tankCooldownService, timelineService, partyCoordinationService, errorMetrics,
-               tinctureDispatcher, pullIntentService)
+               tinctureDispatcher, pullIntentService,
+               burstWindowService: burstWindowService)
     {
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;

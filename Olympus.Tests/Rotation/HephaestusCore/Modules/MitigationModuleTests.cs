@@ -48,9 +48,9 @@ public class MitigationModuleCollectCandidatesTests
         Assert.Equal("Not in combat", context.Debug.MitigationState);
     }
 
-    // Test 3: Superbolide fires at critical HP (priority 2)
+    // Test 3: Superbolide fires at critical HP at priority 1 (matches other tank invulns)
     [Fact]
-    public void CollectCandidates_CriticallyLowHp_PushesSuperbolideAtPriority2()
+    public void CollectCandidates_CriticallyLowHp_PushesSuperbolideAtPriority1()
     {
         var scheduler = SchedulerFactory.CreateForTest();
         // HP at 10% of 50000 = 5000
@@ -59,7 +59,7 @@ public class MitigationModuleCollectCandidatesTests
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         var queue = scheduler.InspectOgcdQueue();
-        Assert.Contains(queue, c => c.Behavior == GnbAbilities.Superbolide && c.Priority == 2);
+        Assert.Contains(queue, c => c.Behavior == GnbAbilities.Superbolide && c.Priority == 1);
     }
 
     // Test 4: Superbolide not pushed when HP is healthy
@@ -172,6 +172,61 @@ public class MitigationModuleCollectCandidatesTests
         Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == GnbAbilities.Reprisal);
     }
 
+    // Test 11: Timeline-aware HeartOfCorundum NOT pushed when HP is at the Superbolide threshold
+    [Fact]
+    public void CollectCandidates_TimelineAwarePath_CriticalHp_DoesNotPushHeartOfCorundum()
+    {
+        // Arrange: timeline predicts a tank buster in 2s (inside the 1.5–4s window), high confidence
+        var prediction = new Olympus.Timeline.Models.MechanicPrediction(
+            secondsUntil: 2.0f,
+            type: Olympus.Timeline.Models.TimelineEntryType.TankBuster,
+            name: "Test TB",
+            confidence: 0.9f);
+
+        var timelineMock = new Mock<Olympus.Timeline.ITimelineService>();
+        timelineMock.Setup(x => x.NextTankBuster).Returns(prediction);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        // HP at 10% — at or below the 15% Superbolide threshold
+        var context = CreateContext(
+            inCombat: true,
+            currentHp: 5000,
+            maxHp: 50000,
+            timelineService: timelineMock.Object);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        // HeartOfCorundum must not appear; Superbolide should be the only priority-1 candidate
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(queue, c => c.Behavior == GnbAbilities.HeartOfCorundum && c.Priority == 1);
+        Assert.Contains(queue, c => c.Behavior == GnbAbilities.Superbolide && c.Priority == 1);
+    }
+
+    // Test 12: Reprisal not pushed when action is on cooldown (avoids unnecessary AoE scan)
+    [Fact]
+    public void CollectCandidates_ReprisalOnCooldown_DoesNotPushReprisal()
+    {
+        // Arrange: action service reports Reprisal is NOT ready
+        var actionServiceMock = MockBuilders.CreateMockActionService(
+            isActionReady: actionId => actionId != Olympus.Data.RoleActions.Reprisal.ActionId);
+
+        var enemy = new Mock<IBattleChara>();
+        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
+        enemy.Setup(x => x.EntityId).Returns(99999u);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = CreateContext(
+            inCombat: true,
+            currentTarget: enemy.Object,
+            avgPartyHp: 0.70f,
+            injuredPartyCount: 4,
+            actionServiceMock: actionServiceMock);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == GnbAbilities.Reprisal);
+    }
+
     #region Helpers
 
     private static IHephaestusContext CreateContext(
@@ -189,7 +244,9 @@ public class MitigationModuleCollectCandidatesTests
         float avgPartyHp = 1.0f,
         int injuredPartyCount = 0,
         IBattleChara? currentTarget = null,
-        Mock<ITankCooldownService>? tankCooldownService = null)
+        Mock<ITankCooldownService>? tankCooldownService = null,
+        Olympus.Timeline.ITimelineService? timelineService = null,
+        Mock<Olympus.Services.Action.IActionService>? actionServiceMock = null)
     {
         config ??= HephaestusTestContext.CreateDefaultGunbreakerConfiguration();
 
@@ -223,13 +280,13 @@ public class MitigationModuleCollectCandidatesTests
         mock.Setup(x => x.CanExecuteGcd).Returns(true);
         mock.Setup(x => x.CanExecuteOgcd).Returns(true);
         mock.Setup(x => x.Configuration).Returns(config);
-        mock.Setup(x => x.ActionService).Returns(MockBuilders.CreateMockActionService().Object);
+        mock.Setup(x => x.ActionService).Returns((actionServiceMock ?? MockBuilders.CreateMockActionService()).Object);
         mock.Setup(x => x.DamageIntakeService).Returns(damageIntakeService.Object);
         mock.Setup(x => x.TankCooldownService).Returns(tankCooldownService.Object);
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
-        mock.Setup(x => x.TimelineService).Returns((Olympus.Timeline.ITimelineService?)null);
+        mock.Setup(x => x.TimelineService).Returns(timelineService);
         mock.Setup(x => x.HasSuperbolide).Returns(hasSuperbolide);
         mock.Setup(x => x.HasNebula).Returns(hasNebula);
         mock.Setup(x => x.HasHeartOfCorundum).Returns(hasHeartOfCorundum);
@@ -242,7 +299,7 @@ public class MitigationModuleCollectCandidatesTests
         mock.Setup(x => x.PartyHelper).Returns(partyHelper);
         mock.Setup(x => x.Debug).Returns(debugState);
         mock.Setup(x => x.PartyHealthMetrics).Returns((avgPartyHp, avgPartyHp, injuredPartyCount));
-        mock.Setup(x => x.ObjectTable).Returns((Dalamud.Plugin.Services.IObjectTable?)null);
+        mock.Setup(x => x.ObjectTable).Returns(MockBuilders.CreateMockObjectTable().Object);
 
         return mock.Object;
     }
