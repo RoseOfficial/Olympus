@@ -13,4 +13,13 @@ public abstract class AOEShape
     /// <paramref name="origin"/> with the caster facing <paramref name="rotationRadians"/>.
     /// </summary>
     public abstract bool Contains(Vector2 origin, float rotationRadians, Vector2 point);
+
+    /// <summary>
+    /// Returns true if <paramref name="point"/> is inside the shape expanded by
+    /// <paramref name="marginYalms"/>. Used for arrival-tolerance hysteresis: the player is
+    /// considered "still in danger" until they clear the expanded boundary, preventing
+    /// movement oscillation at the geometric edge. Default falls back to <see cref="Contains"/>.
+    /// </summary>
+    public virtual bool ContainsExpanded(Vector2 origin, float rotationRadians, Vector2 point, float marginYalms)
+        => Contains(origin, rotationRadians, point);
 }

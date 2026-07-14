@@ -21,13 +21,27 @@ public sealed class AOEShapeCross : AOEShape
     public override bool Contains(Vector2 origin, float rotationRadians, Vector2 point)
     {
         var offset = point - origin;
-        var forward = new Vector2(MathF.Cos(rotationRadians), MathF.Sin(rotationRadians));
+        // FFXIV convention: rotation=0 is South (+Z world = +Y in the XZ 2D plane).
+        var forward = new Vector2(MathF.Sin(rotationRadians), MathF.Cos(rotationRadians));
         var orthogonal = new Vector2(-forward.Y, forward.X);
         var alongForward = Vector2.Dot(offset, forward);
         var alongOrthogonal = Vector2.Dot(offset, orthogonal);
 
         bool inForwardArm = MathF.Abs(alongForward) <= Length && MathF.Abs(alongOrthogonal) <= HalfWidth;
         bool inOrthogonalArm = MathF.Abs(alongOrthogonal) <= Length && MathF.Abs(alongForward) <= HalfWidth;
+        return inForwardArm || inOrthogonalArm;
+    }
+
+    public override bool ContainsExpanded(Vector2 origin, float rotationRadians, Vector2 point, float marginYalms)
+    {
+        var offset = point - origin;
+        var forward = new Vector2(MathF.Sin(rotationRadians), MathF.Cos(rotationRadians));
+        var orthogonal = new Vector2(-forward.Y, forward.X);
+        var alongForward = Vector2.Dot(offset, forward);
+        var alongOrthogonal = Vector2.Dot(offset, orthogonal);
+
+        bool inForwardArm = MathF.Abs(alongForward) <= Length + marginYalms && MathF.Abs(alongOrthogonal) <= HalfWidth + marginYalms;
+        bool inOrthogonalArm = MathF.Abs(alongOrthogonal) <= Length + marginYalms && MathF.Abs(alongForward) <= HalfWidth + marginYalms;
         return inForwardArm || inOrthogonalArm;
     }
 }

@@ -32,6 +32,7 @@ public class InteractDispatchService : IInteractDispatchService
     {
         var cfg = configAccessor();
         if (!cfg.EnableAutoInteract) return;
+        if (IsPlayerDead()) return;
         if (IsPlayerCasting()) return;
         if (IsMenuFocused()) return;
         if (!cfg.InteractInCombat && IsPlayerInCombat()) return;
@@ -84,4 +85,11 @@ public class InteractDispatchService : IInteractDispatchService
 
     /// <summary>Test seam.</summary>
     protected virtual bool IsMenuFocused() => false;
+
+    /// <summary>Test seam.</summary>
+    protected virtual bool IsPlayerDead()
+    {
+        var player = objectTable?.LocalPlayer;
+        return player != null && player.CurrentHp == 0;
+    }
 }

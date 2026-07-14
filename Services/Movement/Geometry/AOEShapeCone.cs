@@ -27,7 +27,26 @@ public sealed class AOEShapeCone : AOEShape
             return true;
 
         var dist = MathF.Sqrt(distSq);
-        var forward = new Vector2(MathF.Cos(rotationRadians), MathF.Sin(rotationRadians));
+        // FFXIV convention: rotation=0 is South (+Z world = +Y in the XZ 2D plane).
+        // forward = (sin r, cos r) matches BossMod's WDir(Sin, Cos) in (X,Z) space.
+        var forward = new Vector2(MathF.Sin(rotationRadians), MathF.Cos(rotationRadians));
+        var dir = offset / dist;
+        var dot = Vector2.Dot(forward, dir);
+        return dot >= MathF.Cos(HalfAngleRadians);
+    }
+
+    public override bool ContainsExpanded(Vector2 origin, float rotationRadians, Vector2 point, float marginYalms)
+    {
+        var offset = point - origin;
+        var distSq = offset.LengthSquared();
+        var r = Radius + marginYalms;
+        if (distSq > r * r)
+            return false;
+        if (distSq == 0f)
+            return true;
+
+        var dist = MathF.Sqrt(distSq);
+        var forward = new Vector2(MathF.Sin(rotationRadians), MathF.Cos(rotationRadians));
         var dir = offset / dist;
         var dot = Vector2.Dot(forward, dir);
         return dot >= MathF.Cos(HalfAngleRadians);

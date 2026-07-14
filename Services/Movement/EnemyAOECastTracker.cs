@@ -245,9 +245,13 @@ public class EnemyAOECastTracker : IEnemyAOECastTracker, IDisposable
     }
 
     // Removes the entry with the given caster ID from the snapshot list.
-    // Uses RemoveAll to avoid a secondary linear search when the list is small.
+    // Iterates backward to avoid index shifting; avoids closure allocation on each call.
     private void RemoveFromSnapshot(ulong casterId)
     {
-        activeSnapshot.RemoveAll(a => a.CasterId == casterId);
+        for (var i = activeSnapshot.Count - 1; i >= 0; i--)
+        {
+            if (activeSnapshot[i].CasterId == casterId)
+                activeSnapshot.RemoveAt(i);
+        }
     }
 }

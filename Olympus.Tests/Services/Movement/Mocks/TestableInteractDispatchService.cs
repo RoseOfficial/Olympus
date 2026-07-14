@@ -13,6 +13,7 @@ public sealed class TestableInteractDispatchService : InteractDispatchService
     public bool PlayerInCombat { get; set; }
     public bool PlayerCasting { get; set; }
     public bool MenuOpen { get; set; }
+    public bool PlayerDead { get; set; }
 
     public TestableInteractDispatchService(IObjectInteractor interactor, IMovementClock clock, MovementConfig cfg)
         : base(objectTable: null!, clientState: null!, interactor: interactor, clock: clock, configAccessor: () => cfg, log: null!) { }
@@ -21,4 +22,5 @@ public sealed class TestableInteractDispatchService : InteractDispatchService
     protected override bool IsPlayerInCombat() => PlayerInCombat;
     protected override bool IsPlayerCasting() => PlayerCasting;
     protected override bool IsMenuFocused() => MenuOpen;
+    protected override bool IsPlayerDead() => PlayerDead;
 }

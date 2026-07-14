@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
+using Olympus.Services.Content;
 using Olympus.Services.Movement.Geometry;
 using Olympus.Services.Movement.Humanization;
 using Olympus.Services.Movement.Probes;
+using Dalamud.Game.ClientState.Objects.Types;
 
 namespace Olympus.Services.Movement;
 
@@ -22,6 +25,8 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     private readonly Func<MovementConfig> configAccessor;
     private readonly IPluginLog? log;
     private readonly IClientState? clientState;
+    private readonly IObjectTable? objectTable;
+    private readonly IHighEndContentService? highEndContent;
 
     private readonly Dictionary<ulong, DateTime> firstSeenPerCast = new();
     private readonly Dictionary<ulong, int> reactionDelayPerCast = new();
@@ -31,7 +36,9 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     public TrashAvoidanceService(IRMIWalkHookService hook, IEnemyAOECastTracker tracker,
         IBossCombatDetector boss, IBGCollisionProbe collision, IMovementClock clock,
         Func<MovementConfig> configAccessor, IPluginLog log,
-        IClientState? clientState = null)
+        IClientState? clientState = null,
+        IHighEndContentService? highEndContent = null,
+        IObjectTable? objectTable = null)
     {
         this.hook = hook;
         this.tracker = tracker;
@@ -41,6 +48,8 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         this.configAccessor = configAccessor;
         this.log = log;
         this.clientState = clientState;
+        this.objectTable = objectTable;
+        this.highEndContent = highEndContent;
 
         if (clientState != null)
             clientState.TerritoryChanged += OnTerritoryChanged;
@@ -82,15 +91,30 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         var playerPos2D = GetPlayerPos2D();
         var playerPos3D = GetPlayerPos3D();
 
-        // Threat assessment: filter to threats containing the player
+        // All non-expired, in-range threats. Passed to the scorer so candidates that would
+        // move the player into a second active AOE are penalised even if the player is not
+        // currently inside that second AOE (finding #23).
         var allThreats = tracker.ActiveAOEs;
-        var activeThreats = new List<TrackedAOE>();
+        var allValidThreats = new List<TrackedAOE>();
         foreach (var t in allThreats)
         {
             if (t.ResolveAt <= now) continue;
-            var distToCaster = Vector2.Distance(t.Origin, playerPos2D);
-            if (distToCaster > cfg.MaxThreatRangeYalms) continue;
-            if (!t.Shape.Contains(t.Origin, t.RotationRadians, playerPos2D)) continue;
+            if (Vector2.Distance(t.Origin, playerPos2D) > cfg.MaxThreatRangeYalms) continue;
+            allValidThreats.Add(t);
+        }
+
+        // Threats that currently endanger the player: those where the player is inside the
+        // shape OR within the per-cast arrival tolerance of the boundary. Using the expanded
+        // containment check provides hysteresis -- the movement vector keeps firing until the
+        // player is clearly outside the tolerance margin, preventing oscillation at the
+        // geometric edge when position fluctuates by sub-yalm amounts (finding #41).
+        // On the first frame a threat appears its tolerance is not yet in the dictionary and
+        // defaults to 0, making ContainsExpanded equivalent to Contains for the initial trigger.
+        var activeThreats = new List<TrackedAOE>();
+        foreach (var t in allValidThreats)
+        {
+            var tol = arrivalTolerancePerCast.GetValueOrDefault(t.CasterId, 0f);
+            if (!t.Shape.ContainsExpanded(t.Origin, t.RotationRadians, playerPos2D, tol)) continue;
             activeThreats.Add(t);
         }
 
@@ -146,7 +170,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
             if (raycastsRemaining <= 0) break;
             raycastsRemaining--;
             var c3 = new Vector3(c.X, playerPos3D.Y, c.Y);
-            var score = SafeEdgeSolver.Score(c, activeThreats, _ => collision.IsPathBlocked(playerPos3D, c3));
+            var score = SafeEdgeSolver.Score(c, allValidThreats, _ => collision.IsPathBlocked(playerPos3D, c3));
             if (score > bestScore && score > 0)
             {
                 bestScore = score;
@@ -156,11 +180,15 @@ public class TrashAvoidanceService : ITrashAvoidanceService
 
         if (bestCandidate == null) { ClearVector(); return; }
 
-        // Already-safe check: if player is no longer inside any threat, clear and record completion
+        // Already-safe check: consistent with the activeThreats filter above. All entries in
+        // activeThreats were selected by ContainsExpanded, so this check re-confirms each one
+        // and will always be true. It exists as a defensive guard for future maintainers who
+        // might decouple the selection criterion from the stop criterion.
         var anyContains = false;
         foreach (var t in activeThreats)
         {
-            if (t.Shape.Contains(t.Origin, t.RotationRadians, playerPos2D))
+            var tol = arrivalTolerancePerCast.GetValueOrDefault(t.CasterId, 0f);
+            if (t.Shape.ContainsExpanded(t.Origin, t.RotationRadians, playerPos2D, tol))
             {
                 anyContains = true;
                 break;
@@ -215,15 +243,41 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         }
     }
 
-    /// <summary>Test seam.</summary>
-    protected virtual Vector2 GetPlayerPos2D() => Vector2.Zero;
+    /// <summary>
+    /// Returns the player's 2D position in the XZ plane (X, Z) used throughout the movement
+    /// subsystem. Reads from <see cref="clientState"/> in production; overridden by test doubles.
+    /// </summary>
+    protected virtual Vector2 GetPlayerPos2D()
+    {
+        var p = objectTable?.LocalPlayer;
+        return p != null ? new Vector2(p.Position.X, p.Position.Z) : Vector2.Zero;
+    }
 
-    /// <summary>Test seam.</summary>
-    protected virtual Vector3 GetPlayerPos3D() => Vector3.Zero;
+    /// <summary>
+    /// Returns the player's 3D world position used for raycast origin. Reads from
+    /// <see cref="objectTable"/> in production; overridden by test doubles.
+    /// </summary>
+    protected virtual Vector3 GetPlayerPos3D()
+    {
+        return objectTable?.LocalPlayer?.Position ?? Vector3.Zero;
+    }
 
-    /// <summary>Test seam -- high-end content check.</summary>
-    protected virtual bool IsHighEndZone() => false;
+    /// <summary>
+    /// Returns true when avoidance should be suppressed because the zone is high-end content
+    /// (savage, extreme, ultimate, criterion). Reads from <see cref="highEndContent"/> when
+    /// wired; falls back to false so the feature remains opt-in until Plugin.cs passes the
+    /// service. Overridden by test doubles.
+    /// </summary>
+    protected virtual bool IsHighEndZone() => highEndContent?.IsHighEndZone ?? false;
 
-    /// <summary>Test seam -- combined check for dead, mounted, in cutscene, casting LB.</summary>
-    protected virtual bool IsPlayerUnavailable() => false;
+    /// <summary>
+    /// Returns true when the player cannot or should not move (dead). Overridden by test doubles.
+    /// </summary>
+    protected virtual bool IsPlayerUnavailable()
+    {
+        var p = objectTable?.LocalPlayer;
+        if (p == null) return true;
+        // Dead: CurrentHp == 0. Also covers the post-raise ghost state.
+        return p.CurrentHp == 0;
+    }
 }

@@ -116,4 +116,14 @@ public class InteractDispatchServiceTests
         svc.Update();
         interactor.Verify(i => i.Interact(100), Times.Exactly(2));
     }
+
+    [Fact]
+    public void Update_PlayerDead_DoesNotInteract()
+    {
+        var (svc, interactor, _, _) = Build();
+        svc.Nearby.Add((100, ObjectKind.Treasure, 2f, true));
+        svc.PlayerDead = true;
+        svc.Update();
+        interactor.Verify(i => i.Interact(It.IsAny<ulong>()), Times.Never);
+    }
 }

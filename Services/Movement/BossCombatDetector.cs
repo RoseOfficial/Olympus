@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
+using Olympus.Config;
 using Olympus.Services.Movement.Probes;
 
 namespace Olympus.Services.Movement;
@@ -11,11 +12,11 @@ public class BossCombatDetector : IBossCombatDetector
 {
     private readonly IObjectTable? objectTable;
     private readonly IBNpcRankProbe rankProbe;
-    private readonly Func<HashSet<byte>> configAccessor;
+    private readonly Func<MovementConfig> configAccessor;
 
     public bool IsBossEngaged { get; private set; }
 
-    public BossCombatDetector(IObjectTable objectTable, IClientState clientState, IBNpcRankProbe rankProbe, Func<HashSet<byte>> configAccessor)
+    public BossCombatDetector(IObjectTable objectTable, IClientState clientState, IBNpcRankProbe rankProbe, Func<MovementConfig> configAccessor)
     {
         this.objectTable = objectTable;
         this.rankProbe = rankProbe;
@@ -25,10 +26,18 @@ public class BossCombatDetector : IBossCombatDetector
     public void Update()
     {
         IsBossEngaged = false;
-        var bossRanks = configAccessor();
+        var cfg = configAccessor();
+        var bossRanks = cfg.BossRanks;
+        var overrides = cfg.AvoidanceBossOverrides;
         foreach (var (dataId, inCombat, playerIsTarget) in EnumerateCombatTargets())
         {
             if (!inCombat || !playerIsTarget) continue;
+            // DataId-based explicit override: treat as boss regardless of rank (suppresses avoidance).
+            if (overrides.Contains(dataId))
+            {
+                IsBossEngaged = true;
+                return;
+            }
             var rank = rankProbe.GetRank(dataId);
             if (IsBossClass(rank, bossRanks))
             {

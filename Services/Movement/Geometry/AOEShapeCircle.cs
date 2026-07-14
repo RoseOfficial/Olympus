@@ -18,4 +18,10 @@ public sealed class AOEShapeCircle : AOEShape
     {
         return Vector2.DistanceSquared(origin, point) <= Radius * Radius;
     }
+
+    public override bool ContainsExpanded(Vector2 origin, float rotationRadians, Vector2 point, float marginYalms)
+    {
+        var r = Radius + marginYalms;
+        return Vector2.DistanceSquared(origin, point) <= r * r;
+    }
 }

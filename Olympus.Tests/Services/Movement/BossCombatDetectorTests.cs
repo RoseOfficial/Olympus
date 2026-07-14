@@ -62,4 +62,38 @@ public class BossCombatDetectorTests
         d.Update();
         Assert.False(d.IsBossEngaged);
     }
+
+    [Fact]
+    public void Update_DataIdInOverrideSet_IsBossEngagedTrue_EvenForTrashRank()
+    {
+        // AvoidanceBossOverrides contains a specific DataId → treat as boss regardless of rank.
+        var probe = new Mock<IBNpcRankProbe>();
+        probe.Setup(p => p.GetRank(0x1111u)).Returns((byte)1); // rank 1 = normal trash
+        var cfg = new Olympus.Config.MovementConfig
+        {
+            BossRanks = new System.Collections.Generic.HashSet<byte> { 4, 6 },
+            AvoidanceBossOverrides = new System.Collections.Generic.HashSet<uint> { 0x1111u }
+        };
+        var d = new TestableBossCombatDetector(probe.Object, cfg);
+        d.CombatTargets.Add((0x1111u, true, true));
+        d.Update();
+        Assert.True(d.IsBossEngaged);
+    }
+
+    [Fact]
+    public void Update_DataIdNotInOverrideAndTrashRank_IsBossEngagedFalse()
+    {
+        // DataId not in overrides and rank is trash → should not be boss-engaged.
+        var probe = new Mock<IBNpcRankProbe>();
+        probe.Setup(p => p.GetRank(0x2222u)).Returns((byte)1);
+        var cfg = new Olympus.Config.MovementConfig
+        {
+            BossRanks = new System.Collections.Generic.HashSet<byte> { 4, 6 },
+            AvoidanceBossOverrides = new System.Collections.Generic.HashSet<uint> { 0x9999u }
+        };
+        var d = new TestableBossCombatDetector(probe.Object, cfg);
+        d.CombatTargets.Add((0x2222u, true, true));
+        d.Update();
+        Assert.False(d.IsBossEngaged);
+    }
 }
