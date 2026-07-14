@@ -167,6 +167,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private DateTime _lastFrameErrorLog;
     private int _suppressedFrameErrors;
+    private Type? _lastFrameErrorType;
     public Plugin(
         IDalamudPluginInterface pluginInterface,
         IFramework framework,
@@ -295,7 +296,7 @@ public sealed class Plugin : IDalamudPlugin
             pluginInterface.ConfigDirectory.FullName);
 
         // FFLogs integration
-        this.fflogsService = new FFlogsService(configuration.FFLogs, log);
+        this.fflogsService = new FFlogsService(configuration.FFLogs, log, clientState: clientState);
 
         // Post-combat coaching summaries
         this.fightSummaryService = new FightSummaryService(
@@ -332,6 +333,11 @@ public sealed class Plugin : IDalamudPlugin
         // Error metrics service (aggregates suppressed errors for debugging)
         this.errorMetricsService = new ErrorMetricsService();
 
+        // High-end content classifier. Hooked to TerritoryChanged and primed for
+        // current zone in case the plugin loads while already in a duty.
+        this.highEndContentService = new Olympus.Services.Content.HighEndContentService(dataManager);
+        this.highEndContentService.OnTerritoryChanged((ushort)clientState.TerritoryType);
+
         // Movement subsystem: RMIWalk hook for AoE avoidance input injection.
         // HookInstalled is false on patch-day sigscan failure; banner surfaces this in config UI.
         this.rmiWalkHookService = new RMIWalkHookService(gameInteropProvider, log);
@@ -345,11 +351,11 @@ public sealed class Plugin : IDalamudPlugin
             log, objectTable, clientState, dataManager);
         this.bossCombatDetector = new Olympus.Services.Movement.BossCombatDetector(
             objectTable, clientState, bnpcRankProbe,
-            () => configuration.Movement.BossRanks);
+            () => configuration.Movement);
         this.trashAvoidanceService = new Olympus.Services.Movement.TrashAvoidanceService(
             rmiWalkHookService, enemyAoECastTracker, bossCombatDetector,
             bgCollisionProbe, movementClock,
-            () => configuration.Movement, log, clientState);
+            () => configuration.Movement, log, clientState, highEndContent: highEndContentService, objectTable: objectTable);
         this.interactDispatchService = new Olympus.Services.Movement.InteractDispatchService(
             objectTable, clientState, objectInteractor, movementClock,
             () => configuration.Movement, log);
@@ -357,11 +363,6 @@ public sealed class Plugin : IDalamudPlugin
         // Pull-intent state machine. Driven each frame by Plugin.Update from
         // LocalPlayer.IsCasting + ActionManager.QueuedActionId + InCombat.
         this.pullIntentService = new Olympus.Services.Pull.PullIntentService();
-
-        // High-end content classifier. Hooked to TerritoryChanged and primed for
-        // current zone in case the plugin loads while already in a duty.
-        this.highEndContentService = new Olympus.Services.Content.HighEndContentService(dataManager);
-        this.highEndContentService.OnTerritoryChanged((ushort)clientState.TerritoryType);
 
         // Inventory and tincture-cooldown probes (production-side wrappers).
         this.inventoryProbe = new Olympus.Services.Consumables.DalamudInventoryProbe(errorMetricsService);
@@ -394,7 +395,7 @@ public sealed class Plugin : IDalamudPlugin
         this.serviceContainer = CreateServiceContainer();
 
         // Create rotation manager and factory, then auto-discover rotations
-        this.rotationManager = new RotationManager();
+        this.rotationManager = new RotationManager(log);
         this.rotationFactory = new RotationFactory(serviceContainer, log);
         var rotationCount = rotationFactory.DiscoverAndRegisterFactories(rotationManager);
         log.Information("Registered {Count} rotation modules via auto-discovery", rotationCount);
@@ -420,7 +421,7 @@ public sealed class Plugin : IDalamudPlugin
         var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService, smartAoETab);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration, OpenConfigUI);
-        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, SaveConfiguration, fflogsService, fightSummaryService);
+        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, SaveConfiguration, fflogsService, fightSummaryService, clientState: clientState);
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
         this.changelogWindow = new ChangelogWindow();
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
@@ -790,7 +791,12 @@ public sealed class Plugin : IDalamudPlugin
         catch (Exception ex)
         {
             var now = DateTime.UtcNow;
-            if (_lastFrameErrorLog == DateTime.MinValue || (now - _lastFrameErrorLog).TotalSeconds >= 5.0)
+            var exType = ex.GetType();
+            // Log immediately on first occurrence, on window expiry, or when a new exception
+            // type appears mid-window so distinct failure types are never silently dropped.
+            var windowExpired = (now - _lastFrameErrorLog).TotalSeconds >= 5.0;
+            var newType = exType != _lastFrameErrorType;
+            if (_lastFrameErrorLog == DateTime.MinValue || windowExpired || newType)
             {
                 if (_suppressedFrameErrors > 0)
                 {
@@ -799,6 +805,7 @@ public sealed class Plugin : IDalamudPlugin
                 }
                 log.Error(ex, "Error in OnFrameworkUpdate");
                 _lastFrameErrorLog = now;
+                _lastFrameErrorType = exType;
             }
             else
             {

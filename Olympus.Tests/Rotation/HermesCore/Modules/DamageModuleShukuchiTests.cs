@@ -1,3 +1,4 @@
+using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
@@ -51,7 +52,10 @@ public class DamageModuleShukuchiTests
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         var ogcd = scheduler.InspectOgcdQueue();
-        Assert.Contains(ogcd, c => c.Behavior == HermesAbilities.Shukuchi && c.Priority == 2);
+        var candidate = ogcd.Single(c => c.Behavior == HermesAbilities.Shukuchi && c.Priority == 2);
+        Assert.True(candidate.GroundPosition.HasValue,
+            "Shukuchi must be pushed as a ground-targeted oGCD; GroundPosition should not be null.");
+        Assert.Equal(new System.Numerics.Vector3(10f, 0f, 10f), candidate.GroundPosition!.Value);
     }
 
     // -----------------------------------------------------------------------
@@ -258,6 +262,7 @@ public class DamageModuleShukuchiTests
         mock.Setup(x => x.GameObjectId).Returns(objectId);
         mock.Setup(x => x.CurrentHp).Returns(10000u);
         mock.Setup(x => x.MaxHp).Returns(10000u);
+        mock.Setup(x => x.Position).Returns(new System.Numerics.Vector3(10f, 0f, 10f));
         return mock;
     }
 }

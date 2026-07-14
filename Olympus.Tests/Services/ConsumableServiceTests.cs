@@ -123,6 +123,20 @@ public class ConsumableServiceTests
     }
 
     [Fact]
+    public void ShouldUseTinctureNow_returns_true_when_burst_is_imminent_but_not_yet_active()
+    {
+        // IsBurstImminent=true with IsInBurstWindow=false is a distinct positive path —
+        // the tincture should fire before the window opens so it is active during burst.
+        var (sut, burst, intent, _, highEnd, bag, cd) = Make();
+        highEnd.Setup(h => h.IsHighEndZone).Returns(true);
+        burst.Setup(b => b.IsInBurstWindow).Returns(false);
+        burst.Setup(b => b.IsBurstImminent(It.IsAny<float>())).Returns(true);
+        bag.Setup(b => b.GetItemCount(It.IsAny<uint>())).Returns(1u);
+
+        Assert.True(sut.ShouldUseTinctureNow(burst.Object, inCombat: true, prePullPhase: false));
+    }
+
+    [Fact]
     public void ShouldUseTinctureNow_PrePull_requires_PullIntent_not_None()
     {
         var (sut, burst, intent, _, highEnd, bag, cd) = Make();

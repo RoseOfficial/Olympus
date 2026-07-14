@@ -22,6 +22,20 @@ public class TinctureDispatcherTests
         return (sut, consumables, burst, actions);
     }
 
+    private static (TinctureDispatcher sut, Mock<IConsumableService> consumables,
+                    Mock<IBurstWindowService> burst, Mock<IActionService> actions) MakeWithPlayer(ulong playerId)
+    {
+        var consumables = new Mock<IConsumableService>();
+        var burst = new Mock<IBurstWindowService>();
+        var actions = new Mock<IActionService>();
+        var objectTable = new Mock<IObjectTable>();
+        var player = new Mock<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>();
+        player.Setup(x => x.GameObjectId).Returns(playerId);
+        objectTable.Setup(x => x.LocalPlayer).Returns(player.Object);
+        var sut = new TinctureDispatcher(consumables.Object, burst.Object, actions.Object, objectTable.Object);
+        return (sut, consumables, burst, actions);
+    }
+
     [Fact]
     public void TryDispatch_returns_false_and_does_not_call_ExecuteItem_when_ShouldUseTinctureNow_is_false()
     {
@@ -53,19 +67,40 @@ public class TinctureDispatcherTests
     }
 
     [Fact]
-    public void TryDispatch_calls_ExecuteItem_with_HQ_when_ConsumableService_returns_HQ()
+    public void TryDispatch_calls_ExecuteItem_with_player_GameObjectId_as_target()
     {
-        var (sut, c, b, a) = Make();
+        // Production code: var targetId = _objectTable.LocalPlayer?.GameObjectId ?? 0ul
+        // The happy-path must supply a real LocalPlayer so ExecuteItem receives the
+        // player's actual GameObjectId (12345ul here), not the 0ul fallback.
+        const ulong playerGameObjectId = 12345ul;
+        var (sut, c, b, a) = MakeWithPlayer(playerGameObjectId);
         c.Setup(x => x.ShouldUseTinctureNow(It.IsAny<IBurstWindowService>(), true, false)).Returns(true);
         uint id = ConsumableIds.TinctureOfStrength_NQ;
         bool hq = true;
         c.Setup(x => x.TryGetTinctureForJob(JobRegistry.Warrior, out id, out hq)).Returns(true);
-        a.Setup(x => x.ExecuteItem(ConsumableIds.TinctureOfStrength_NQ, true, 0ul)).Returns(true);
+        a.Setup(x => x.ExecuteItem(ConsumableIds.TinctureOfStrength_NQ, true, playerGameObjectId)).Returns(true);
 
         var result = sut.TryDispatch(JobRegistry.Warrior, inCombat: true, prePullPhase: false);
 
         Assert.True(result);
-        a.Verify(x => x.ExecuteItem(ConsumableIds.TinctureOfStrength_NQ, true, 0ul), Times.Once);
+        a.Verify(x => x.ExecuteItem(ConsumableIds.TinctureOfStrength_NQ, true, playerGameObjectId), Times.Once);
+    }
+
+    [Fact]
+    public void TryDispatch_falls_back_to_zero_targetId_when_LocalPlayer_is_null()
+    {
+        // When IObjectTable.LocalPlayer is null (edge case), targetId falls back to 0ul.
+        var (sut, c, b, a) = Make(); // Make() returns LocalPlayer = null
+        c.Setup(x => x.ShouldUseTinctureNow(It.IsAny<IBurstWindowService>(), true, false)).Returns(true);
+        uint id = ConsumableIds.TinctureOfStrength_NQ;
+        bool hq = false;
+        c.Setup(x => x.TryGetTinctureForJob(JobRegistry.Warrior, out id, out hq)).Returns(true);
+        a.Setup(x => x.ExecuteItem(ConsumableIds.TinctureOfStrength_NQ, false, 0ul)).Returns(true);
+
+        var result = sut.TryDispatch(JobRegistry.Warrior, inCombat: true, prePullPhase: false);
+
+        Assert.True(result);
+        a.Verify(x => x.ExecuteItem(ConsumableIds.TinctureOfStrength_NQ, false, 0ul), Times.Once);
     }
 
     [Fact]

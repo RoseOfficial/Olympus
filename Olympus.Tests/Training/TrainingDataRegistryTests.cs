@@ -109,6 +109,21 @@ public sealed class TrainingDataRegistryTests
     }
 
     [Fact]
+    public void CurrentLanguage_UnsupportedLanguage_FallsBackToEnglish()
+    {
+        // "de" has no embedded resources — every job must fall back to English.
+        // A regression in GetLocalizedResourceStream would leave all lesson collections empty.
+        var log = new Mock<IPluginLog>();
+        var registry = new TrainingDataRegistry(log.Object);
+
+        registry.CurrentLanguage = "de";
+
+        var lessons = registry.GetLessonsForJob("whm");
+        Assert.True(lessons.Count > 0,
+            "WHM lessons should be populated via English fallback when the requested language has no resources.");
+    }
+
+    [Fact]
     public void WhmLessonCount_EqualsQuizCount()
     {
         var lessonCount = Registry.GetLessonsForJob("whm").Count;
