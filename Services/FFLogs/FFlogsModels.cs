@@ -203,17 +203,86 @@ public enum FFlogsErrorType
 }
 
 /// <summary>
-/// Encounter IDs for current savage tier (Arcadion).
+/// Describes one savage tier for FFLogs: zone ID, per-boss encounter IDs,
+/// and the FFXIV territory IDs that belong to this tier.
+/// </summary>
+public sealed record FFlogsRaidTierInfo(
+    int ZoneId,
+    string DisplayName,
+    int[] EncounterIds,
+    uint[] TerritoryIds);
+
+/// <summary>
+/// All supported Arcadion savage tiers, newest first.
+/// <see cref="GetTierForTerritory"/> falls back to <see cref="All"/>[0]
+/// (newest tier) when the territory does not match any known tier.
+/// </summary>
+public static class FFlogsRaidTiers
+{
+    // Zone and encounter IDs verified via fflogs.com zone/rankings URLs.
+    // Lindwurm (r12s) has two separately logged phases: 104 (phase 1) and 105 (phase 2).
+    public static readonly FFlogsRaidTierInfo[] All =
+    {
+        // AAC Heavyweight Savage (r9s-r12s) -- Dawntrail 7.2+
+        // fflogs.com/zone/rankings/73  encounters 101-105
+        new FFlogsRaidTierInfo(
+            ZoneId: 73,
+            DisplayName: "AAC Heavyweight Savage",
+            EncounterIds: new[] { 101, 102, 103, 104, 105 },
+            TerritoryIds: new uint[] { 1321, 1323, 1325, 1327 }),
+
+        // AAC Cruiserweight Savage (r5s-r8s) -- Dawntrail 7.1
+        // fflogs.com/zone/rankings/68  encounters 97-100
+        new FFlogsRaidTierInfo(
+            ZoneId: 68,
+            DisplayName: "AAC Cruiserweight Savage",
+            EncounterIds: new[] { 97, 98, 99, 100 },
+            TerritoryIds: new uint[] { 1257, 1259, 1261, 1263 }),
+
+        // AAC Light-heavyweight Savage (r1s-r4s) -- Dawntrail 7.0
+        // fflogs.com/zone/rankings/62  encounters 93-96
+        new FFlogsRaidTierInfo(
+            ZoneId: 62,
+            DisplayName: "AAC Light-heavyweight Savage",
+            EncounterIds: new[] { 93, 94, 95, 96 },
+            TerritoryIds: new uint[] { 1226, 1228, 1230, 1232 }),
+    };
+
+    /// <summary>
+    /// Returns the tier whose <see cref="FFlogsRaidTierInfo.TerritoryIds"/> contains
+    /// <paramref name="territoryId"/>, or <see cref="All"/>[0] (newest tier) when
+    /// <paramref name="territoryId"/> is 0 or does not match any known tier.
+    /// </summary>
+    public static FFlogsRaidTierInfo GetTierForTerritory(uint territoryId)
+    {
+        if (territoryId != 0)
+        {
+            foreach (var tier in All)
+            {
+                foreach (var t in tier.TerritoryIds)
+                {
+                    if (t == territoryId)
+                        return tier;
+                }
+            }
+        }
+        return All[0]; // newest-tier fallback
+    }
+}
+
+/// <summary>
+/// Legacy per-encounter constants for AAC Light-heavyweight Savage (r1s-r4s).
+/// New code should use <see cref="FFlogsRaidTiers"/> instead.
 /// </summary>
 public static class FFlogsEncounterIds
 {
-    // Arcadion Savage (M1S-M4S)
+    // AAC Light-heavyweight Savage encounter IDs (FFLogs zone 62)
     public const int BlackCatM1S = 93;
     public const int HoneyBLovelyM2S = 94;
     public const int BruteBomberM3S = 95;
     public const int WickedThunderM4S = 96;
 
-    // Zone ID for Arcadion Savage
+    // Zone ID for AAC Light-heavyweight Savage
     public const int ArcadionSavageZone = 62;
 
     /// <summary>

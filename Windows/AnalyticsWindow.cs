@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Localization;
 using Olympus.Services.Analytics;
@@ -20,8 +21,9 @@ public sealed class AnalyticsWindow : Window
     private readonly Action saveConfiguration;
     private readonly IFFlogsService? fflogsService;
     private readonly IFightSummaryService? fightSummaryService;
+    private readonly IClientState? clientState;
 
-    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration, Action saveConfiguration, IFFlogsService? fflogsService = null, IFightSummaryService? fightSummaryService = null)
+    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration, Action saveConfiguration, IFFlogsService? fflogsService = null, IFightSummaryService? fightSummaryService = null, IClientState? clientState = null)
         : base("Olympus Analytics", ImGuiWindowFlags.NoSavedSettings)
     {
         this.performanceTracker = performanceTracker;
@@ -29,6 +31,7 @@ public sealed class AnalyticsWindow : Window
         this.saveConfiguration = saveConfiguration;
         this.fflogsService = fflogsService;
         this.fightSummaryService = fightSummaryService;
+        this.clientState = clientState;
 
         Size = new Vector2(500, 400);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -74,7 +77,7 @@ public sealed class AnalyticsWindow : Window
 
             if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Analytics.FFlogsTab, "FFLogs")))
             {
-                FFlogsTab.Draw(fflogsService, configuration.FFLogs);
+                FFlogsTab.Draw(fflogsService, configuration.FFLogs, (uint)(clientState?.TerritoryType ?? 0));
                 ImGui.EndTabItem();
             }
 

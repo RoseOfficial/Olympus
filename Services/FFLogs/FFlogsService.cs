@@ -25,6 +25,7 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
     private readonly IPluginLog log;
     private readonly HttpClient httpClient;
     private readonly JsonSerializerOptions jsonOptions;
+    private readonly Dalamud.Plugin.Services.IClientState? clientState;
 
     // OAuth token state — guarded by _tokenLock
     private string? accessToken;
@@ -46,10 +47,11 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
     public FFlogsRateLimitInfo? RateLimitInfo => _rateLimitInfo;
     public string? LastError => _lastError;
 
-    public FFlogsService(FFlogsConfig config, IPluginLog log)
+    public FFlogsService(FFlogsConfig config, IPluginLog log, Dalamud.Plugin.Services.IClientState? clientState = null)
     {
         this.config = config;
         this.log = log;
+        this.clientState = clientState;
         this.httpClient = new HttpClient();
         this.jsonOptions = new JsonSerializerOptions
         {
@@ -256,8 +258,11 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
         var characterId = charResult.Data!.Id;
         config.CachedCharacterId = characterId;
 
-        // Refresh zone rankings for current savage tier
-        await GetZoneRankingsAsync(characterId, FFlogsEncounterIds.ArcadionSavageZone);
+        // Refresh zone rankings for the tier that matches the player's current territory,
+        // falling back to the newest tier when the territory is not a known savage zone.
+        var territory = (uint)(clientState?.TerritoryType ?? 0);
+        var tier = FFlogsRaidTiers.GetTierForTerritory(territory);
+        await GetZoneRankingsAsync(characterId, tier.ZoneId);
     }
 
     public void ClearCache()
@@ -378,22 +383,25 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
             // Check for rate limiting
             if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
             {
-                _lastError ="Rate limited - try again later";
-                return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.RateLimited);
+                var msg = "Rate limited - try again later";
+                _lastError = msg;
+                return FFlogsResult<T>.Fail(msg, FFlogsErrorType.RateLimited);
             }
 
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 // Token may have expired, clear and retry once
                 accessToken = null;
-                _lastError ="Authentication expired";
-                return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.InvalidCredentials);
+                var msg = "Authentication expired";
+                _lastError = msg;
+                return FFlogsResult<T>.Fail(msg, FFlogsErrorType.InvalidCredentials);
             }
 
             if (!response.IsSuccessStatusCode)
             {
-                _lastError =$"API request failed: {response.StatusCode}";
-                return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.ServerError);
+                var msg = $"API request failed: {response.StatusCode}";
+                _lastError = msg;
+                return FFlogsResult<T>.Fail(msg, FFlogsErrorType.ServerError);
             }
 
             var content = await response.Content.ReadAsStringAsync();
@@ -401,8 +409,9 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
 
             if (result?.Errors != null && result.Errors.Count > 0)
             {
-                _lastError =result.Errors[0].Message;
-                return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.ServerError);
+                var msg = result.Errors[0].Message ?? "Server error";
+                _lastError = msg;
+                return FFlogsResult<T>.Fail(msg, FFlogsErrorType.ServerError);
             }
 
             // Update rate limit info if provided
@@ -412,14 +421,16 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
         }
         catch (HttpRequestException ex)
         {
-            _lastError =$"Network error: {ex.Message}";
-            return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.NetworkError);
+            var msg = $"Network error: {ex.Message}";
+            _lastError = msg;
+            return FFlogsResult<T>.Fail(msg, FFlogsErrorType.NetworkError);
         }
         catch (Exception ex)
         {
-            _lastError =$"Unexpected error: {ex.Message}";
+            var msg = $"Unexpected error: {ex.Message}";
+            _lastError = msg;
             log.Error($"FFLogs API error: {ex}");
-            return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.Unknown);
+            return FFlogsResult<T>.Fail(msg, FFlogsErrorType.Unknown);
         }
     }
 

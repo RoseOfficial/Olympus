@@ -743,15 +743,50 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     public IReadOnlyList<CooldownAnalysis> GetCooldownAnalysis()
     {
+        if (IsTracking)
+        {
+            // During active combat, read from the live tracking state so the
+            // tab stays current as cooldowns are used.
+            lock (_dataLock)
+            {
+                return BuildCooldownAnalysisList(CombatDuration);
+            }
+        }
+
+        // Out of combat: cooldownStates was cleared when the most recent fight
+        // started, so build from the finished session's stored snapshot instead.
         var lastSession = GetLastSession();
-        if (lastSession?.FinalMetrics?.Cooldowns == null)
+        if (lastSession?.FinalMetrics?.Cooldowns == null || lastSession.FinalMetrics.Cooldowns.Count == 0)
             return Array.Empty<CooldownAnalysis>();
 
-        // Build enhanced analysis from the last session's cooldown data
-        lock (_dataLock)
+        return BuildCooldownAnalysisFromSession(lastSession.FinalMetrics.Cooldowns);
+    }
+
+    internal static List<CooldownAnalysis> BuildCooldownAnalysisFromSession(List<CooldownUsage> cooldowns)
+    {
+        var result = new List<CooldownAnalysis>(cooldowns.Count);
+        foreach (var usage in cooldowns)
         {
-            return BuildCooldownAnalysisList(lastSession.Duration);
+            var efficiency = usage.OptimalUses > 0 ? (float)usage.TimesUsed / usage.OptimalUses * 100f : 100f;
+            var primaryIssue = DeterminePrimaryIssue(efficiency, usage.AverageDrift, 0);
+            var tip = GenerateTip(primaryIssue, usage.AverageDrift, 0);
+
+            result.Add(new CooldownAnalysis
+            {
+                ActionId = usage.ActionId,
+                Name = usage.Name,
+                CooldownDuration = usage.CooldownDuration,
+                TimesUsed = usage.TimesUsed,
+                OptimalUses = usage.OptimalUses,
+                AverageDrift = usage.AverageDrift,
+                TotalDriftSeconds = usage.DriftValues.Sum(),
+                PrimaryIssue = primaryIssue,
+                Tip = tip,
+                // Per-use phase records and missed windows are not persisted in
+                // the session snapshot; they are available only during live combat.
+            });
         }
+        return result;
     }
 
     private CooldownPhase DeterminePhase(float fightTimeSeconds)

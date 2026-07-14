@@ -35,7 +35,7 @@ public static class FFlogsTab
     private static int regionIndex;
     private static readonly string[] Regions = { "NA", "EU", "JP", "OCE" };
 
-    public static void Draw(IFFlogsService? fflogsService, FFlogsConfig config)
+    public static void Draw(IFFlogsService? fflogsService, FFlogsConfig config, uint currentTerritoryId = 0)
     {
         if (fflogsService == null)
         {
@@ -64,12 +64,12 @@ public static class FFlogsTab
         // Show character binding if not configured
         if (!config.HasCharacterBinding)
         {
-            DrawCharacterBinding(fflogsService, config);
+            DrawCharacterBinding(fflogsService, config, currentTerritoryId);
             return;
         }
 
         // Main FFLogs display
-        DrawFFlogsData(fflogsService, config);
+        DrawFFlogsData(fflogsService, config, currentTerritoryId);
     }
 
     private static void DrawSetupWizard(IFFlogsService fflogsService, FFlogsConfig config)
@@ -122,7 +122,7 @@ public static class FFlogsTab
         }
     }
 
-    private static void DrawCharacterBinding(IFFlogsService fflogsService, FFlogsConfig config)
+    private static void DrawCharacterBinding(IFFlogsService fflogsService, FFlogsConfig config, uint currentTerritoryId)
     {
         ImGui.TextColored(HeaderColor, Loc.T(LocalizedStrings.Analytics.CharacterBinding, "Character Binding"));
         ImGui.Separator();
@@ -152,7 +152,7 @@ public static class FFlogsTab
             config.ServerSlug = serverSlugInput.Trim().ToLowerInvariant();
             config.Region = Regions[regionIndex];
             statusMessage = Loc.T(LocalizedStrings.Analytics.LookingUpCharacter, "Looking up character...");
-            _ = LookupCharacterAsync(fflogsService, config);
+            _ = LookupCharacterAsync(fflogsService, config, currentTerritoryId);
         }
 
         if (!canBind)
@@ -188,17 +188,17 @@ public static class FFlogsTab
         }
     }
 
-    private static void DrawFFlogsData(IFFlogsService fflogsService, FFlogsConfig config)
+    private static void DrawFFlogsData(IFFlogsService fflogsService, FFlogsConfig config, uint currentTerritoryId)
     {
         // Header with character info and status
-        DrawHeader(fflogsService, config);
+        DrawHeader(fflogsService, config, currentTerritoryId);
         ImGui.Separator();
         ImGui.Spacing();
 
         // Auto-refresh if stale
         if (currentRankings == null && !isLoading && (DateTime.Now - lastRefresh).TotalMinutes > 1)
         {
-            _ = RefreshRankingsAsync(fflogsService, config);
+            _ = RefreshRankingsAsync(fflogsService, config, currentTerritoryId);
         }
 
         if (isLoading)
@@ -228,7 +228,7 @@ public static class FFlogsTab
         DrawEncounterRankings(currentRankings);
     }
 
-    private static void DrawHeader(IFFlogsService fflogsService, FFlogsConfig config)
+    private static void DrawHeader(IFFlogsService fflogsService, FFlogsConfig config, uint currentTerritoryId)
     {
         // Character info
         ImGui.TextColored(HeaderColor, Loc.T(LocalizedStrings.Analytics.FFlogsIntegration, "FFLogs Integration"));
@@ -256,7 +256,7 @@ public static class FFlogsTab
         // Action buttons
         if (ImGui.Button(Loc.T(LocalizedStrings.Analytics.Refresh, "Refresh")))
         {
-            _ = RefreshRankingsAsync(fflogsService, config);
+            _ = RefreshRankingsAsync(fflogsService, config, currentTerritoryId);
         }
 
         ImGui.SameLine();
@@ -372,7 +372,7 @@ public static class FFlogsTab
         }
     }
 
-    private static async Task LookupCharacterAsync(IFFlogsService fflogsService, FFlogsConfig config)
+    private static async Task LookupCharacterAsync(IFFlogsService fflogsService, FFlogsConfig config, uint currentTerritoryId = 0)
     {
         isLoading = true;
         statusMessage = Loc.T(LocalizedStrings.Analytics.LookingUpCharacter, "Looking up character...");
@@ -386,7 +386,7 @@ public static class FFlogsTab
                 statusMessage = Loc.TFormat(LocalizedStrings.Analytics.CharacterFound, "Character found! FFLogs ID: {0}", result.Data.Id.ToString());
 
                 // Load initial rankings
-                await RefreshRankingsAsync(fflogsService, config);
+                await RefreshRankingsAsync(fflogsService, config, currentTerritoryId);
             }
             else
             {
@@ -403,12 +403,12 @@ public static class FFlogsTab
         }
     }
 
-    private static async Task RefreshRankingsAsync(IFFlogsService fflogsService, FFlogsConfig config)
+    private static async Task RefreshRankingsAsync(IFFlogsService fflogsService, FFlogsConfig config, uint currentTerritoryId = 0)
     {
         if (!config.CachedCharacterId.HasValue)
         {
             // Need to look up character first
-            await LookupCharacterAsync(fflogsService, config);
+            await LookupCharacterAsync(fflogsService, config, currentTerritoryId);
             return;
         }
 
@@ -417,9 +417,10 @@ public static class FFlogsTab
 
         try
         {
+            var tier = FFlogsRaidTiers.GetTierForTerritory(currentTerritoryId);
             var result = await fflogsService.GetZoneRankingsAsync(
                 config.CachedCharacterId.Value,
-                FFlogsEncounterIds.ArcadionSavageZone);
+                tier.ZoneId);
 
             if (result.Success && result.Data != null)
             {

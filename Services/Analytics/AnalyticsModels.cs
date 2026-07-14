@@ -553,7 +553,7 @@ public sealed class CooldownAnalysis
     /// <summary>
     /// Usage efficiency percentage (TimesUsed / OptimalUses * 100).
     /// </summary>
-    public float Efficiency => OptimalUses > 0 ? (float)TimesUsed / OptimalUses * 100f : 0f;
+    public float Efficiency => OptimalUses > 0 ? (float)TimesUsed / OptimalUses * 100f : 100f;
 
     /// <summary>
     /// Average drift in seconds across all uses.
