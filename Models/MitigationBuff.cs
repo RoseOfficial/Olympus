@@ -6,7 +6,7 @@ namespace Olympus.Models;
 /// Represents an active mitigation buff on a party member.
 /// Mitigation buffs reduce incoming damage by a percentage.
 /// </summary>
-public sealed record MitigationBuff
+public readonly record struct MitigationBuff
 {
     /// <summary>
     /// The entity ID of the target with this mitigation.
@@ -32,7 +32,7 @@ public sealed record MitigationBuff
     /// <summary>
     /// When this mitigation was applied.
     /// </summary>
-    public DateTime AppliedTime { get; init; } = DateTime.UtcNow;
+    public DateTime AppliedTime { get; init; }
 
     /// <summary>
     /// The source entity ID (who applied the mitigation).
@@ -49,6 +49,8 @@ public sealed record MitigationBuff
     /// or all party members in range (false = party-wide).
     /// </summary>
     public bool IsSelfOnly { get; init; }
+
+    public MitigationBuff() { }
 }
 
 /// <summary>

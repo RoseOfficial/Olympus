@@ -320,6 +320,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
         var localPlayer = objectTable.LocalPlayer;
         var isFromLocalPlayer = localPlayer != null && casterEntityId == localPlayer.EntityId;
 
+        // Raise these events before the per-target loop so that an exception thrown
+        // by any OnDamageReceived / OnAnyHealReceived subscriber cannot prevent them
+        // from firing. Both events carry only header-level data available immediately.
+        OnAbilityUsed?.Invoke(casterEntityId, header->ActionId);
+        if (isFromLocalPlayer)
+            OnLocalAbilityResolved?.Invoke(header->ActionId, (int)header->NumTargets);
+
         for (var i = 0; i < header->NumTargets; i++)
         {
             var targetId = (uint)targetEntityIds[i].ObjectId;
@@ -472,12 +479,6 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
             }
         }
 
-        // Raise ability used event for timeline sync (once per action, not per target)
-        OnAbilityUsed?.Invoke(casterEntityId, header->ActionId);
-
-        // Raise local ability resolved with target count for Smart AoE tracking
-        if (isFromLocalPlayer)
-            OnLocalAbilityResolved?.Invoke(header->ActionId, (int)header->NumTargets);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Plugin.Services;
 using Olympus.Data;
 
 namespace Olympus.Rotation;
@@ -14,8 +15,15 @@ public sealed class RotationManager : IDisposable
     private readonly Dictionary<uint, IRotation> _rotations = new();
     private readonly Dictionary<uint, Func<IRotation>> _factories = new();
     private readonly HashSet<IRotation> _uniqueRotations = new();
+    private readonly HashSet<uint> _failedJobIds = new();
+    private readonly IPluginLog? _log;
     private IRotation? _activeRotation;
     private uint _lastJobId;
+
+    public RotationManager(IPluginLog? log = null)
+    {
+        _log = log;
+    }
 
     /// <summary>
     /// Gets the currently active rotation, or null if none is active.
@@ -55,24 +63,51 @@ public sealed class RotationManager : IDisposable
     /// <summary>
     /// Updates the active rotation based on the player's current job.
     /// Creates the rotation lazily if it hasn't been instantiated yet.
+    /// If the factory throws, the failure is cached and not retried until the player
+    /// changes jobs, preventing ~60 exceptions/second from flooding the error log.
     /// </summary>
     /// <param name="jobId">The player's current job ID.</param>
     /// <returns>True if a rotation is available for this job.</returns>
     public bool UpdateActiveRotation(uint jobId)
     {
-        if (jobId == _lastJobId && _activeRotation != null)
+        var jobChanged = jobId != _lastJobId;
+
+        if (!jobChanged && _activeRotation != null)
             return true;
 
-        _lastJobId = jobId;
+        if (jobChanged)
+        {
+            // New job: clear failure cache so the incoming job gets a fresh attempt,
+            // and any previously-failed job would get a retry if the player returns to it.
+            _lastJobId = jobId;
+            _failedJobIds.Clear();
+        }
 
         // Try cached rotation first
         if (_rotations.TryGetValue(jobId, out _activeRotation))
             return true;
 
+        // Do not retry a factory that already failed this job session; wait for a job switch.
+        if (_failedJobIds.Contains(jobId))
+        {
+            _activeRotation = null;
+            return false;
+        }
+
         // Try to create via factory
         if (_factories.TryGetValue(jobId, out var factory))
         {
-            _activeRotation = factory();
+            try
+            {
+                _activeRotation = factory();
+            }
+            catch (Exception ex)
+            {
+                _log?.Error(ex, "Failed to create rotation for job {JobId}; will not retry until job changes", jobId);
+                _failedJobIds.Add(jobId);
+                _activeRotation = null;
+                return false;
+            }
 
             // Cache by all supported job IDs (e.g., WHM and CNJ share same rotation)
             foreach (var supportedJobId in _activeRotation.SupportedJobIds)

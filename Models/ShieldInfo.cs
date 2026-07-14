@@ -6,7 +6,7 @@ namespace Olympus.Models;
 /// Represents an active shield on a party member.
 /// Shields absorb damage before HP is reduced.
 /// </summary>
-public sealed record ShieldInfo
+public readonly record struct ShieldInfo
 {
     /// <summary>
     /// The entity ID of the target with this shield.
@@ -32,7 +32,7 @@ public sealed record ShieldInfo
     /// <summary>
     /// When this shield was applied.
     /// </summary>
-    public DateTime AppliedTime { get; init; } = DateTime.UtcNow;
+    public DateTime AppliedTime { get; init; }
 
     /// <summary>
     /// The source entity ID (who applied the shield).
@@ -49,6 +49,8 @@ public sealed record ShieldInfo
     /// vs a flat value shield (like Galvanize).
     /// </summary>
     public bool IsPercentageBased { get; init; }
+
+    public ShieldInfo() { }
 }
 
 /// <summary>

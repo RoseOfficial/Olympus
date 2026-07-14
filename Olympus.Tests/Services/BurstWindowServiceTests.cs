@@ -378,4 +378,62 @@ public class BurstWindowServiceTests
         Assert.False(service.IsInBurstWindow);
         Assert.Equal(-1f, service.SecondsUntilNextBurst);
     }
+
+    // -------------------------------------------------------------------------
+    // Finding #18: _lastBurstWindowEnd cleared on combat end
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void Update_OnCombatEnd_ClearsLastBurstWindowEnd_SyntheticCycleResumesInFight2()
+    {
+        // Arrange: run fight 1 through a synthetic burst window so _lastBurstWindowEnd is set.
+        var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
+
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(10f);
+        service.Update(player.Object);   // inside synthetic window
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(30f);
+        service.Update(player.Object);   // window closed; _lastBurstWindowEnd is set
+
+        // Timer-based prediction is now active (> 90s until next window).
+        Assert.InRange(service.SecondsUntilNextBurst, 90f, 100f);
+
+        // Act: leave combat, then start fight 2 at 3s elapsed.
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(0f);
+        service.Update(player.Object);   // combat end; must clear _lastBurstWindowEnd
+
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(3f);
+        service.Update(player.Object);
+
+        // Assert: synthetic cycle drives prediction again (opener is 4.8s away at 3s elapsed),
+        // not the stale timer-based value from fight 1 (~99+ seconds).
+        Assert.False(service.IsInBurstWindow);
+        Assert.InRange(service.SecondsUntilNextBurst, 4.7f, 4.9f);
+    }
+
+    // -------------------------------------------------------------------------
+    // Finding #19: ResetHistory called on combat end
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void Update_OnCombatEnd_ClearsHistory()
+    {
+        // Arrange: fight 1 produces one history entry.
+        var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
+
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(10f);
+        service.Update(player.Object);
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(30f);
+        service.Update(player.Object);
+
+        Assert.Single(service.BurstWindowHistory);
+
+        // Act: leave combat.
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(0f);
+        service.Update(player.Object);
+
+        // Assert: history is cleared so FightSummaryService grades only the current fight.
+        Assert.Empty(service.BurstWindowHistory);
+    }
 }

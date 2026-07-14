@@ -84,6 +84,7 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     private readonly List<(DateTime Start, DateTime End)> _burstWindowHistory = new();
     private DateTime _currentWindowStart;
     private bool _wasInBurst;
+    private bool _wasCombatActive;
 
     public BurstWindowService(
         IPartyCoordinationService? partyCoordinationService = null,
@@ -259,10 +260,19 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
         // (solo striking dummy, comps without coordinated buffs), rehearse the standard
         // opener-at-7.8s + 120s cadence so burst pooling behaves like a real fight.
         var combatSeconds = _combatEventService?.GetCombatDurationSeconds() ?? 0f;
-        if (combatSeconds <= 0f)
+        var isNowInCombat = combatSeconds > 0f;
+
+        if (!isNowInCombat)
             _realRaidBuffObservedThisCombat = false;
         else if (_isInBurstWindow)
             _realRaidBuffObservedThisCombat = true;
+
+        // On the combat-end transition (was in combat, now out), reset all per-fight tracking
+        // state so the next fight starts clean: fresh history for FightSummaryService and a
+        // cleared _lastBurstWindowEnd so the synthetic opener cycle resumes (findings #18, #19).
+        if (_wasCombatActive && !isNowInCombat)
+            ResetHistory();
+        _wasCombatActive = isNowInCombat;
 
         if (!_realRaidBuffObservedThisCombat && combatSeconds > SyntheticFirstBurstSeconds)
         {
@@ -289,6 +299,7 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     public void ResetHistory()
     {
         _burstWindowHistory.Clear();
+        _lastBurstWindowEnd = null;
         _wasInBurst = false;
         _castEventBurstExpiry = null;
     }
