@@ -301,12 +301,21 @@ public sealed class DamageModule : IEchidnaModule
 
         if (context.Configuration.MeleeShared.EnableTrueNorth
             && !context.HasTrueNorth
-            && !context.IsAtRear && !context.IsAtFlank
+            && !context.IsReawakened
             && !context.TargetHasPositionalImmunity
             && RoleActionGates.TrueNorthReady(context))
         {
-            scheduler.PushOgcd(EchidnaAbilities.TrueNorth, player.GameObjectId, priority: 6,
-                onDispatched: _ => context.Debug.PlannedAction = RoleActions.TrueNorth.Name);
+            // Only fire when a positional dual-wield finisher is actually imminent.
+            // Venom buffs are granted at combo step 1 and consumed at step 2 (the positional).
+            // This prevents wasting True North during Reawaken sequences and non-positional GCDs.
+            var needsRear = context.HasHindstungVenom || context.HasHindsbaneVenom;
+            var needsFlank = context.HasFlankstungVenom || context.HasFlanksbaneVenom;
+            var outOfPosition = (needsRear && !context.IsAtRear) || (needsFlank && !context.IsAtFlank);
+            if (outOfPosition)
+            {
+                scheduler.PushOgcd(EchidnaAbilities.TrueNorth, player.GameObjectId, priority: 6,
+                    onDispatched: _ => context.Debug.PlannedAction = RoleActions.TrueNorth.Name);
+            }
         }
     }
 

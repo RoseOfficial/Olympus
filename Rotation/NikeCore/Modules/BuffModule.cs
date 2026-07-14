@@ -300,8 +300,18 @@ public sealed class BuffModule : INikeModule
             if (!context.IsAtRear) needPositional = true;
         if (context.HasKa == false && context.ComboStep == 2 && context.LastComboAction == SAMActions.Shifu.ActionId)
             if (!context.IsAtFlank) needPositional = true;
-        if (context.HasMeikyoShisui && (!context.IsAtRear && !context.IsAtFlank))
-            needPositional = true;
+        if (context.HasMeikyoShisui)
+        {
+            // When HasGetsu and HasKa are both held but Setsu is missing, the DamageModule picks
+            // Yukikaze next — a GCD with no positional requirement. True North would be wasted.
+            // In all other Meikyo states a rear or flank positional IS the next GCD.
+            if (!context.HasGetsu && !context.IsAtRear) needPositional = true;
+            else if (!context.HasKa && !context.IsAtFlank) needPositional = true;
+            // Overflow: all three Sen are held, DamageModule falls to the overflow Gekko (rear positional).
+            else if (context.HasGetsu && context.HasKa && context.HasSetsu && !context.IsAtRear)
+                needPositional = true;
+            // HasGetsu && HasKa && !HasSetsu: Yukikaze next, no positional — needPositional stays false.
+        }
 
         if (!needPositional) return;
         if (!RoleActionGates.TrueNorthReady(context)) return;
@@ -312,9 +322,13 @@ public sealed class BuffModule : INikeModule
                 context.Debug.PlannedAction = RoleActions.TrueNorth.Name;
                 context.Debug.BuffState = "True North";
 
-                var reason = context.HasMeikyoShisui ? "Meikyo Shisui active — positionals incoming" :
-                             context.ComboStep == 2 && context.LastComboAction == SAMActions.Jinpu.ActionId ? "Gekko (rear) incoming" :
-                             "Kasha (flank) incoming";
+                var reason = context.HasMeikyoShisui
+                    ? (!context.HasGetsu ? "Meikyo — Gekko (rear) incoming" :
+                       !context.HasKa   ? "Meikyo — Kasha (flank) incoming" :
+                                          "Meikyo overflow — Gekko (rear) incoming")
+                    : context.ComboStep == 2 && context.LastComboAction == SAMActions.Jinpu.ActionId
+                        ? "Gekko (rear) incoming"
+                        : "Kasha (flank) incoming";
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(RoleActions.TrueNorth.ActionId, RoleActions.TrueNorth.Name)
                     .AsMeleeDamage()
