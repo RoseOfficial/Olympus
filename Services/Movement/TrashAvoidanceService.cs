@@ -28,6 +28,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     private readonly IObjectTable? objectTable;
     private readonly IHighEndContentService? highEndContent;
     private readonly ICondition? condition;
+    private readonly ICameraAzimuthProbe? cameraProbe;
 
     private readonly Dictionary<ulong, DateTime> firstSeenPerCast = new();
     private readonly Dictionary<ulong, int> reactionDelayPerCast = new();
@@ -40,7 +41,8 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         IClientState? clientState = null,
         IHighEndContentService? highEndContent = null,
         IObjectTable? objectTable = null,
-        ICondition? condition = null)
+        ICondition? condition = null,
+        ICameraAzimuthProbe? cameraProbe = null)
     {
         this.hook = hook;
         this.tracker = tracker;
@@ -53,6 +55,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         this.objectTable = objectTable;
         this.highEndContent = highEndContent;
         this.condition = condition;
+        this.cameraProbe = cameraProbe;
 
         if (clientState != null)
             clientState.TerritoryChanged += OnTerritoryChanged;
@@ -220,12 +223,29 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         }
         var magnitude = minResolveSeconds < cfg.WalkVsSprintThresholdSeconds ? 1.0f : 0.5f;
 
-        // World-space to input-vector mapping. v1 writes XZ directly into RMIWalk's (Forward, Left).
-        // T20 smoke test will refine the camera-relative conversion if needed.
-        hook.DesiredInputVector = new Vector3(direction.X * magnitude, direction.Y * magnitude, 0f);
+        // Convert the world-space dodge direction into camera-relative RMIWalk inputs.
+        // Fail CLOSED: with no camera reading, do not move at all. A wrong-direction
+        // dodge (into the AoE at 180 degrees) is worse than standing still.
+        var azimuth = cameraProbe?.GetCameraAzimuthRadians();
+        if (azimuth is null) { ClearVector(); return; }
+        var (sumForward, sumLeft) = WorldDirectionToCameraInput(direction, azimuth.Value);
+        hook.DesiredInputVector = new Vector3(sumForward * magnitude, sumLeft * magnitude, 0f);
     }
 
     private void ClearVector() => hook.DesiredInputVector = null;
+
+    /// <summary>
+    /// Converts a world-XZ direction into RMIWalk's camera-relative (sumForward, sumLeft).
+    /// Mirrors BossMod's MovementOverride math: worldHeading = atan2(x, z),
+    /// rel = worldHeading - (cameraAzimuth + PI), forward = cos(rel), left = sin(rel).
+    /// </summary>
+    internal static (float sumForward, float sumLeft) WorldDirectionToCameraInput(
+        Vector2 worldDirXZ, float cameraAzimuthRadians)
+    {
+        var worldHeading = MathF.Atan2(worldDirXZ.X, worldDirXZ.Y);
+        var rel = worldHeading - (cameraAzimuthRadians + MathF.PI);
+        return (MathF.Cos(rel), MathF.Sin(rel));
+    }
 
     private void PrunePerCastStateAgainstTracker()
     {
@@ -274,7 +294,8 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     protected virtual bool IsHighEndZone() => highEndContent?.IsHighEndZone ?? false;
 
     /// <summary>
-    /// Returns true when the player cannot or should not move (dead). Overridden by test doubles.
+    /// Returns true when the player cannot or should not move (dead, casting, mounted, or in a cutscene).
+    /// Overridden by test doubles.
     /// </summary>
     protected virtual bool IsPlayerUnavailable()
     {

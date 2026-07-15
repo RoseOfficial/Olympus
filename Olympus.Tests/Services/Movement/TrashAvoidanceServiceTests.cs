@@ -92,6 +92,13 @@ public class TrashAvoidanceServiceTests
     [Fact]
     public void Update_ActiveCircleThreat_AfterReactionDelay_WritesVectorTowardSafeEdge()
     {
+        // With stub camera probe at azimuth 0, the solver picks a world-space direction d = (dx, dz).
+        // WorldDirectionToCameraInput(d, 0):
+        //   worldHeading = atan2(dx, dz)
+        //   rel          = worldHeading - (0 + PI)
+        //   sumForward   = cos(rel), sumLeft = sin(rel)
+        // The exact values depend on which candidate SafeEdgeSolver picks, but the vector is
+        // always non-null when the camera probe returns a valid azimuth.
         var ctx = new MovementTestContext();
         ctx.ActiveAOEs.Add(new TrackedAOE(
             CasterId: 100,

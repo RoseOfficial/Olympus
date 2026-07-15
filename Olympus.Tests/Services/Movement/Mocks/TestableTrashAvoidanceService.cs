@@ -15,7 +15,8 @@ public sealed class TestableTrashAvoidanceService : TrashAvoidanceService
 
     public TestableTrashAvoidanceService(MovementTestContext ctx)
         : base(ctx.Hook.Object, ctx.Tracker.Object, ctx.Boss.Object, ctx.Collision.Object, ctx.Clock.Object,
-              () => ctx.Config.Movement, log: null!) { }
+              () => ctx.Config.Movement, log: null!,
+              cameraProbe: ctx.CameraProbe.Object) { }
 
     protected override Vector2 GetPlayerPos2D() => OverridePlayerPos2D;
     protected override Vector3 GetPlayerPos3D() => OverridePlayerPos3D;

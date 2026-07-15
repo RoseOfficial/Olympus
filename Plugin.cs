@@ -155,6 +155,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Olympus.Services.Movement.Humanization.MovementClock movementClock;
     private readonly Olympus.Services.Movement.EnemyAOECastTracker enemyAoECastTracker;
     private readonly Olympus.Services.Movement.BossCombatDetector bossCombatDetector;
+    private readonly Olympus.Services.Movement.CameraAzimuthProbe cameraAzimuthProbe;
     private readonly Olympus.Services.Movement.TrashAvoidanceService trashAvoidanceService;
     private readonly Olympus.Services.Movement.InteractDispatchService interactDispatchService;
 
@@ -362,10 +363,12 @@ public sealed class Plugin : IDalamudPlugin
         this.bossCombatDetector = new Olympus.Services.Movement.BossCombatDetector(
             objectTable, clientState, bnpcRankProbe,
             () => configuration.Movement);
+        this.cameraAzimuthProbe = new Olympus.Services.Movement.CameraAzimuthProbe();
         this.trashAvoidanceService = new Olympus.Services.Movement.TrashAvoidanceService(
             rmiWalkHookService, enemyAoECastTracker, bossCombatDetector,
             bgCollisionProbe, movementClock,
-            () => configuration.Movement, log, clientState, highEndContent: highEndContentService, objectTable: objectTable, condition: condition);
+            () => configuration.Movement, log, clientState, highEndContent: highEndContentService, objectTable: objectTable, condition: condition,
+            cameraProbe: cameraAzimuthProbe);
         this.interactDispatchService = new Olympus.Services.Movement.InteractDispatchService(
             objectTable, clientState, objectInteractor, movementClock,
             () => configuration.Movement, log);

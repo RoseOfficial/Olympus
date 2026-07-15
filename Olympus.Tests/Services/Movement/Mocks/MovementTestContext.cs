@@ -16,6 +16,10 @@ public sealed class MovementTestContext
     public Mock<IBossCombatDetector> Boss { get; } = new();
     public Mock<IBGCollisionProbe> Collision { get; } = new();
     public Mock<IMovementClock> Clock { get; } = new();
+    // Stub camera probe at azimuth 0 radians (camera facing south in FFXIV convention).
+    // Tests that assert on specific vector components must recompute via
+    // TrashAvoidanceService.WorldDirectionToCameraInput(worldDir, 0f).
+    public Mock<ICameraAzimuthProbe> CameraProbe { get; } = new();
     public List<TrackedAOE> ActiveAOEs { get; } = new();
     public DateTime Now { get; set; } = DateTime.UnixEpoch.AddSeconds(1000);
     public Vector2 PlayerPos2D { get; set; } = new(0, 0);
@@ -34,5 +38,6 @@ public sealed class MovementTestContext
         Boss.SetupGet(b => b.IsBossEngaged).Returns(false);
         Collision.Setup(c => c.IsPathBlocked(It.IsAny<Vector3>(), It.IsAny<Vector3>())).Returns(false);
         Clock.SetupGet(c => c.UtcNow).Returns(() => Now);
+        CameraProbe.Setup(p => p.GetCameraAzimuthRadians()).Returns(0f);
     }
 }
