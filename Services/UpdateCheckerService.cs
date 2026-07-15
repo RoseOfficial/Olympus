@@ -71,9 +71,12 @@ public sealed class UpdateCheckerService : IDisposable
             {
                 Status = UpdateCheckStatus.UpdateAvailable;
                 LatestVersion = latest;
+                var displayVersion = Version.TryParse(latest, out var lv) && lv.Build >= 0 && lv.Revision <= 0
+                    ? lv.ToString(3)
+                    : latest;
                 _notificationManager.AddNotification(new Notification
                 {
-                    Content = $"Olympus {latest} is available. Update via /xlplugins.",
+                    Content = $"Olympus {displayVersion} is available. Update via /xlplugins.",
                     Title = "Olympus Update Available",
                     Type = NotificationType.Info,
                     Minimized = false,
@@ -139,10 +142,21 @@ public sealed class UpdateCheckerService : IDisposable
         return null;
     }
 
-    private static bool IsNewer(string latest, string current) =>
+    /// <summary>
+    /// Version comparison with part-count normalization (internal for tests).
+    /// repo.json's AssemblyVersion is 4-part ("4.17.2.0", padded by the release
+    /// workflow for Dalamud's installer string-compare) while PluginVersion is
+    /// 3-part ("4.17.2"). System.Version treats a missing component as -1, so a
+    /// naive compare says 4.17.2.0 > 4.17.2 and toasts a phantom update on every
+    /// login. Normalize missing components to 0 before comparing.
+    /// </summary>
+    internal static bool IsNewer(string latest, string current) =>
         Version.TryParse(latest, out var l) &&
         Version.TryParse(current, out var c) &&
-        l > c;
+        Normalize(l) > Normalize(c);
+
+    private static Version Normalize(Version v) =>
+        new(v.Major, v.Minor, Math.Max(v.Build, 0), Math.Max(v.Revision, 0));
 
     public void Dispose()
     {
