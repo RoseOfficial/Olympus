@@ -58,6 +58,29 @@ public class TrashAvoidanceServiceTests
     }
 
     [Fact]
+    public void Update_PlayerCasting_DoesNotInjectMovement()
+    {
+        var ctx = new MovementTestContext();
+        ctx.ActiveAOEs.Add(new TrackedAOE(
+            CasterId: 200,
+            Origin: new Vector2(0, 0),
+            RotationRadians: 0f,
+            Shape: new Olympus.Services.Movement.Geometry.AOEShapeCircle(5f),
+            ResolveAt: ctx.Now.AddSeconds(2)));
+
+        var svc = new TestableTrashAvoidanceService(ctx) { OverridePlayerCasting = true };
+        svc.OverridePlayerPos2D = new Vector2(0, 0); // inside threat
+        svc.OverridePlayerPos3D = new Vector3(0, 0, 0);
+        ctx.Now = ctx.Now.AddMilliseconds(800); // past reaction delay
+
+        svc.Update();
+
+        // IsPlayerUnavailable returns true for casting, so Update takes the early-return
+        // path and writes null (ClearVector). No non-null vector should ever be written.
+        ctx.Hook.VerifySet(h => h.DesiredInputVector = It.Is<Vector3?>(v => v != null), Times.Never);
+    }
+
+    [Fact]
     public void Update_NoActiveThreats_ClearsVector()
     {
         var ctx = new MovementTestContext();

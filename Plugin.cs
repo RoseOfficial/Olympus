@@ -365,7 +365,7 @@ public sealed class Plugin : IDalamudPlugin
         this.trashAvoidanceService = new Olympus.Services.Movement.TrashAvoidanceService(
             rmiWalkHookService, enemyAoECastTracker, bossCombatDetector,
             bgCollisionProbe, movementClock,
-            () => configuration.Movement, log, clientState, highEndContent: highEndContentService, objectTable: objectTable);
+            () => configuration.Movement, log, clientState, highEndContent: highEndContentService, objectTable: objectTable, condition: condition);
         this.interactDispatchService = new Olympus.Services.Movement.InteractDispatchService(
             objectTable, clientState, objectInteractor, movementClock,
             () => configuration.Movement, log);

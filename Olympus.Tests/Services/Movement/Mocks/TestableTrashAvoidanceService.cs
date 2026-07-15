@@ -11,6 +11,7 @@ public sealed class TestableTrashAvoidanceService : TrashAvoidanceService
     public bool OverridePlayerDead { get; set; }
     public bool OverridePlayerMounted { get; set; }
     public bool OverridePlayerInCutscene { get; set; }
+    public bool OverridePlayerCasting { get; set; }
 
     public TestableTrashAvoidanceService(MovementTestContext ctx)
         : base(ctx.Hook.Object, ctx.Tracker.Object, ctx.Boss.Object, ctx.Collision.Object, ctx.Clock.Object,
@@ -19,7 +20,7 @@ public sealed class TestableTrashAvoidanceService : TrashAvoidanceService
     protected override Vector2 GetPlayerPos2D() => OverridePlayerPos2D;
     protected override Vector3 GetPlayerPos3D() => OverridePlayerPos3D;
     protected override bool IsHighEndZone() => OverrideHighEndZone;
-    protected override bool IsPlayerUnavailable() => OverridePlayerDead || OverridePlayerMounted || OverridePlayerInCutscene;
+    protected override bool IsPlayerUnavailable() => OverridePlayerDead || OverridePlayerMounted || OverridePlayerInCutscene || OverridePlayerCasting;
 
     public new bool HasFirstSeenEntry(ulong casterId) => base.HasFirstSeenEntry(casterId);
     public new void OnTerritoryChanged(ushort territoryId) => base.OnTerritoryChanged(territoryId);

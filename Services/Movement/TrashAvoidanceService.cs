@@ -27,6 +27,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     private readonly IClientState? clientState;
     private readonly IObjectTable? objectTable;
     private readonly IHighEndContentService? highEndContent;
+    private readonly ICondition? condition;
 
     private readonly Dictionary<ulong, DateTime> firstSeenPerCast = new();
     private readonly Dictionary<ulong, int> reactionDelayPerCast = new();
@@ -38,7 +39,8 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         Func<MovementConfig> configAccessor, IPluginLog log,
         IClientState? clientState = null,
         IHighEndContentService? highEndContent = null,
-        IObjectTable? objectTable = null)
+        IObjectTable? objectTable = null,
+        ICondition? condition = null)
     {
         this.hook = hook;
         this.tracker = tracker;
@@ -50,6 +52,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         this.clientState = clientState;
         this.objectTable = objectTable;
         this.highEndContent = highEndContent;
+        this.condition = condition;
 
         if (clientState != null)
             clientState.TerritoryChanged += OnTerritoryChanged;
@@ -277,7 +280,16 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     {
         var p = objectTable?.LocalPlayer;
         if (p == null) return true;
-        // Dead: CurrentHp == 0. Also covers the post-raise ghost state.
-        return p.CurrentHp == 0;
+        // Dead (CurrentHp == 0 also covers the post-raise ghost state) or casting:
+        // movement input cancels an in-flight cast, so avoidance must never fire mid-cast.
+        if (p.CurrentHp == 0 || p.IsCasting) return true;
+        // Mounted or watching a cutscene: injected movement is at best noise, at worst
+        // breaks scripted camera or movement.
+        if (condition is not null
+            && (condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.Mounted]
+                || condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.OccupiedInCutSceneEvent]
+                || condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.WatchingCutscene]))
+            return true;
+        return false;
     }
 }
