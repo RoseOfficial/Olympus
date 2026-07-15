@@ -82,6 +82,20 @@ public sealed class FightTimeline
                     syncIndex[sync.ActionId] = list;
                 }
                 list.Add(i);
+
+                if (sync.AdditionalActionIds is { } extraIds)
+                {
+                    foreach (var extraId in extraIds)
+                    {
+                        if (extraId == 0) continue;
+                        if (!syncIndex.TryGetValue(extraId, out var extraList))
+                        {
+                            extraList = new List<int>(4);
+                            syncIndex[extraId] = extraList;
+                        }
+                        extraList.Add(i);
+                    }
+                }
             }
         }
         SyncIndex = syncIndex;

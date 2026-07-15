@@ -36,6 +36,12 @@ public readonly struct TimelineSync
     public float WindowAfter { get; init; }
 
     /// <summary>
+    /// Extra action IDs that also sync this entry (Cactbot array syntax,
+    /// e.g. id: ["B34E", "B34F"]). Null for single-ID syncs.
+    /// </summary>
+    public uint[]? AdditionalActionIds { get; init; }
+
+    /// <summary>
     /// Creates a new timeline sync configuration.
     /// </summary>
     public TimelineSync(SyncType type, uint actionId = 0, string? sourceName = null,

@@ -49,6 +49,14 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
     [GeneratedRegex(@"^hideall\s+""([^""]+)""", RegexOptions.Compiled)]
     private static partial Regex HideallPattern();
 
+    // Match: StartsUsing/Ability { id: "XXXX" } or { id: ["XXXX", ...] } without sync /.../ wrapper
+    [GeneratedRegex(@"\b(StartsUsing|Ability)\s*\{\s*id:\s*(\[[^\]]*\]|""[0-9A-Fa-f]+"")", RegexOptions.Compiled)]
+    private static partial Regex NetworkSyncPattern();
+
+    // Match: quoted hex tokens like "B34E" within an id array or single id value
+    [GeneratedRegex(@"""([0-9A-Fa-f]+)""", RegexOptions.Compiled)]
+    private static partial Regex HexIdListPattern();
+
     // Known mechanic type keywords for auto-classification.
     // ClassifyEntryType checks these sets in priority order: TankBuster → Stack → Spread →
     // Raidwide → Enrage → Adds → Phase → Ability.
@@ -175,45 +183,67 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
         // Check if this ability is hidden
         var isHidden = hiddenPatterns.Contains(abilityName);
 
-        // Parse sync
+        // Parse sync. Two Cactbot generations exist side by side in Timeline/Data:
+        //  - old ACT format:     sync /^.{14} Erichthonios 6DA1/           (regex wrapper)
+        //  - new network format: StartsUsing { id: "B384", ... }            (no wrapper)
+        //                        Ability { id: ["B34E", "B34F"], ... }      (array IDs)
         TimelineSync? sync = null;
         var syncMatch = SyncPattern().Match(modifiers);
         if (syncMatch.Success)
         {
             var syncContent = syncMatch.Groups[1].Value;
 
-            // Check for StartsUsing pattern first
             var startsUsingMatch = StartsUsingPattern().Match(syncContent);
             if (startsUsingMatch.Success)
             {
                 if (uint.TryParse(startsUsingMatch.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var actionId))
-                {
                     sync = TimelineSync.StartsUsing(actionId);
-                }
             }
             else
             {
-                // Check for regular Ability { id: } pattern
                 var idMatch = SyncIdPattern().Match(syncContent);
                 if (idMatch.Success)
                 {
                     if (uint.TryParse(idMatch.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var actionId))
-                    {
                         sync = TimelineSync.Ability(actionId);
-                    }
+                }
+                else if (ExtractTrailingHexId(syncContent) is { } trailingId)
+                {
+                    // Old ACT network-log regex: the ability ID is the trailing hex token.
+                    sync = TimelineSync.Ability(trailingId);
+                }
+            }
+        }
+        else
+        {
+            // New format: no sync /.../ wrapper at all.
+            var netMatch = NetworkSyncPattern().Match(modifiers);
+            if (netMatch.Success)
+            {
+                var ids = new List<uint>(4);
+                foreach (Match idToken in HexIdListPattern().Matches(netMatch.Groups[2].Value))
+                {
+                    if (uint.TryParse(idToken.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var id) && id > 0)
+                        ids.Add(id);
+                }
+                if (ids.Count > 0)
+                {
+                    var extra = ids.Count > 1 ? ids.GetRange(1, ids.Count - 1).ToArray() : null;
+                    sync = netMatch.Groups[1].Value == "StartsUsing"
+                        ? TimelineSync.StartsUsing(ids[0]) with { AdditionalActionIds = extra }
+                        : TimelineSync.Ability(ids[0]) with { AdditionalActionIds = extra };
                 }
             }
         }
 
-        // Parse window modifier
+        // Parse window modifier. Use `with` so AdditionalActionIds is preserved.
         var windowMatch = WindowPattern().Match(modifiers);
         if (windowMatch.Success && sync.HasValue)
         {
             if (float.TryParse(windowMatch.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var before) &&
                 float.TryParse(windowMatch.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var after))
             {
-                var currentSync = sync.Value;
-                sync = new TimelineSync(currentSync.Type, currentSync.ActionId, currentSync.SourceName, before, after);
+                sync = sync.Value with { WindowBefore = before, WindowAfter = after };
             }
         }
 
@@ -291,6 +321,21 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
             jumpTarget,
             label,
             isHidden);
+    }
+
+    /// <summary>
+    /// Extracts the trailing bare-hex ability ID from an old ACT-format sync regex,
+    /// e.g. "^.{14} Erichthonios 6DA1" -&gt; 0x6DA1. Returns null when the last token is
+    /// not a plausible hex action ID (zone-seal chat lines end in words, not hex).
+    /// </summary>
+    internal static uint? ExtractTrailingHexId(string syncContent)
+    {
+        var tokens = syncContent.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (tokens.Length == 0) return null;
+        var last = tokens[^1].Trim(':', '/', ')');
+        if (last.Length is < 2 or > 8) return null;
+        return uint.TryParse(last, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var id) && id > 0
+            ? id : null;
     }
 
     private static TimelineEntryType ClassifyEntryType(string abilityName, string modifiers)
