@@ -49,6 +49,9 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     /// <inheritdoc />
     protected override HealerPartyHelper HealerParty => _partyHelper;
 
+    /// <inheritdoc />
+    protected override RotationScheduler Scheduler => _scheduler;
+
     /// <summary>
     /// Gets the Athena-specific debug state.
     /// </summary>
@@ -237,34 +240,6 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
-    }
-
-    /// <summary>
-    /// Fully scheduler-driven execution. All modules push candidates and the scheduler
-    /// dispatches the highest-priority candidate from each queue. Push priorities preserve
-    /// legacy ordering: Fairy (0-7), Resurrection (1-2), Healing (5-80), Defensive (75-130),
-    /// Buff (200-250), Damage (285-330).
-    /// </summary>
-    protected override void ExecuteModules(IAthenaContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-            _scheduler.DispatchOgcd(context);
-
-        if (ActionService.CanExecuteGcd)
-            _scheduler.DispatchGcd(context);
     }
 
     #endregion

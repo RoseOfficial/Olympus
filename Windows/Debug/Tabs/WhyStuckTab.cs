@@ -87,37 +87,60 @@ public static class WhyStuckTab
             ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Target, "Target"), ImGuiTableColumnFlags.WidthFixed, 120);
             ImGui.TableHeadersRow();
 
-            // Priority 0.5: Esuna
-            DrawPriorityRow("0.5", Loc.T(LocalizedStrings.Debug.Esuna, "Esuna"), rotation.EsunaState, rotation.EsunaTarget);
+            if (rotation.IsHealerRotation)
+            {
+                // Priority 0.5: Esuna
+                DrawPriorityRow("0.5", Loc.T(LocalizedStrings.Debug.Esuna, "Esuna"), rotation.EsunaState, rotation.EsunaTarget);
 
-            // Priority 1: Raise
-            DrawPriorityRow("1", Loc.T(LocalizedStrings.Debug.Raise, "Raise"), rotation.RaiseState, rotation.RaiseTarget);
+                // Priority 1: Raise
+                DrawPriorityRow("1", Loc.T(LocalizedStrings.Debug.Raise, "Raise"), rotation.RaiseState, rotation.RaiseTarget);
 
-            // Priority 2: AoE Heal
-            var aoEDetails = healing.AoEInjuredCount > 0
-                ? Loc.TFormat(LocalizedStrings.Debug.InjuredCountFormat, "{0} injured", healing.AoEInjuredCount)
-                : "";
-            DrawPriorityRow("2", Loc.T(LocalizedStrings.Debug.AoEHeal, "AoE Heal"), healing.AoEStatus, aoEDetails);
+                // Priority 2: AoE Heal
+                var aoEDetails = healing.AoEInjuredCount > 0
+                    ? Loc.TFormat(LocalizedStrings.Debug.InjuredCountFormat, "{0} injured", healing.AoEInjuredCount)
+                    : "";
+                DrawPriorityRow("2", Loc.T(LocalizedStrings.Debug.AoEHeal, "AoE Heal"), healing.AoEStatus, aoEDetails);
 
-            // Priority 3: Single Heal
-            var singleHealState = rotation.PlanningState == "Single Heal"
-                ? Loc.T(LocalizedStrings.Debug.ActiveLabel, "Active")
-                : Loc.T(LocalizedStrings.Debug.CheckingLabel, "Checking...");
-            DrawPriorityRow("3", Loc.T(LocalizedStrings.Debug.SingleHeal, "Single Heal"), singleHealState, "");
+                // Priority 3: Single Heal
+                var singleHealState = rotation.PlanningState == "Single Heal"
+                    ? Loc.T(LocalizedStrings.Debug.ActiveLabel, "Active")
+                    : Loc.T(LocalizedStrings.Debug.CheckingLabel, "Checking...");
+                DrawPriorityRow("3", Loc.T(LocalizedStrings.Debug.SingleHeal, "Single Heal"), singleHealState, "");
 
-            // Priority 4: Regen
-            var regenState = rotation.PlanningState == "Regen"
-                ? Loc.T(LocalizedStrings.Debug.ActiveLabel, "Active")
-                : Loc.T(LocalizedStrings.Debug.CheckingLabel, "Checking...");
-            DrawPriorityRow("4", Loc.T(LocalizedStrings.Debug.Regen, "Regen"), regenState, "");
+                // Priority 4: Regen
+                var regenState = rotation.PlanningState == "Regen"
+                    ? Loc.T(LocalizedStrings.Debug.ActiveLabel, "Active")
+                    : Loc.T(LocalizedStrings.Debug.CheckingLabel, "Checking...");
+                DrawPriorityRow("4", Loc.T(LocalizedStrings.Debug.Regen, "Regen"), regenState, "");
+            }
 
-            // Priority 5: DPS
+            // Priority 5 (all jobs): DPS
             var dpsState = rotation.DpsState == "Moving" && movement.IsInjectingMovement
                 ? $"Moving (AoE avoidance: {movement.ActiveThreatCount} threats)"
                 : rotation.DpsState;
             DrawPriorityRow("5", Loc.T(LocalizedStrings.Debug.DpsLabel, "DPS"), dpsState, rotation.TargetInfo);
 
             ImGui.EndTable();
+        }
+
+        // Scheduler gate-failure diagnostics (this frame)
+        ImGui.Spacing();
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.SchedulerRejectionsHeader, "Scheduler rejections (this frame)"));
+        ImGui.Separator();
+        var hasReasons = false;
+        foreach (var reason in rotation.GcdGateFailReasons)
+        {
+            ImGui.TextWrapped("GCD: " + reason);
+            hasReasons = true;
+        }
+        foreach (var reason in rotation.OgcdGateFailReasons)
+        {
+            ImGui.TextWrapped("oGCD: " + reason);
+            hasReasons = true;
+        }
+        if (!hasReasons)
+        {
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.SchedulerRejectionsNone, "none"));
         }
     }
 

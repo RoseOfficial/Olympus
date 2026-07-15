@@ -43,6 +43,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
 
     /// <inheritdoc />
     protected override List<IIrisModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
 
     /// <summary>
     /// Gets the Iris-specific debug state. Used for Pictomancer-specific debug display.
@@ -248,30 +249,6 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
-    }
-
-    /// <inheritdoc />
-    protected override void ExecuteModules(IIrisContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        // PCT pushes pre-pull motif paints (GCD path) out of combat. oGCDs gate on inCombat.
-        if (inCombat && ActionService.CanExecuteOgcd)
-            _scheduler.DispatchOgcd(context);
-
-        if (ActionService.CanExecuteGcd)
-            _scheduler.DispatchGcd(context);
     }
 
     #endregion

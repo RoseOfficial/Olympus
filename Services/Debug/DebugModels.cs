@@ -113,6 +113,14 @@ public sealed class DebugRotationState
     public int BloodLilyCount { get; init; }
     public string LilyStrategy { get; init; } = "Balanced";
     public int SacredSightStacks { get; init; }
+
+    // Scheduler gate-failure diagnostics (debug window only)
+    public string[] OgcdGateFailReasons { get; init; } = Array.Empty<string>();
+    public string[] GcdGateFailReasons { get; init; } = Array.Empty<string>();
+
+    // True if the active rotation is a healer job (WHM/CNJ/SCH/SGE/AST).
+    // Used by WhyStuckTab to gate healer-specific priority rows.
+    public bool IsHealerRotation { get; init; }
 }
 
 /// <summary>

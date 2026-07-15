@@ -43,6 +43,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
 
     /// <inheritdoc />
     protected override List<IKratosModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
 
     /// <summary>
     /// Gets the Kratos-specific debug state. Used for Monk-specific debug display.
@@ -279,29 +280,6 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
-    }
-
-    /// <inheritdoc />
-    protected override void ExecuteModules(IKratosContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-            _scheduler.DispatchOgcd(context);
-
-        if (ActionService.CanExecuteGcd)
-            _scheduler.DispatchGcd(context);
     }
 
     #endregion

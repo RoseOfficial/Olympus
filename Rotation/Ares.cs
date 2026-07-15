@@ -36,6 +36,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
     public override uint[] SupportedJobIds => [JobRegistry.Warrior, JobRegistry.Marauder];
     public override DebugState DebugState => _debugState;
     protected override List<IAresModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
 
     public AresDebugState AresDebug => _aresDebugState;
 
@@ -155,37 +156,6 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             partyCoordinationService: PartyCoordinationService,
             trainingService: _trainingService,
             log: Log);
-    }
-
-    protected override void ExecuteModules(IAresContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-        {
-            return;
-        }
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-        {
-            return;
-        }
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-        {
-            module.CollectCandidates(context, _scheduler, isMoving);
-        }
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            _scheduler.DispatchOgcd(context);
-        }
-        if (ActionService.CanExecuteGcd)
-        {
-            _scheduler.DispatchGcd(context);
-        }
     }
 
     protected override void SyncDebugState(IAresContext context)

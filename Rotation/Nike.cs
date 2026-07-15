@@ -45,6 +45,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
 
     /// <inheritdoc />
     protected override List<INikeModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
 
     /// <summary>
     /// Gets the Nike-specific debug state. Used for Samurai-specific debug display.
@@ -281,29 +282,6 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
-    }
-
-    /// <inheritdoc />
-    protected override void ExecuteModules(INikeContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-            _scheduler.DispatchOgcd(context);
-
-        if (ActionService.CanExecuteGcd)
-            _scheduler.DispatchGcd(context);
     }
 
     #endregion

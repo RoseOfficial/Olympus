@@ -36,6 +36,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
     public override uint[] SupportedJobIds => [JobRegistry.DarkKnight];
     public override DebugState DebugState => _debugState;
     protected override List<INyxModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
 
     public NyxDebugState NyxDebug => _nyxDebugState;
 
@@ -159,33 +160,6 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             partyCoordinationService: PartyCoordinationService,
             trainingService: _trainingService,
             log: Log);
-    }
-
-    protected override void ExecuteModules(INyxContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-        {
-            module.CollectCandidates(context, _scheduler, isMoving);
-        }
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            _scheduler.DispatchOgcd(context);
-        }
-        if (ActionService.CanExecuteGcd)
-        {
-            _scheduler.DispatchGcd(context);
-        }
     }
 
     protected override void SyncDebugState(INyxContext context)

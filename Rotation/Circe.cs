@@ -43,6 +43,12 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
 
     /// <inheritdoc />
     protected override List<ICirceModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
+
+    // RDM ResurrectionModule fires Verraise via Dualcast/Swiftcast both pre and
+    // post combat (raise during phase resets, downtime). Allow oGCD dispatch out
+    // of combat so Swiftcast can fire before re-engaging.
+    protected override bool AllowPreCombatOgcdDispatch => true;
 
     /// <summary>
     /// Gets the Circe-specific debug state. Used for Red Mage-specific debug display.
@@ -323,32 +329,6 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
-    }
-
-    /// <inheritdoc />
-    protected override void ExecuteModules(ICirceContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        // RDM ResurrectionModule fires Verraise via Dualcast/Swiftcast both pre and
-        // post combat (raise during phase resets, downtime). Drop the inCombat gate
-        // on the oGCD pass so Swiftcast can dispatch out of combat.
-        if (ActionService.CanExecuteOgcd)
-            _scheduler.DispatchOgcd(context);
-
-        if (ActionService.CanExecuteGcd)
-            _scheduler.DispatchGcd(context);
     }
 
     #endregion

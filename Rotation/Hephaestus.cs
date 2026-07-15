@@ -46,6 +46,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     /// <inheritdoc />
     protected override List<IHephaestusModule> Modules => _modules;
 
+    /// <inheritdoc />
+    protected override RotationScheduler Scheduler => _scheduler;
+
     /// <summary>
     /// Gets the Hephaestus-specific debug state. Used for Gunbreaker-specific debug display.
     /// </summary>
@@ -292,41 +295,6 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Kept as a no-op so the existing call site in UpdateRotation still compiles — the
     // combined update now happens in UpdateGnashingFangStep.
     private void UpdateReignComboStep() { }
-
-    /// <inheritdoc />
-    protected override void ExecuteModules(IHephaestusContext context, bool isMoving, bool inCombat)
-    {
-        // Preserve BaseRotation's safety pauses (same as parent loop).
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-        {
-            return;
-        }
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-        {
-            return;
-        }
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-        {
-            module.CollectCandidates(context, _scheduler, isMoving);
-        }
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            _scheduler.DispatchOgcd(context);
-        }
-        if (ActionService.CanExecuteGcd)
-        {
-            _scheduler.DispatchGcd(context);
-        }
-
-        UpdateModuleDebugStates(context);
-    }
 
     /// <inheritdoc />
     protected override void SyncDebugState(IHephaestusContext context)

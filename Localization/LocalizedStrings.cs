@@ -2741,6 +2741,8 @@ public static class LocalizedStrings
         public const string LilyStrategyFormat = "debug.why_stuck.lily_strategy_format";
         public const string SacredSightFormat = "debug.why_stuck.sacred_sight_format";
         public const string SacredSightZero = "debug.why_stuck.sacred_sight_zero";
+        public const string SchedulerRejectionsHeader = "debug.why_stuck.scheduler_rejections_header";
+        public const string SchedulerRejectionsNone = "debug.why_stuck.scheduler_rejections_none";
 
         // Actions tab
         public const string GcdStateDetails = "debug.actions.gcd_state_details";

@@ -43,6 +43,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
 
     /// <inheritdoc />
     protected override List<IZeusModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
 
     /// <summary>
     /// Gets the Zeus-specific debug state. Used for Dragoon-specific debug display.
@@ -279,32 +280,6 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
-    }
-
-    /// <summary>
-    /// Scheduler-driven execution. CollectCandidates runs per module, then the
-    /// scheduler dispatches the highest-priority gate-passing candidate per phase.
-    /// </summary>
-    protected override void ExecuteModules(IZeusContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-            _scheduler.DispatchOgcd(context);
-
-        if (ActionService.CanExecuteGcd)
-            _scheduler.DispatchGcd(context);
     }
 
     #endregion

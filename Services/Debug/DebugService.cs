@@ -4,6 +4,7 @@ using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Models;
 using Olympus.Rotation;
 using Olympus.Services.Movement;
@@ -190,6 +191,8 @@ public sealed class DebugService
             };
         }
 
+        var isHealer = activeRotation?.SupportedJobIds?.Any(JobRegistry.IsHealer) ?? false;
+
         return new DebugRotationState
         {
             // Core state
@@ -223,7 +226,14 @@ public sealed class DebugService
             LilyCount = debug.LilyCount,
             BloodLilyCount = debug.BloodLilyCount,
             LilyStrategy = debug.LilyStrategy,
-            SacredSightStacks = debug.SacredSightStacks
+            SacredSightStacks = debug.SacredSightStacks,
+
+            // Scheduler gate-failure diagnostics
+            OgcdGateFailReasons = debug.OgcdGateFailReasons,
+            GcdGateFailReasons = debug.GcdGateFailReasons,
+
+            // Healer identity flag
+            IsHealerRotation = isHealer,
         };
     }
 

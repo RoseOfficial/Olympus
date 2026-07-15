@@ -9,6 +9,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
@@ -45,6 +46,12 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     /// Gets the list of modules for this rotation, sorted by priority (lower = higher priority).
     /// </summary>
     protected abstract List<TModule> Modules { get; }
+
+    /// <summary>
+    /// Returns the rotation's per-frame priority scheduler.
+    /// Each concrete rotation implements this as a one-liner returning its private _scheduler field.
+    /// </summary>
+    protected abstract RotationScheduler Scheduler { get; }
 
     /// <summary>
     /// Creates the job-specific context for module execution.
@@ -365,43 +372,59 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     }
 
     /// <summary>
-    /// Executes modules in priority order for both oGCD and GCD windows.
+    /// When true, the oGCD queue dispatches even out of combat. Terpsichore (DNC)
+    /// and Circe (RDM) override this: dance steps / Swiftcast raises fire pre-pull.
+    /// </summary>
+    protected virtual bool AllowPreCombatOgcdDispatch => false;
+
+    /// <summary>
+    /// Shared dispatch scaffold: safety pauses, tincture, collect, dispatch both queues,
+    /// capture gate-failure diagnostics. Override ONLY for genuine structural deviations;
+    /// prefer the AllowPreCombatOgcdDispatch hook.
     /// </summary>
     protected virtual void ExecuteModules(TContext context, bool isMoving, bool inCombat)
     {
         // Hard pause: Pyretic-style debuff active — any GCD or oGCD kills the player.
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-        {
             return;
-        }
 
         // Hard pause: player is holding a channel/stance.
         if (Configuration.Targeting.PauseOnPlayerChannel
             && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-        {
             return;
-        }
 
-        // Try oGCD modules first during weave windows
-        if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            foreach (var module in Modules)
-            {
-                if (module.TryExecute(context, isMoving))
-                    break;
-            }
-        }
+        if (TryDispatchTincture(context, inCombat))
+            return;
 
-        // Try GCD modules when GCD is ready
+        var scheduler = Scheduler;
+        scheduler.Reset();
+        foreach (var module in Modules)
+            module.CollectCandidates(context, scheduler, isMoving);
+
+        var ogcdResult = SchedulerDispatchResult.Empty;
+        var gcdResult = SchedulerDispatchResult.Empty;
+
+        if ((inCombat || AllowPreCombatOgcdDispatch) && ActionService.CanExecuteOgcd)
+            ogcdResult = scheduler.DispatchOgcd(context);
+
         if (ActionService.CanExecuteGcd)
+            gcdResult = scheduler.DispatchGcd(context);
+
+        if (Configuration.IsDebugWindowOpen)
         {
-            foreach (var module in Modules)
-            {
-                if (module.TryExecute(context, isMoving))
-                    break;
-            }
+            DebugState.OgcdGateFailReasons = AsArray(ogcdResult.GateFailReasons);
+            DebugState.GcdGateFailReasons = AsArray(gcdResult.GateFailReasons);
         }
+    }
+
+    private static string[] AsArray(IReadOnlyList<string> reasons)
+    {
+        if (reasons.Count == 0) return Array.Empty<string>();
+        if (reasons is string[] arr) return arr;
+        var copy = new string[reasons.Count];
+        for (var i = 0; i < reasons.Count; i++) copy[i] = reasons[i];
+        return copy;
     }
 
     #endregion

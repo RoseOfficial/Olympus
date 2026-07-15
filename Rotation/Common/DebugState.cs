@@ -1,4 +1,6 @@
 // Rotation/Common/DebugState.cs
+using System;
+
 namespace Olympus.Rotation.Common;
 
 /// <summary>
@@ -34,4 +36,10 @@ public class DebugState : BaseDebugState
     public string LilyStrategy { get; set; } = "Balanced";
     public int SacredSightStacks { get; set; }
     public string MiseryState { get; set; } = "Idle";
+
+    /// <summary>Scheduler gate-failure reasons from the last oGCD dispatch pass (debug window only).</summary>
+    public string[] OgcdGateFailReasons = Array.Empty<string>();
+
+    /// <summary>Scheduler gate-failure reasons from the last GCD dispatch pass (debug window only).</summary>
+    public string[] GcdGateFailReasons = Array.Empty<string>();
 }

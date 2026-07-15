@@ -43,6 +43,12 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
 
     /// <inheritdoc />
     protected override List<ITerpsichoreModule> Modules => _modules;
+    protected override RotationScheduler Scheduler => _scheduler;
+
+    // DNC fires oGCDs pre-combat (Closed Position + Standard Step before the pull).
+    // AllowPreCombatOgcdDispatch lifts the inCombat gate on the oGCD pass.
+    // Per-candidate logic in BuffModule still gates correctly for in-combat abilities.
+    protected override bool AllowPreCombatOgcdDispatch => true;
 
     /// <summary>
     /// Gets the Terpsichore-specific debug state. Used for Dancer-specific debug display.
@@ -253,33 +259,6 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
-    }
-
-    /// <inheritdoc />
-    protected override void ExecuteModules(ITerpsichoreContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        // Terpsichore is the one DPS that fires oGCDs pre-combat (Closed Position +
-        // Standard Step before the pull). Drop the inCombat gate on the oGCD pass so
-        // BuffModule.CollectCandidates can push those candidates and the scheduler
-        // dispatches them. Per-candidate logic in BuffModule still gates correctly.
-        if (ActionService.CanExecuteOgcd)
-            _scheduler.DispatchOgcd(context);
-
-        if (ActionService.CanExecuteGcd)
-            _scheduler.DispatchGcd(context);
     }
 
     #endregion

@@ -37,6 +37,7 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
     public override DebugState DebugState => _debugState;
     protected override List<IApolloModule> Modules => _modules;
     protected override HealerPartyHelper HealerParty => _partyHelper;
+    protected override RotationScheduler Scheduler => _scheduler;
 
     private readonly DebugState _debugState = new();
     private readonly StatusHelper _statusHelper;
@@ -145,42 +146,4 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
             log: Log);
     }
 
-    /// <summary>
-    /// Fully scheduler-driven execution. All modules push candidates; scheduler
-    /// dispatches the highest-priority candidate from each queue. Resurrection (1-2),
-    /// Healing (10-80), Defensive (90-130), Buff (200-250), Damage push priorities
-    /// preserve the legacy module ordering. Damage stays on legacy TryExecute as a
-    /// side effect (BlocksOnExecution = false).
-    /// </summary>
-    protected override void ExecuteModules(IApolloContext context, bool isMoving, bool inCombat)
-    {
-        if (Configuration.Targeting.PauseAllOnStandStillPunisher
-            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
-            return;
-        if (Configuration.Targeting.PauseOnPlayerChannel
-            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-            return;
-
-        if (TryDispatchTincture(context, inCombat)) return;
-
-        _scheduler.Reset();
-        foreach (var module in _modules)
-            module.CollectCandidates(context, _scheduler, isMoving);
-
-        if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            if (_scheduler.DispatchOgcd(context).Dispatched) return;
-            // DamageModule still uses legacy TryExecute (no migration value — its
-            // BlocksOnExecution = false means it never breaks the loop anyway).
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
-        }
-
-        if (ActionService.CanExecuteGcd)
-        {
-            if (_scheduler.DispatchGcd(context).Dispatched) return;
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
-        }
-    }
 }
