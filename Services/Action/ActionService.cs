@@ -61,6 +61,12 @@ public sealed unsafe class ActionService : IActionService
     private volatile float _animLockDelayEstimate;
     private long _lastUseActionTicks;
 
+    // Failure logging throttle: a persistently-failing candidate is retried every frame
+    // by the scheduler; unthrottled logging would flood the bounded history at 60/sec.
+    private uint _lastFailureActionId;
+    private ActionResult _lastFailureResult;
+    private DateTime _lastFailureLoggedUtc = DateTime.MinValue;
+
     /// <summary>Current GCD state.</summary>
     public GcdState CurrentGcdState { get; private set; } = GcdState.Ready;
 
@@ -231,6 +237,18 @@ public sealed unsafe class ActionService : IActionService
         return result;
     }
 
+    private void LogFailureThrottled(uint actionId, ActionResult result, uint? statusCode)
+    {
+        var now = DateTime.UtcNow;
+        if (actionId == _lastFailureActionId && result == _lastFailureResult
+            && (now - _lastFailureLoggedUtc).TotalSeconds < 1.0)
+            return;
+        _lastFailureActionId = actionId;
+        _lastFailureResult = result;
+        _lastFailureLoggedUtc = now;
+        _actionTracker.LogAttempt(actionId, null, null, result, 0, statusCode);
+    }
+
     /// <summary>
     /// Execute an oGCD action immediately.
     /// Call this during weave windows.
@@ -246,8 +264,13 @@ public sealed unsafe class ActionService : IActionService
             return false;
 
         // Check if action can be executed
-        if (actionManager->GetActionStatus(ActionType.Action, action.ActionId) != 0)
+        var status = actionManager->GetActionStatus(ActionType.Action, action.ActionId);
+        if (status != 0)
+        {
+            // Scheduler-side gates (charges) passed but the game refused: real signal.
+            LogFailureThrottled(action.ActionId, ActionResult.ActionNotReady, status);
             return false;
+        }
 
         // Execute
         var result = actionManager->UseAction(ActionType.Action, action.ActionId, targetId);
@@ -260,6 +283,10 @@ public sealed unsafe class ActionService : IActionService
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
+        }
+        else
+        {
+            LogFailureThrottled(action.ActionId, ActionResult.Failed, null);
         }
 
         return result;
@@ -280,8 +307,13 @@ public sealed unsafe class ActionService : IActionService
             return false;
 
         // Check if action can be executed
-        if (actionManager->GetActionStatus(ActionType.Action, action.ActionId) != 0)
+        var status = actionManager->GetActionStatus(ActionType.Action, action.ActionId);
+        if (status != 0)
+        {
+            // Scheduler-side gates (charges) passed but the game refused: real signal.
+            LogFailureThrottled(action.ActionId, ActionResult.ActionNotReady, status);
             return false;
+        }
 
         // Execute at target location
         var result = actionManager->UseActionLocation(ActionType.Action, action.ActionId, 0xE0000000, &targetPosition);
@@ -294,6 +326,10 @@ public sealed unsafe class ActionService : IActionService
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
+        }
+        else
+        {
+            LogFailureThrottled(action.ActionId, ActionResult.Failed, null);
         }
 
         return result;
@@ -360,6 +396,10 @@ public sealed unsafe class ActionService : IActionService
             _ogcdsUsedThisCycle++;
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
+        }
+        else
+        {
+            LogFailureThrottled(action.ActionId, ActionResult.Failed, null);
         }
 
         return result;
