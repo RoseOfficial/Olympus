@@ -20,15 +20,18 @@ public sealed class HighEndContentService : IHighEndContentService
 
     public bool IsHighEndZone => _isHighEnd;
 
+    public bool IsPvpZone { get; private set; }
+
     public void OnTerritoryChanged(ushort territoryType)
     {
         _isHighEnd = false;
+        IsPvpZone = false;
         if (territoryType == 0) return;
 
         var row = _dataManager.GetExcelSheet<TerritoryType>()?.GetRowOrDefault(territoryType);
         if (!row.HasValue) return;
 
-        if (row.Value.IsPvpZone) return;
+        if (row.Value.IsPvpZone) { IsPvpZone = true; return; }
 
         var cfc = row.Value.ContentFinderCondition.ValueNullable;
         if (cfc is null) return;

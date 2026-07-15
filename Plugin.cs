@@ -751,6 +751,12 @@ public sealed class Plugin : IDalamudPlugin
             if (localPlayer == null)
                 return;
 
+            // PvP zones: no rotation dispatch, no movement injection, no pull-intent
+            // tracking. PvE action IDs are rejected wholesale in PvP, and autorotation
+            // there is a player-trust liability. (Both competitors gate on IsPvP.)
+            if (highEndContentService.IsPvpZone)
+                return;
+
             // Tincture automation: drive PullIntentService state machine and notify
             // ConsumableService of combat-state changes so the per-fight warning
             // throttle resets correctly. Runs outside the Enabled gate so the latch
