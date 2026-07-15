@@ -38,7 +38,7 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
 
     public override bool TryExecute(IAsclepiusContext context, bool isMoving) => false;
 
-    public new void CollectCandidates(IAsclepiusContext context, RotationScheduler scheduler, bool isMoving)
+    public void CollectCandidates(IAsclepiusContext context, RotationScheduler scheduler, bool isMoving)
     {
         if (!context.InCombat) return;
         if (context.TargetingService.IsDamageTargetingPaused()) { SetDpsState(context, "Paused (no target)"); return; }

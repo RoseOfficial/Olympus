@@ -110,7 +110,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
 
     public override bool TryExecute(IApolloContext context, bool isMoving) => false;
 
-    public new void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
+    public void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
         if (!context.InCombat) return;
         if (context.TargetingService.IsDamageTargetingPaused()) { SetDpsState(context, "Paused (no target)"); return; }

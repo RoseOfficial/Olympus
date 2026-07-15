@@ -32,7 +32,7 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
 
     public override bool TryExecute(IAthenaContext context, bool isMoving) => false;
 
-    public new void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         if (!context.InCombat) return;
         if (context.TargetingService.IsDamageTargetingPaused()) { SetDpsState(context, "Paused (no target)"); return; }
