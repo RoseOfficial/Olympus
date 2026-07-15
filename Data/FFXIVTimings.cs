@@ -36,9 +36,6 @@ public static class FFXIVTimings
     public const float ActionEffectDelay = 0.6f;
 
     // oGCD Weaving Windows
-    /// <summary>GCD must be at least this long for safe double weave.</summary>
-    public const float DoubleWeaveThreshold = 2.1f;
-
     /// <summary>
     /// Safety buffer for clipping prevention (100ms).
     /// oGCD will not be used if GcdRemaining &lt; AnimationLock + this buffer.

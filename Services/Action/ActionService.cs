@@ -34,7 +34,6 @@ public sealed unsafe class ActionService : IActionService
     private readonly IActionTracker _actionTracker;
     private readonly IErrorMetricsService? _errorMetrics;
     private readonly IObjectTable? _objectTable;
-    private readonly WeaveOptimizer _weaveOptimizer;
 
     // GCD tracking state
     private float _lastGcdTotal;
@@ -83,15 +82,11 @@ public sealed unsafe class ActionService : IActionService
     /// </summary>
     public event Action<ActionExecutedEvent>? ActionExecuted;
 
-    /// <summary>Gets the WeaveOptimizer for intelligent oGCD timing.</summary>
-    public IWeaveOptimizer WeaveOptimizer => _weaveOptimizer;
-
     public ActionService(IActionTracker actionTracker, IErrorMetricsService? errorMetrics = null, IObjectTable? objectTable = null)
     {
         _actionTracker = actionTracker;
         _errorMetrics = errorMetrics;
         _objectTable = objectTable;
-        _weaveOptimizer = new WeaveOptimizer();
     }
 
     /// <summary>
@@ -105,9 +100,6 @@ public sealed unsafe class ActionService : IActionService
 
         _lastIsCasting = isCasting;
         UpdateGcdState(actionManager);
-
-        // Update WeaveOptimizer with current state
-        _weaveOptimizer.Update(GcdRemaining, _lastGcdTotal, AnimationLockRemaining, _ogcdsUsedThisCycle);
     }
 
     private void UpdateGcdState(ActionManager* actionManager)
@@ -367,48 +359,6 @@ public sealed unsafe class ActionService : IActionService
     /// <see cref="ComputeWeaveSlots"/>.
     /// </summary>
     public bool IsInWeaveWindow() => GetAvailableWeaveSlots() > 0;
-
-    /// <summary>
-    /// Checks if it's safe to weave an oGCD without clipping the GCD.
-    /// Returns true if GcdRemaining > oGcdAnimationLock + ClipPreventionBuffer.
-    /// Use this before executing oGCDs to prevent DPS loss from GCD delays.
-    /// </summary>
-    /// <param name="oGcdAnimationLock">Animation lock of the oGCD (default: 0.6s for most oGCDs).</param>
-    /// <returns>True if the oGCD can be safely weaved without clipping.</returns>
-    public bool IsSafeToWeave(float oGcdAnimationLock = FFXIVTimings.AnimationLockBase)
-    {
-        // Not safe if we're casting or already in animation lock
-        if (_lastIsCasting || AnimationLockRemaining > FFXIVConstants.WeaveWindowBuffer)
-            return false;
-
-        // Calculate if there's enough time for the animation lock to complete
-        // before the GCD comes back up
-        var requiredTime = oGcdAnimationLock + FFXIVTimings.ClipPreventionBuffer;
-        return GcdRemaining >= requiredTime;
-    }
-
-    /// <summary>
-    /// Checks if a specific oGCD would clip the GCD if used now.
-    /// Returns true if using this oGCD would delay the next GCD.
-    /// </summary>
-    /// <param name="oGcdAnimationLock">Animation lock of the oGCD.</param>
-    /// <returns>True if executing the oGCD would cause clipping.</returns>
-    public bool WouldClipGcd(float oGcdAnimationLock = FFXIVTimings.AnimationLockBase)
-    {
-        // If GCD is ready (not rolling), no clipping concern
-        if (GcdRemaining <= 0)
-            return false;
-
-        // Would clip if animation lock extends past when GCD becomes ready
-        var animationEndTime = AnimationLockRemaining + oGcdAnimationLock;
-        return animationEndTime > GcdRemaining;
-    }
-
-    /// <summary>Number of oGCDs used this GCD cycle.</summary>
-    public int OgcdsUsedThisCycle => _ogcdsUsedThisCycle;
-
-    /// <summary>Whether another oGCD can be weaved this cycle.</summary>
-    public bool CanWeaveAnother => GetAvailableWeaveSlots() > _ogcdsUsedThisCycle;
 
     /// <summary>
     /// Gets cooldown remaining for a specific action.
