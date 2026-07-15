@@ -59,6 +59,7 @@ public sealed class DebugService
     private readonly IDataManager _dataManager;
     private readonly ITrashAvoidanceService? _trashAvoidance;
     private readonly Configuration? _configuration;
+    private readonly FrameTimeStats? _frameTimeStats;
 
     // Cached snapshot - updated on demand
     private DebugSnapshot? _cachedSnapshot;
@@ -77,7 +78,8 @@ public sealed class DebugService
         IObjectTable objectTable,
         IDataManager dataManager,
         ITrashAvoidanceService? trashAvoidance = null,
-        Configuration? configuration = null)
+        Configuration? configuration = null,
+        FrameTimeStats? frameTimeStats = null)
     {
         _actionTracker = actionTracker;
         _actionService = actionService;
@@ -91,6 +93,7 @@ public sealed class DebugService
         _dataManager = dataManager;
         _trashAvoidance = trashAvoidance;
         _configuration = configuration;
+        _frameTimeStats = frameTimeStats;
     }
 
     /// <summary>
@@ -143,6 +146,8 @@ public sealed class DebugService
         var (total, success, successRate, gcdUptime, avgCastGap) = _actionTracker.GetStatistics();
         var topFailure = _actionTracker.GetMostCommonFailure();
 
+        var debugWindowOpen = _configuration?.IsDebugWindowOpen ?? false;
+
         return new DebugStatistics
         {
             TotalAttempts = total,
@@ -154,7 +159,9 @@ public sealed class DebugService
             TopFailureCount = topFailure?.count ?? 0,
             DowntimeEventCount = _actionTracker.DowntimeEventCount,
             LastDowntimeTime = _actionTracker.LastDowntimeTime,
-            LastDowntimeReason = _actionTracker.LastDowntimeReason
+            LastDowntimeReason = _actionTracker.LastDowntimeReason,
+            FrameLastMs = _frameTimeStats?.LastMs ?? 0,
+            FrameP95Ms = debugWindowOpen ? (_frameTimeStats?.P95Ms ?? 0) : 0
         };
     }
 

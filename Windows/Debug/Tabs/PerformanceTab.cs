@@ -78,6 +78,13 @@ public static class PerformanceTab
             ImGui.EndTable();
         }
 
+        // Frame time row (only populated when debug window is open)
+        if (stats.FrameLastMs > 0 || stats.FrameP95Ms > 0)
+        {
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.FrameTimeFormat,
+                "Frame: {0:F2} ms (P95 {1:F2} ms)", stats.FrameLastMs, stats.FrameP95Ms));
+        }
+
         // GCD Status Row
         var gcdColor = gcd.DebugGcdReady ? DebugColors.Failure : DebugColors.Success;
         ImGui.TextColored(gcdColor, gcd.DebugGcdReady

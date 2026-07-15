@@ -54,6 +54,10 @@ public sealed class DebugStatistics
     public int DowntimeEventCount { get; init; }
     public DateTime LastDowntimeTime { get; init; }
     public string LastDowntimeReason { get; init; } = "";
+
+    // Per-frame execution time
+    public double FrameLastMs { get; init; }
+    public double FrameP95Ms { get; init; }
 }
 
 /// <summary>

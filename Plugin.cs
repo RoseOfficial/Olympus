@@ -159,6 +159,9 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Olympus.Services.Movement.TrashAvoidanceService trashAvoidanceService;
     private readonly Olympus.Services.Movement.InteractDispatchService interactDispatchService;
 
+    // Per-frame timing sampler
+    private readonly FrameTimeStats frameTimeStats = new();
+
     // Error metrics
     private readonly ErrorMetricsService errorMetricsService;
 
@@ -426,7 +429,8 @@ public sealed class Plugin : IDalamudPlugin
             objectTable,
             dataManager,
             trashAvoidance: trashAvoidanceService,
-            configuration: configuration);
+            configuration: configuration,
+            frameTimeStats: frameTimeStats);
 
         this.drawingService = new DrawingService(pluginInterface, configuration.DrawHelper, log);
         this.drawCanvas = new DrawCanvas(drawingService, configuration, objectTable, clientState, targetManager, gameGui, positionalService, rotationManager);
@@ -697,6 +701,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnFrameworkUpdate(IFramework framework)
     {
+        var frameStart = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
             // Always update debug service frame counter
@@ -826,6 +831,10 @@ public sealed class Plugin : IDalamudPlugin
             {
                 _suppressedFrameErrors++;
             }
+        }
+        finally
+        {
+            frameTimeStats.Record(System.Diagnostics.Stopwatch.GetElapsedTime(frameStart).TotalMilliseconds);
         }
     }
 

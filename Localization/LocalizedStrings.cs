@@ -2873,6 +2873,7 @@ public static class LocalizedStrings
         public const string PartyList = "debug.performance.party_list";
         public const string ValidMembers = "debug.performance.valid_members";
         public const string ShadowHpHeader = "debug.performance.shadow_hp_header";
+        public const string FrameTimeFormat = "debug.performance.frame_time_format";
 
         // Timeline tab
         public const string TimelineNotAvailable = "debug.timeline.not_available";
