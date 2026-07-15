@@ -60,7 +60,7 @@ public class CactbotTimelineParserSyncTests
         Assert.True(tl!.SyncIndex.ContainsKey(0xB384));
     }
 
-[Fact]
+    [Fact]
     public void Parse_NewFormat_ArrayIds_AllIndexed()
     {
         var parser = new CactbotTimelineParser();
@@ -70,5 +70,17 @@ public class CactbotTimelineParserSyncTests
         Assert.True(tl!.SyncIndex.ContainsKey(0xB34E));
         Assert.True(tl.SyncIndex.ContainsKey(0xB34F));
         Assert.True(tl.SyncIndex.ContainsKey(0xB350));
+    }
+
+    [Fact]
+    public void Parse_CommentedOutNetworkSync_IsNotIndexed()
+    {
+        var parser = new CactbotTimelineParser();
+        var tl = parser.Parse(
+            "556.2 \"Ascalon's Might 1\" #Ability { id: \"63C5\", source: \"King Thordan\" }\n"
+            + "560.0 \"Real\" Ability { id: \"63C6\" }\n", 1, "t", "t");
+        Assert.NotNull(tl);
+        Assert.Single(tl!.SyncIndex);
+        Assert.True(tl.SyncIndex.ContainsKey(0x63C6));
     }
 }

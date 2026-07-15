@@ -217,7 +217,13 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
         else
         {
             // New format: no sync /.../ wrapper at all.
-            var netMatch = NetworkSyncPattern().Match(modifiers);
+            // Cactbot comments out sync lines deliberately (unreliable anchors like auto-attacks).
+            // Only match network syncs in the uncommented portion. The FULL modifiers string still
+            // feeds window/duration/jump/label parsing and ClassifyEntryType: the "# Raidwide" /
+            // "# Tankbuster" comment annotations are load-bearing for classification.
+            var hashIndex = modifiers.IndexOf('#');
+            var uncommented = hashIndex >= 0 ? modifiers[..hashIndex] : modifiers;
+            var netMatch = NetworkSyncPattern().Match(uncommented);
             if (netMatch.Success)
             {
                 var ids = new List<uint>(4);
