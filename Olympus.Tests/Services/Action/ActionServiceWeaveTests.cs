@@ -36,7 +36,35 @@ public class ActionServiceWeaveTests
     public void ComputeWeaveSlots_ReturnsExpectedSlots(
         float gcdRemaining, float animLock, bool isCasting, int used, int expected)
     {
-        var slots = ActionService.ComputeWeaveSlots(gcdRemaining, animLock, isCasting, used);
+        var slots = ActionService.ComputeWeaveSlots(gcdRemaining, animLock, isCasting, used, 0.6f);
         Assert.Equal(expected, slots);
+    }
+
+    [Theory]
+    // 80ms ping: post-instant window 1.8s, cost 0.68 -> (1.7 / 0.68) = 2 slots still.
+    [InlineData(1.8f, 0f, false, 0, 0.68f, 2)]
+    // 200ms ping: cost 0.8 -> (1.7 / 0.8) = 2.125 -> 2; at 1.5s remaining (1.4 / 0.8) = 1.
+    [InlineData(1.5f, 0f, false, 0, 0.8f, 1)]
+    // High ping tightens the single-weave floor: 0.85s remaining, cost 0.8 -> (0.75/0.8) -> 0.
+    [InlineData(0.85f, 0f, false, 0, 0.8f, 0)]
+    public void ComputeWeaveSlots_WithPerWeaveCost_ReturnsExpectedSlots(
+        float gcdRemaining, float animLock, bool isCasting, int used, float cost, int expected)
+    {
+        var slots = ActionService.ComputeWeaveSlots(gcdRemaining, animLock, isCasting, used, cost);
+        Assert.Equal(expected, slots);
+    }
+
+    [Fact]
+    public void SmoothDelaySample_ClampsAndSmooths()
+    {
+        // Starts at 0; one 100ms sample moves the estimate 20% of the way.
+        var s1 = ActionService.SmoothDelaySample(0f, 0.100f);
+        Assert.Equal(0.020f, s1, 3);
+        // Samples above 300ms clamp to 300ms.
+        var s2 = ActionService.SmoothDelaySample(0f, 5f);
+        Assert.Equal(0.060f, s2, 3);
+        // Negative samples clamp to 0 (clock skew safety).
+        var s3 = ActionService.SmoothDelaySample(0.1f, -1f);
+        Assert.Equal(0.080f, s3, 3);
     }
 }

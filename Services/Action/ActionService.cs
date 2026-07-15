@@ -34,6 +34,7 @@ public sealed unsafe class ActionService : IActionService
     private readonly IActionTracker _actionTracker;
     private readonly IErrorMetricsService? _errorMetrics;
     private readonly IObjectTable? _objectTable;
+    private readonly Configuration? _configuration;
 
     // GCD tracking state
     private float _lastGcdTotal;
@@ -51,6 +52,10 @@ public sealed unsafe class ActionService : IActionService
     // Guard so modules can't spam UseAction every frame during the ~0.5s queue window.
     // Set on successful submit while GcdRemaining > 0; cleared at true rollover (GcdRemaining == 0).
     private bool _gcdSubmittedThisCycle;
+
+    // Ping compensation: smoothed request->ActionEffect delay for the local player.
+    private float _animLockDelayEstimate;
+    private DateTime _lastUseActionUtc = DateTime.MinValue;
 
     /// <summary>Current GCD state.</summary>
     public GcdState CurrentGcdState { get; private set; } = GcdState.Ready;
@@ -82,11 +87,38 @@ public sealed unsafe class ActionService : IActionService
     /// </summary>
     public event Action<ActionExecutedEvent>? ActionExecuted;
 
-    public ActionService(IActionTracker actionTracker, IErrorMetricsService? errorMetrics = null, IObjectTable? objectTable = null)
+    /// <summary>Smoothed extra animation-lock delay caused by network latency (seconds).</summary>
+    public float AnimationLockDelayEstimate => _animLockDelayEstimate;
+
+    public ActionService(IActionTracker actionTracker, IErrorMetricsService? errorMetrics = null, IObjectTable? objectTable = null, Configuration? configuration = null)
     {
         _actionTracker = actionTracker;
         _errorMetrics = errorMetrics;
         _objectTable = objectTable;
+        _configuration = configuration;
+    }
+
+    /// <summary>
+    /// EWMA update for the delay estimate (internal for tests): 20% weight per sample,
+    /// samples clamped to [0, 0.3]s.
+    /// </summary>
+    internal static float SmoothDelaySample(float current, float sample)
+    {
+        var clamped = Math.Clamp(sample, 0f, 0.3f);
+        return current * 0.8f + clamped * 0.2f;
+    }
+
+    /// <summary>
+    /// Wired by Plugin to ICombatEventService.OnAbilityUsed. Samples the delay between
+    /// our last successful UseAction submit and the server's ActionEffect for the local
+    /// player. Events more than 1s after the submit are unrelated and skipped.
+    /// </summary>
+    public void OnLocalActionEffect(DateTime effectUtc)
+    {
+        if (_lastUseActionUtc == DateTime.MinValue) return;
+        var delay = (float)(effectUtc - _lastUseActionUtc).TotalSeconds;
+        if (delay is < 0f or > 1f) return;
+        _animLockDelayEstimate = SmoothDelaySample(_animLockDelayEstimate, delay);
     }
 
     /// <summary>
@@ -181,6 +213,7 @@ public sealed unsafe class ActionService : IActionService
 
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
+            _lastUseActionUtc = _lastExecuteTime;
 
             // Track for statistics
             var gcdDuration = actionManager->GetRecastTime(ActionType.Action, action.ActionId);
@@ -217,6 +250,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
+            _lastUseActionUtc = _lastExecuteTime;
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
@@ -250,6 +284,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
+            _lastUseActionUtc = _lastExecuteTime;
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
@@ -290,6 +325,7 @@ public sealed unsafe class ActionService : IActionService
 
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
+            _lastUseActionUtc = _lastExecuteTime;
 
             var gcdDuration = actionManager->GetRecastTime(ActionType.Action, rawDispatchId);
             _actionTracker.LogGcdCast(gcdDuration);
@@ -314,6 +350,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
+            _lastUseActionUtc = _lastExecuteTime;
             _ogcdsUsedThisCycle++;
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
@@ -404,9 +441,17 @@ public sealed unsafe class ActionService : IActionService
 
     /// <summary>
     /// Gets the number of oGCDs that still fit before the GCD comes back up.
+    /// When <see cref="Configuration.EnablePingCompensation"/> is on, the per-weave cost
+    /// includes the smoothed request-to-ActionEffect delay so high-latency players get a
+    /// tighter weave window automatically.
     /// </summary>
     public int GetAvailableWeaveSlots()
-        => ComputeWeaveSlots(GcdRemaining, AnimationLockRemaining, _lastIsCasting, _ogcdsUsedThisCycle);
+    {
+        var perWeaveCost = FFXIVTimings.AnimationLockBase
+            + (_configuration?.EnablePingCompensation == true ? _animLockDelayEstimate : 0f);
+        return ComputeWeaveSlots(GcdRemaining, AnimationLockRemaining, _lastIsCasting,
+                                 _ogcdsUsedThisCycle, perWeaveCost);
+    }
 
     /// <summary>
     /// Pure weave-capacity computation (internal for unit tests). One more weave fits
@@ -417,15 +462,15 @@ public sealed unsafe class ActionService : IActionService
     /// same frame and an oGCD fired at GCD-ready would clip it.
     /// </summary>
     internal static int ComputeWeaveSlots(
-        float gcdRemaining, float animationLockRemaining, bool isCasting, int ogcdsUsedThisCycle)
+        float gcdRemaining, float animationLockRemaining, bool isCasting,
+        int ogcdsUsedThisCycle, float perWeaveCost)
     {
         if (isCasting || animationLockRemaining > FFXIVConstants.WeaveWindowBuffer)
             return 0;
         if (gcdRemaining <= FFXIVTimings.QueueWindow)
             return 0;
 
-        var capacityNow = (int)((gcdRemaining - FFXIVTimings.ClipPreventionBuffer)
-                                / FFXIVTimings.AnimationLockBase);
+        var capacityNow = (int)((gcdRemaining - FFXIVTimings.ClipPreventionBuffer) / perWeaveCost);
         var remainingCap = 2 - ogcdsUsedThisCycle;
         return Math.Max(0, Math.Min(capacityNow, remainingCap));
     }

@@ -63,6 +63,13 @@ public sealed class Configuration : IPluginConfiguration
     /// </summary>
     public bool EnableOnAutoAttack { get; set; } = false;
 
+    /// <summary>
+    /// When true, Olympus adds a smoothed estimate of network round-trip delay to the
+    /// per-weave cost, tightening the weave window for high-latency players to prevent
+    /// GCD clipping. Default off; opt in if you notice clipped GCDs on high-ping connections.
+    /// </summary>
+    public bool EnablePingCompensation { get; set; } = false;
+
     // Master category toggles
     public bool EnableHealing { get; set; } = true;
     public bool EnableDamage { get; set; } = true;
@@ -174,6 +181,7 @@ public sealed class Configuration : IPluginConfiguration
 
         // Reset general behavior
         EnableOnAutoAttack = false;
+        EnablePingCompensation = false;
         MovementTolerance = 0.1f;
 
         // Reset master toggles

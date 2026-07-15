@@ -163,6 +163,7 @@ public sealed class Plugin : IDalamudPlugin
 
     // Stored event handler delegates to allow removal in Dispose
     private readonly Action<uint, uint> onAbilityUsedHandler;
+    private readonly Action<uint, uint> onLocalActionEffectHandler;
     private readonly Action<FightSession> onSessionCompletedHandler;
 
     private DateTime _lastFrameErrorLog;
@@ -226,7 +227,7 @@ public sealed class Plugin : IDalamudPlugin
             configuration,
             shieldTrackingService,
             damageTrendService);
-        this.actionService = new ActionService(actionTracker, objectTable: objectTable);
+        this.actionService = new ActionService(actionTracker, objectTable: objectTable, configuration: configuration);
         this.playerStatsService = new PlayerStatsService(log, dataManager);
 
         // Healing spell selector (evaluates all heals and picks the best)
@@ -248,6 +249,15 @@ public sealed class Plugin : IDalamudPlugin
         this.timelineService = new TimelineService(log, combatEventService);
         this.onAbilityUsedHandler = (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
         combatEventService.OnAbilityUsed += this.onAbilityUsedHandler;
+
+        // Wire ping compensation sampler: filter to local player only so other players' abilities
+        // don't corrupt the delay estimate.
+        this.onLocalActionEffectHandler = (sourceEntityId, _) =>
+        {
+            if (sourceEntityId == objectTable.LocalPlayer?.EntityId)
+                actionService.OnLocalActionEffect(DateTime.UtcNow);
+        };
+        combatEventService.OnAbilityUsed += this.onLocalActionEffectHandler;
 
         // Wire timeline into damage prediction service
         this.damageIntakeService.SetTimelineService(this.timelineService);
@@ -845,6 +855,7 @@ public sealed class Plugin : IDalamudPlugin
         framework.Update -= OnFrameworkUpdate;
         clientState.TerritoryChanged -= OnTerritoryChanged;
         combatEventService.OnAbilityUsed -= this.onAbilityUsedHandler;
+        combatEventService.OnAbilityUsed -= this.onLocalActionEffectHandler;
         performanceTracker.OnSessionCompleted -= this.onSessionCompletedHandler;
         commandManager.RemoveHandler(CommandName);
 
