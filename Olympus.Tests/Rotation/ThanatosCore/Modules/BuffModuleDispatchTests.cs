@@ -54,10 +54,13 @@ public class BuffModuleDispatchTests
         actionService.Setup(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
 
         var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        // hasDeathsDesign=true so the module guard passes and the candidate IS pushed.
+        // The disabled EnableArcaneCircle Toggle is then the sole reason for rejection.
         var context = ThanatosTestContext.Create(
             config: config,
             actionService: actionService,
-            hasArcaneCircle: false);
+            hasArcaneCircle: false,
+            hasDeathsDesign: true);
 
         _module.CollectCandidates(context, scheduler, isMoving: false);
         scheduler.DispatchOgcd(context);

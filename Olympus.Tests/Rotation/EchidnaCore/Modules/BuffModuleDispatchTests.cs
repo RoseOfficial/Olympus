@@ -55,9 +55,14 @@ public class BuffModuleDispatchTests
         actionService.Setup(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
 
         var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        // All three module guards must pass so the candidate IS pushed.
+        // The disabled EnableSerpentsIre Toggle is then the sole reason for rejection.
         var context = EchidnaTestContext.Create(
             config: config,
-            actionService: actionService);
+            actionService: actionService,
+            hasNoxiousGnash: true,
+            hasHuntersInstinct: true,
+            hasSwiftscaled: true);
 
         _module.CollectCandidates(context, scheduler, isMoving: false);
         scheduler.DispatchOgcd(context);

@@ -73,12 +73,14 @@ public class DamageModuleDispatchTests
             .Returns(enemy.Object);
 
         var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
-        // hasDiveReady=false so module guard also blocks, consistent with proc absence.
+        // hasDiveReady=true so the module guard passes and the candidate IS pushed.
+        // PlayerHasStatus defaults to false, so the scheduler's ProcBuff gate rejects it.
+        // This ensures the ProcBuff gate is the sole reason for the negative outcome.
         var context = ZeusTestContext.Create(
             config: config,
             actionService: actionService,
             targetingService: targetingService,
-            hasDiveReady: false);
+            hasDiveReady: true);
 
         _module.CollectCandidates(context, scheduler, isMoving: false);
         scheduler.DispatchOgcd(context);
