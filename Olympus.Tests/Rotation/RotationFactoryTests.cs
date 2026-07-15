@@ -99,6 +99,64 @@ public class RotationFactoryTests
 
     #endregion
 
+    #region ValidateResolvability Tests
+
+    [Fact]
+    public void ValidateResolvability_UnsatisfiableConstructor_LogsError()
+    {
+        // RotationNeedingService requires TestService, which is not registered
+        var factory = new RotationFactory(_services, _mockLog.Object);
+
+        factory.ValidateResolvability(typeof(RotationNeedingService));
+
+        _mockLog.Verify(l => l.Error(It.IsAny<string>(), It.IsAny<object[]>()), Times.Once);
+    }
+
+    [Fact]
+    public void ValidateResolvability_SatisfiableConstructor_NoError()
+    {
+        // SimpleTestRotation has a no-arg constructor that is always satisfiable
+        var factory = new RotationFactory(_services, _mockLog.Object);
+
+        factory.ValidateResolvability(typeof(SimpleTestRotation));
+
+        _mockLog.Verify(l => l.Error(It.IsAny<string>(), It.IsAny<object[]>()), Times.Never);
+    }
+
+    [Fact]
+    public void ValidateResolvability_UnsatisfiableConstructor_NamesTheMissingService()
+    {
+        // RotationNeedingService requires TestService; the error message must name it
+        var factory = new RotationFactory(_services, _mockLog.Object);
+
+        factory.ValidateResolvability(typeof(RotationNeedingService));
+
+        _mockLog.Verify(
+            l => l.Error(
+                It.IsAny<string>(),
+                It.Is<object[]>(args =>
+                    args.Length == 2 &&
+                    (args[0] as string) != null &&
+                    ((string)args[0]).Contains("RotationNeedingService") &&
+                    (args[1] as string) != null &&
+                    ((string)args[1]).Contains("TestService"))),
+            Times.Once);
+    }
+
+    [Fact]
+    public void ValidateResolvability_AllDepsRegistered_NoError()
+    {
+        // With TestService registered, RotationNeedingService becomes satisfiable
+        _services.Register(new TestService());
+        var factory = new RotationFactory(_services, _mockLog.Object);
+
+        factory.ValidateResolvability(typeof(RotationNeedingService));
+
+        _mockLog.Verify(l => l.Error(It.IsAny<string>(), It.IsAny<object[]>()), Times.Never);
+    }
+
+    #endregion
+
     #region Create<T> Tests
 
     [Fact]

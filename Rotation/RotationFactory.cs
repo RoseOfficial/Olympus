@@ -69,6 +69,7 @@ public sealed class RotationFactory
                 count++;
                 _log.Debug("Registered factory for rotation {Name} (jobs: {Jobs})",
                     attr.Name, string.Join(", ", attr.JobIds));
+                ValidateResolvability(type);
             }
             catch (Exception ex)
             {
@@ -78,6 +79,32 @@ public sealed class RotationFactory
 
         _log.Information("Discovered and registered {Count} rotation factories", count);
         return count;
+    }
+
+    /// <summary>
+    /// Startup sanity check: logs an error immediately if a discovered rotation has no
+    /// constructor whose required parameters all resolve from the container. Without
+    /// this, a missing service surfaces only at first job-switch as a cached warning.
+    /// </summary>
+    internal void ValidateResolvability(Type rotationType)
+    {
+        List<string>? bestMissing = null;
+        foreach (var ctor in rotationType.GetConstructors()
+                     .OrderByDescending(c => c.GetParameters().Length))
+        {
+            var missing = new List<string>();
+            foreach (var p in ctor.GetParameters())
+            {
+                if (!p.HasDefaultValue && ResolveService(p.ParameterType) is null)
+                    missing.Add(p.ParameterType.Name);
+            }
+            if (missing.Count == 0)
+                return; // satisfiable constructor found
+            if (bestMissing == null || missing.Count < bestMissing.Count)
+                bestMissing = missing;
+        }
+        _log.Error("Rotation {Type} has no satisfiable constructor; missing services: {Missing}",
+            rotationType.Name, string.Join(", ", bestMissing ?? new List<string>()));
     }
 
     private IRotation CreateRotationAndTrack(Type rotationType)
