@@ -2,7 +2,6 @@ using Olympus.Data;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Helpers;
-using Olympus.Services.Party;
 
 namespace Olympus.Rotation.HermesCore.Context;
 
@@ -170,15 +169,6 @@ public interface IHermesContext : IMeleeDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     HermesDebugState Debug { get; }
-
-    #endregion
-
-    #region Party Coordination
-
-    /// <summary>
-    /// Party coordination service for raid buff synchronization.
-    /// </summary>
-    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 

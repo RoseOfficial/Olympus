@@ -120,6 +120,12 @@ public interface IRotationContext
     /// </summary>
     ITimelineService? TimelineService { get; }
 
+    /// <summary>
+    /// Multi-instance party coordination (null when coordination is disabled).
+    /// Declared here so every rotation gets it without per-job re-declaration.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
+
     #endregion
 
     #region Dalamud Services
@@ -177,9 +183,4 @@ public interface IHealerRotationContext : IRotationContext
     /// </summary>
     ICooldownPlanner CooldownPlanner { get; }
 
-    /// <summary>
-    /// Service for coordinating heals and cooldowns with other Olympus instances.
-    /// Null if party coordination is disabled or unavailable.
-    /// </summary>
-    IPartyCoordinationService? PartyCoordinationService { get; }
 }

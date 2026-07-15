@@ -1,7 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HecateCore.Helpers;
-using Olympus.Services.Party;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HecateCore.Context;
@@ -189,15 +188,6 @@ public interface IHecateContext : ICasterDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     HecateDebugState Debug { get; }
-
-    #endregion
-
-    #region Party Coordination
-
-    /// <summary>
-    /// Party coordination service for raid buff synchronization and mit-stack overlap skip.
-    /// </summary>
-    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 

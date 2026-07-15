@@ -2,7 +2,6 @@ using Olympus.Data;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.NikeCore.Helpers;
-using Olympus.Services.Party;
 
 namespace Olympus.Rotation.NikeCore.Context;
 
@@ -158,15 +157,6 @@ public interface INikeContext : IMeleeDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     NikeDebugState Debug { get; }
-
-    #endregion
-
-    #region Party Coordination
-
-    /// <summary>
-    /// Party coordination service for multi-Olympus sync.
-    /// </summary>
-    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 
