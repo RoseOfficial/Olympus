@@ -112,7 +112,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.JugularRip.ActionId, GNBActions.JugularRip.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Jugular Rip - Continuation after Gnashing Fang",
                         "Jugular Rip is the first Continuation oGCD, triggered by Gnashing Fang's Ready to Rip proc. " +
@@ -134,7 +134,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.AbdomenTear.ActionId, GNBActions.AbdomenTear.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Abdomen Tear - Continuation after Savage Claw",
                         "Abdomen Tear is the second Continuation oGCD, triggered by Savage Claw's Ready to Tear proc. " +
@@ -156,7 +156,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.EyeGouge.ActionId, GNBActions.EyeGouge.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Eye Gouge - Continuation after Wicked Talon",
                         "Eye Gouge is the third and final Continuation oGCD, triggered by Wicked Talon's Ready to Gouge proc. " +
@@ -180,7 +180,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.Hypervelocity.ActionId, GNBActions.Hypervelocity.Name)
                         .AsTankDamage()
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             "Hypervelocity - Continuation after Burst Strike",
                             "Hypervelocity is the Continuation oGCD for Burst Strike (available from Lv.86). " +
@@ -205,7 +205,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.FatedBrand.ActionId, GNBActions.FatedBrand.Name)
                         .AsTankDamage()
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             "Fated Brand - Continuation after Fated Circle",
                             "Fated Brand is the Continuation oGCD for Fated Circle (available from Lv.96). " +
@@ -236,7 +236,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(action.ActionId, action.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         $"Using {action.Name} on cooldown",
                         $"{action.Name} is a high-potency oGCD (the upgraded version of Danger Zone available from Lv.80). " +
@@ -294,7 +294,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.Trajectory.ActionId, GNBActions.Trajectory.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Trajectory gap closer",
                         "Trajectory is a gap-closing oGCD with 2 charges that also deals damage. " +
@@ -323,7 +323,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.Trajectory.ActionId, GNBActions.Trajectory.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Trajectory woven as extra damage.",
                         "Trajectory deals damage and costs no GCD.")
@@ -349,7 +349,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.LightningShot.ActionId, GNBActions.LightningShot.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Lightning Shot - ranged attack while out of melee range",
                         "Lightning Shot is GNB's ranged attack GCD, used when the enemy is out of melee range. " +
@@ -378,7 +378,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.SavageClaw.ActionId, GNBActions.SavageClaw.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Savage Claw - Gnashing Fang combo step 2",
                         "Savage Claw is the second step of the Gnashing Fang combo (combo 2/3). " +
@@ -400,7 +400,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.WickedTalon.ActionId, GNBActions.WickedTalon.Name)
                     .AsTankDamage()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Wicked Talon - Gnashing Fang combo step 3 (finisher)",
                         "Wicked Talon is the third and final step of the Gnashing Fang combo. " +
@@ -431,7 +431,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.ReignOfBeasts.ActionId, GNBActions.ReignOfBeasts.Name)
                     .AsTankBurst()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Reign of Beasts combo (Lv.100)",
                         "Reign of Beasts is the first step of GNB's Lv.100 combo (Reign of Beasts -> Noble Blood -> Lion Heart). " +
@@ -454,7 +454,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.NobleBlood.ActionId, GNBActions.NobleBlood.Name)
                     .AsTankBurst()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Noble Blood - Reign combo step 2",
                         "Noble Blood is the second step of the Reign of Beasts combo. " +
@@ -475,7 +475,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.LionHeart.ActionId, GNBActions.LionHeart.Name)
                     .AsTankBurst()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Lion Heart - Reign combo finisher",
                         "Lion Heart is the third and final step of the Reign of Beasts combo. " +
@@ -537,7 +537,7 @@ public sealed class DamageModule : IHephaestusModule
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.SonicBreak.ActionId, GNBActions.SonicBreak.Name)
                     .AsTankBurst()
-                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                     .Reason(
                         "Sonic Break during No Mercy window",
                         "Sonic Break is a high-potency GCD that applies a DoT to the target (60s cooldown). " +
@@ -623,7 +623,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.FatedCircle.ActionId, GNBActions.FatedCircle.Name)
                         .AsTankResource(context.Cartridges)
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             $"Fated Circle AoE ({enemyCount} enemies)",
                             "Fated Circle is GNB's AoE cartridge spender, replacing Burst Strike when 3+ enemies are present. " +
@@ -711,7 +711,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.SolidBarrel.ActionId, GNBActions.SolidBarrel.Name)
                         .AsTankResource(context.Cartridges)
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             "Solid Barrel - combo finisher (+1 cartridge)",
                             "Solid Barrel is the finisher of GNB's basic single-target combo (Keen Edge -> Brutal Shell -> Solid Barrel). " +
@@ -743,7 +743,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.BrutalShell.ActionId, GNBActions.BrutalShell.Name)
                         .AsCombo(2)
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             "Brutal Shell - combo step 2",
                             "Brutal Shell is the middle step of GNB's basic combo (Keen Edge -> Brutal Shell -> Solid Barrel). " +
@@ -770,7 +770,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.KeenEdge.ActionId, GNBActions.KeenEdge.Name)
                         .AsCombo(1)
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             "Keen Edge - basic combo starter",
                             "Keen Edge is the opener of GNB's basic single-target combo. " +
@@ -806,7 +806,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.DemonSlaughter.ActionId, GNBActions.DemonSlaughter.Name)
                         .AsTankResource(context.Cartridges)
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             "Demon Slaughter - AoE combo finisher (+1 cartridge)",
                             "Demon Slaughter is the finisher of GNB's AoE combo (Demon Slice -> Demon Slaughter). " +
@@ -832,7 +832,7 @@ public sealed class DamageModule : IHephaestusModule
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(GNBActions.DemonSlice.ActionId, GNBActions.DemonSlice.Name)
                         .AsCombo(1)
-                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Target(context.CurrentTarget?.Name?.TextValue ?? "Enemy")
                         .Reason(
                             "Demon Slice - AoE combo starter",
                             "Demon Slice is the opener of GNB's AoE combo (Demon Slice -> Demon Slaughter). " +

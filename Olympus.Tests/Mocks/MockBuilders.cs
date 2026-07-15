@@ -463,6 +463,10 @@ public static class MockBuilders
     {
         var mock = new Mock<IObjectTable>();
         mock.Setup(x => x.GetEnumerator()).Returns(new List<IGameObject>().GetEnumerator());
+        // SearchById must return non-null so the scheduler's target gate passes for self-targeted
+        // abilities pushed with player.GameObjectId (1ul). Without this, DispatchOgcd skips every
+        // self-targeted candidate with "Target missing" even though the target is the local player.
+        mock.Setup(x => x.SearchById(It.IsAny<ulong>())).Returns(new Mock<IGameObject>().Object);
         return mock;
     }
 
