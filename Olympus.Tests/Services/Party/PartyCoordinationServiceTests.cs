@@ -404,4 +404,52 @@ public class PartyCoordinationServiceTests
 
         Assert.False(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 0f));
     }
+
+    // -------------------------------------------------------------------------
+    // Update — cleanup removes expired reservation and expired cooldown
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void Update_PastExpiry_RemovesReservationAndCooldown()
+    {
+        // Arrange — inject a clock that returns a time 10 seconds in the past so that
+        // the remote reservation's ReservedAt is well beyond the 3-second expiry window
+        // without requiring a real sleep longer than the minimum-clamped config value.
+        // The cooldown uses a 1ms recast and a real 10ms sleep (RemoteCooldownInfo uses
+        // DateTime.UtcNow internally, not the injectable clock).
+        //
+        // This is a regression guard: early-exit conditions on the reused cleanup buffers
+        // must not skip real work when collections are non-empty.
+        var pastTime = DateTime.UtcNow.AddSeconds(-10);
+        var service = CreateService(clock: () => pastTime);
+
+        var remoteId = Guid.NewGuid();
+
+        // Seed a remote reservation — ReservedAt will be set to pastTime (10s ago)
+        service.HandleRemoteHealIntent(new HealIntentMessage(
+            instanceId: remoteId,
+            targetEntityId: 0xBEEFu,
+            estimatedHealAmount: 3000,
+            actionId: 1u,
+            castTimeMs: 0));
+
+        // Seed a remote cooldown with a 1ms recast so it expires after a short sleep
+        service.HandleRemoteCooldownUsed(new CooldownUsedMessage(
+            remoteId, ReprisalActionId, recastTimeMs: 1));
+
+        // Both should be visible immediately after seeding
+        Assert.NotEmpty(service.GetRemoteReservations());
+        Assert.True(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 1_000_000f));
+
+        // Let real time advance past the 1ms cooldown recast
+        System.Threading.Thread.Sleep(10);
+
+        // Act — Update uses DateTime.UtcNow for its `now`; reservation is ~10s stale
+        // (beyond the default 3000ms expiry), and cooldown IsOnCooldown is false
+        service.Update(playerEntityId: 0u, jobId: 0u, isEnabled: true);
+
+        // Assert — both entries removed by the cleanup passes
+        Assert.Empty(service.GetRemoteReservations());
+        Assert.False(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 1_000_000f));
+    }
 }

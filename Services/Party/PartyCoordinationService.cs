@@ -80,6 +80,13 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     // Lock protecting all remote state against concurrent IPC callbacks
     private readonly object _stateLock = new();
 
+    // Reused cleanup buffers. _lockedGuidBuffer/_lockedUintBuffer are touched ONLY while
+    // holding _stateLock; _localUintBuffer ONLY from the framework thread on the
+    // lock-free local-reservation paths. Never expose or enumerate outside those scopes.
+    private readonly List<Guid> _lockedGuidBuffer = new(8);
+    private readonly List<uint> _lockedUintBuffer = new(8);
+    private readonly List<uint> _localUintBuffer = new(8);
+
     // Event callbacks for IPC layer
     public event Action<HeartbeatMessage>? OnHeartbeatReady;
     public event Action<HealIntentMessage>? OnHealIntentReady;
@@ -2118,87 +2125,82 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     private void CleanupExpiredInstances(DateTime now)
     {
-        var expiredInstances = new List<Guid>();
-        List<Guid> timedOutForLogging;
+        List<Guid>? timedOutForLogging = null;
 
         lock (_stateLock)
         {
+            // Collect expired instance IDs into the reused buffer
+            _lockedGuidBuffer.Clear();
             foreach (var kvp in _remoteInstances)
             {
-                var elapsed = (now - kvp.Value.LastHeartbeat).TotalMilliseconds;
-                if (elapsed > _config.InstanceTimeoutMs)
-                    expiredInstances.Add(kvp.Key);
+                if ((now - kvp.Value.LastHeartbeat).TotalMilliseconds > _config.InstanceTimeoutMs)
+                    _lockedGuidBuffer.Add(kvp.Key);
             }
 
-            foreach (var id in expiredInstances)
+            if (_lockedGuidBuffer.Count > 0)
             {
-                _remoteInstances.Remove(id);
+                foreach (var id in _lockedGuidBuffer)
+                {
+                    _remoteInstances.Remove(id);
 
-                // Also remove any reservations from this instance
-                var reservationsToRemove = _remoteReservations
-                    .Where(r => r.Value.InstanceId == id)
-                    .Select(r => r.Key)
-                    .ToList();
+                    // Also remove any reservations from this instance
+                    _lockedUintBuffer.Clear();
+                    foreach (var r in _remoteReservations)
+                        if (r.Value.InstanceId == id) _lockedUintBuffer.Add(r.Key);
+                    foreach (var targetId in _lockedUintBuffer)
+                        _remoteReservations.Remove(targetId);
 
-                foreach (var targetId in reservationsToRemove)
-                    _remoteReservations.Remove(targetId);
+                    // Remove cooldowns from disconnected instance
+                    foreach (var kvp in _remoteCooldowns)
+                        kvp.Value.RemoveAll(c => c.InstanceId == id);
 
-                // Remove cooldowns from disconnected instance
-                foreach (var kvp in _remoteCooldowns)
-                    kvp.Value.RemoveAll(c => c.InstanceId == id);
+                    // Remove raid buff states from disconnected instance
+                    foreach (var kvp in _remoteRaidBuffStates)
+                        kvp.Value.RemoveAll(s => s.InstanceId == id);
 
-                // Remove raid buff states from disconnected instance
-                foreach (var kvp in _remoteRaidBuffStates)
-                    kvp.Value.RemoveAll(s => s.InstanceId == id);
+                    // Remove gauge state from disconnected instance
+                    _remoteHealerGauges.Remove(id);
 
-                // Remove gauge state from disconnected instance
-                _remoteHealerGauges.Remove(id);
+                    // Remove role declaration from disconnected instance
+                    _remoteHealerRoles.Remove(id);
 
-                // Remove role declaration from disconnected instance
-                _remoteHealerRoles.Remove(id);
+                    // Remove ground effects from disconnected instance
+                    _remoteGroundEffects.RemoveAll(e => e.InstanceId == id);
 
-                // Remove ground effects from disconnected instance
-                _remoteGroundEffects.RemoveAll(e => e.InstanceId == id);
+                    // Remove raise reservations from disconnected instance
+                    _lockedUintBuffer.Clear();
+                    foreach (var r in _remoteRaiseReservations)
+                        if (r.Value.InstanceId == id) _lockedUintBuffer.Add(r.Key);
+                    foreach (var targetId in _lockedUintBuffer)
+                        _remoteRaiseReservations.Remove(targetId);
 
-                // Remove raise reservations from disconnected instance
-                var raiseReservationsToRemove = _remoteRaiseReservations
-                    .Where(r => r.Value.InstanceId == id)
-                    .Select(r => r.Key)
-                    .ToList();
+                    // Remove cleanse reservations from disconnected instance
+                    _lockedUintBuffer.Clear();
+                    foreach (var r in _remoteCleanseReservations)
+                        if (r.Value.InstanceId == id) _lockedUintBuffer.Add(r.Key);
+                    foreach (var targetId in _lockedUintBuffer)
+                        _remoteCleanseReservations.Remove(targetId);
 
-                foreach (var targetId in raiseReservationsToRemove)
-                    _remoteRaiseReservations.Remove(targetId);
+                    // Remove interrupt reservations from disconnected instance
+                    _lockedUintBuffer.Clear();
+                    foreach (var r in _remoteInterruptReservations)
+                        if (r.Value.InstanceId == id) _lockedUintBuffer.Add(r.Key);
+                    foreach (var targetId in _lockedUintBuffer)
+                        _remoteInterruptReservations.Remove(targetId);
 
-                // Remove cleanse reservations from disconnected instance
-                var cleanseReservationsToRemove = _remoteCleanseReservations
-                    .Where(r => r.Value.InstanceId == id)
-                    .Select(r => r.Key)
-                    .ToList();
+                    // Remove tank swap reservations from disconnected instance
+                    _lockedUintBuffer.Clear();
+                    foreach (var r in _remoteTankSwapReservations)
+                        if (r.Value.InstanceId == id) _lockedUintBuffer.Add(r.Key);
+                    foreach (var targetId in _lockedUintBuffer)
+                        _remoteTankSwapReservations.Remove(targetId);
+                }
 
-                foreach (var targetId in cleanseReservationsToRemove)
-                    _remoteCleanseReservations.Remove(targetId);
-
-                // Remove interrupt reservations from disconnected instance
-                var interruptReservationsToRemove = _remoteInterruptReservations
-                    .Where(r => r.Value.InstanceId == id)
-                    .Select(r => r.Key)
-                    .ToList();
-
-                foreach (var targetId in interruptReservationsToRemove)
-                    _remoteInterruptReservations.Remove(targetId);
-
-                // Remove tank swap reservations from disconnected instance
-                var tankSwapReservationsToRemove = _remoteTankSwapReservations
-                    .Where(r => r.Value.InstanceId == id)
-                    .Select(r => r.Key)
-                    .ToList();
-
-                foreach (var targetId in tankSwapReservationsToRemove)
-                    _remoteTankSwapReservations.Remove(targetId);
-            }
-
-            if (expiredInstances.Count > 0)
                 RefreshRemoteInstanceCacheLocked();
+
+                if (_config.LogCoordinationEvents)
+                    timedOutForLogging = new List<Guid>(_lockedGuidBuffer);
+            }
 
             // Clean up expired cooldowns (no longer on recast)
             CleanupExpiredCooldownsLocked();
@@ -2217,11 +2219,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                     _burstWindowTriggerAction = 0;
                 }
             }
-
-            timedOutForLogging = new List<Guid>(expiredInstances);
         }
 
-        if (_config.LogCoordinationEvents)
+        if (timedOutForLogging != null)
         {
             foreach (var id in timedOutForLogging)
                 _log.Info("[PartyCoord] Remote instance timed out: {0}", id);
@@ -2231,23 +2231,25 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     // Caller must hold _stateLock
     private void CleanupExpiredCooldownsLocked()
     {
+        if (_remoteCooldowns.Count == 0) return;
+
         // Remove expired cooldowns from all lists
         foreach (var kvp in _remoteCooldowns)
             kvp.Value.RemoveAll(c => !c.IsOnCooldown);
 
-        // Remove empty lists
-        var emptyKeys = _remoteCooldowns
-            .Where(kvp => kvp.Value.Count == 0)
-            .Select(kvp => kvp.Key)
-            .ToList();
-
-        foreach (var key in emptyKeys)
+        // Remove empty lists — reuse the locked buffer (caller holds _stateLock)
+        _lockedUintBuffer.Clear();
+        foreach (var kvp in _remoteCooldowns)
+            if (kvp.Value.Count == 0) _lockedUintBuffer.Add(kvp.Key);
+        foreach (var key in _lockedUintBuffer)
             _remoteCooldowns.Remove(key);
     }
 
     // Caller must hold _stateLock
     private void CleanupExpiredRaidBuffStatesLocked()
     {
+        if (_remoteRaidBuffStates.Count == 0) return;
+
         // Remove expired intents and inactive buff states
         foreach (var kvp in _remoteRaidBuffStates)
         {
@@ -2265,13 +2267,11 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             });
         }
 
-        // Remove empty lists
-        var emptyKeys = _remoteRaidBuffStates
-            .Where(kvp => kvp.Value.Count == 0)
-            .Select(kvp => kvp.Key)
-            .ToList();
-
-        foreach (var key in emptyKeys)
+        // Remove empty lists — reuse the locked buffer (caller holds _stateLock)
+        _lockedUintBuffer.Clear();
+        foreach (var kvp in _remoteRaidBuffStates)
+            if (kvp.Value.Count == 0) _lockedUintBuffer.Add(kvp.Key);
+        foreach (var key in _lockedUintBuffer)
             _remoteRaidBuffStates.Remove(key);
     }
 
@@ -2296,24 +2296,26 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     private void CleanupExpiredReservations(DateTime now)
     {
-        // Clean up local reservations (framework thread only — no lock needed)
-        var expiredLocal = _localReservations
-            .Where(r => (now - r.Value.ReservedAt).TotalMilliseconds > _config.HealReservationExpiryMs)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredLocal)
-            _localReservations.Remove(key);
+        // Clean up local reservations (framework thread only — no lock needed; use _localUintBuffer)
+        if (_localReservations.Count > 0)
+        {
+            _localUintBuffer.Clear();
+            foreach (var r in _localReservations)
+                if ((now - r.Value.ReservedAt).TotalMilliseconds > _config.HealReservationExpiryMs)
+                    _localUintBuffer.Add(r.Key);
+            foreach (var key in _localUintBuffer)
+                _localReservations.Remove(key);
+        }
 
         // Clean up remote reservations (shared with IPC callbacks — lock required)
         lock (_stateLock)
         {
-            var expiredRemote = _remoteReservations
-                .Where(r => (now - r.Value.ReservedAt).TotalMilliseconds > _config.HealReservationExpiryMs)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var key in expiredRemote)
+            if (_remoteReservations.Count == 0) return;
+            _lockedUintBuffer.Clear();
+            foreach (var r in _remoteReservations)
+                if ((now - r.Value.ReservedAt).TotalMilliseconds > _config.HealReservationExpiryMs)
+                    _lockedUintBuffer.Add(r.Key);
+            foreach (var key in _lockedUintBuffer)
                 _remoteReservations.Remove(key);
         }
     }
@@ -2321,7 +2323,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private void CleanupExpiredGroundEffects()
     {
         lock (_stateLock)
+        {
+            if (_remoteGroundEffects.Count == 0) return;
             _remoteGroundEffects.RemoveAll(e => e.IsExpired);
+        }
     }
 
     private void CleanupExpiredRaiseReservations()
@@ -2330,96 +2335,96 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         // (under _stateLock), so protect cleanup with the same lock.
         lock (_stateLock)
         {
-            var expiredLocal = _localRaiseReservations
-                .Where(r => r.Value.IsExpired)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var key in expiredLocal)
-                _localRaiseReservations.Remove(key);
+            if (_localRaiseReservations.Count > 0)
+            {
+                _lockedUintBuffer.Clear();
+                foreach (var r in _localRaiseReservations)
+                    if (r.Value.IsExpired) _lockedUintBuffer.Add(r.Key);
+                foreach (var key in _lockedUintBuffer)
+                    _localRaiseReservations.Remove(key);
+            }
         }
 
         // Clean up remote raise reservations (shared with IPC callbacks — lock required)
         lock (_stateLock)
         {
-            var expiredRemote = _remoteRaiseReservations
-                .Where(r => r.Value.IsExpired)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var key in expiredRemote)
+            if (_remoteRaiseReservations.Count == 0) return;
+            _lockedUintBuffer.Clear();
+            foreach (var r in _remoteRaiseReservations)
+                if (r.Value.IsExpired) _lockedUintBuffer.Add(r.Key);
+            foreach (var key in _lockedUintBuffer)
                 _remoteRaiseReservations.Remove(key);
         }
     }
 
     private void CleanupExpiredCleanseReservations()
     {
-        // Clean up local cleanse reservations (framework thread only — no lock needed)
-        var expiredLocal = _localCleanseReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredLocal)
-            _localCleanseReservations.Remove(key);
+        // Clean up local cleanse reservations (framework thread only — no lock needed; use _localUintBuffer)
+        if (_localCleanseReservations.Count > 0)
+        {
+            _localUintBuffer.Clear();
+            foreach (var r in _localCleanseReservations)
+                if (r.Value.IsExpired) _localUintBuffer.Add(r.Key);
+            foreach (var key in _localUintBuffer)
+                _localCleanseReservations.Remove(key);
+        }
 
         // Clean up remote cleanse reservations (shared with IPC callbacks — lock required)
         lock (_stateLock)
         {
-            var expiredRemote = _remoteCleanseReservations
-                .Where(r => r.Value.IsExpired)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var key in expiredRemote)
+            if (_remoteCleanseReservations.Count == 0) return;
+            _lockedUintBuffer.Clear();
+            foreach (var r in _remoteCleanseReservations)
+                if (r.Value.IsExpired) _lockedUintBuffer.Add(r.Key);
+            foreach (var key in _lockedUintBuffer)
                 _remoteCleanseReservations.Remove(key);
         }
     }
 
     private void CleanupExpiredInterruptReservations()
     {
-        // Clean up local interrupt reservations (framework thread only — no lock needed)
-        var expiredLocal = _localInterruptReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredLocal)
-            _localInterruptReservations.Remove(key);
+        // Clean up local interrupt reservations (framework thread only — no lock needed; use _localUintBuffer)
+        if (_localInterruptReservations.Count > 0)
+        {
+            _localUintBuffer.Clear();
+            foreach (var r in _localInterruptReservations)
+                if (r.Value.IsExpired) _localUintBuffer.Add(r.Key);
+            foreach (var key in _localUintBuffer)
+                _localInterruptReservations.Remove(key);
+        }
 
         // Clean up remote interrupt reservations (shared with IPC callbacks — lock required)
         lock (_stateLock)
         {
-            var expiredRemote = _remoteInterruptReservations
-                .Where(r => r.Value.IsExpired)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var key in expiredRemote)
+            if (_remoteInterruptReservations.Count == 0) return;
+            _lockedUintBuffer.Clear();
+            foreach (var r in _remoteInterruptReservations)
+                if (r.Value.IsExpired) _lockedUintBuffer.Add(r.Key);
+            foreach (var key in _lockedUintBuffer)
                 _remoteInterruptReservations.Remove(key);
         }
     }
 
     private void CleanupExpiredTankSwapReservations()
     {
-        // Clean up local tank swap reservations (framework thread only — no lock needed)
-        var expiredLocal = _localTankSwapReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredLocal)
-            _localTankSwapReservations.Remove(key);
+        // Clean up local tank swap reservations (framework thread only — no lock needed; use _localUintBuffer)
+        if (_localTankSwapReservations.Count > 0)
+        {
+            _localUintBuffer.Clear();
+            foreach (var r in _localTankSwapReservations)
+                if (r.Value.IsExpired) _localUintBuffer.Add(r.Key);
+            foreach (var key in _localUintBuffer)
+                _localTankSwapReservations.Remove(key);
+        }
 
         // Clean up remote tank swap reservations (shared with IPC callbacks — lock required)
         lock (_stateLock)
         {
-            var expiredRemote = _remoteTankSwapReservations
-                .Where(r => r.Value.IsExpired)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var key in expiredRemote)
+            if (_remoteTankSwapReservations.Count == 0) return;
+            _lockedUintBuffer.Clear();
+            foreach (var r in _remoteTankSwapReservations)
+                if (r.Value.IsExpired) _lockedUintBuffer.Add(r.Key);
+            foreach (var key in _lockedUintBuffer)
                 _remoteTankSwapReservations.Remove(key);
         }
     }
