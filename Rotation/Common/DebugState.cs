@@ -4,11 +4,13 @@ using System;
 namespace Olympus.Rotation.Common;
 
 /// <summary>
-/// Shared healer debug state used by all four healer rotations (WHM, SCH, AST, SGE).
-/// Includes some WHM-exclusive fields that non-WHM healers leave at their default values;
-/// the debug UI reads them uniformly regardless of job.
-/// Resource fields (LilyCount, BloodLilyCount, LilyStrategy) are mapped from each job's
-/// native gauge values in UpdateJobSpecificServices so the same UI works across all healers.
+/// Shared debug state exposed by every rotation via IRotation.DebugState. The scheduler
+/// gate-failure fields (OgcdGateFailReasons/GcdGateFailReasons) are populated by the
+/// BaseRotation dispatch scaffold for all 21 rotations. The healer-oriented fields
+/// (originally WHM-shaped: raise/esuna/lily state) are left at defaults by non-healers;
+/// the debug UI reads them uniformly regardless of job. Resource fields (LilyCount,
+/// BloodLilyCount, LilyStrategy) are mapped from each healer's native gauge values in
+/// UpdateJobSpecificServices so the same UI works across all healers.
 /// </summary>
 public class DebugState : BaseDebugState
 {
