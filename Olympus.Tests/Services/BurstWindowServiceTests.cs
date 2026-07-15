@@ -215,6 +215,9 @@ public class BurstWindowServiceTests
         var (service, combatEvents) = BuildWithCastEvents(localPlayerEntityId: 100U);
         var player = new Mock<IPlayerCharacter>();
 
+        // Build the snapshot first so OnAbilityUsed can identify the local player.
+        service.Update(player.Object);
+
         combatEvents.Raise(
             x => x.OnAbilityUsed += null,
             100U, // self
@@ -252,10 +255,31 @@ public class BurstWindowServiceTests
     }
 
     [Fact]
+    public void CastEvent_RaidBuffBeforeFirstUpdate_IsIgnored()
+    {
+        // Verifies that party membership is enforced via the frame-thread snapshot, not by
+        // enumerating IPartyList on the hook thread. A caster absent from the snapshot
+        // (because Update has never run) is rejected, even for a party member entity ID.
+        // Snapshot staleness is at most one frame by design.
+        var (service, combatEvents) = BuildWithCastEvents(localPlayerEntityId: 100U);
+
+        // Fire the event BEFORE any Update — snapshot is empty, so entity 200 is unknown.
+        combatEvents.Raise(
+            x => x.OnAbilityUsed += null,
+            200U, // not in snapshot yet (local player is 100, and no Update has run)
+            DRGActions.BattleLitany.ActionId);
+
+        Assert.False(service.IsInBurstWindow);
+    }
+
+    [Fact]
     public void CastEvent_MultipleRaidBuffs_ExtendsToMaxDuration()
     {
         var (service, combatEvents) = BuildWithCastEvents();
         var player = new Mock<IPlayerCharacter>();
+
+        // Build the snapshot before the first event so the caster is recognized.
+        service.Update(player.Object);
 
         // BattleVoice = 15s
         combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, BRDActions.BattleVoice.ActionId);
@@ -280,6 +304,9 @@ public class BurstWindowServiceTests
         var player = new Mock<IPlayerCharacter>();
 
         Assert.Empty(service.BurstWindowHistory);
+
+        // Build the snapshot first so OnAbilityUsed recognizes the local player.
+        service.Update(player.Object);
 
         combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, DRGActions.BattleLitany.ActionId);
         service.Update(player.Object);

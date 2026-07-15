@@ -527,6 +527,7 @@ public sealed class Plugin : IDalamudPlugin
         consumableService.OnTerritoryChanged();
         timelineService.LoadForZone(zoneId);
         combatEventService.Clear();
+        burstWindowService.ResetHistory();
         hpPredictionService.ClearPendingHeals();
         damageIntakeService.Clear();
         damageIntakeService.CleanupExpiredEntries();

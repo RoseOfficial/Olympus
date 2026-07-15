@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
@@ -78,7 +79,14 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     // Cast-event early-detection expiry: set when a party member's coordinated raid buff
     // resolves, holds the burst window open across the 50-200ms status propagation delay
     // before the local status list reflects the buff.
-    private DateTime? _castEventBurstExpiry;
+    // Written from the ActionEffect hook thread, read on the frame thread.
+    // Interlocked ticks (0 = none), same convention as CombatEventService.
+    private long _castEventBurstExpiryTicks;
+
+    // Party membership snapshot rebuilt each frame on the frame thread; read on the
+    // hook thread. Guarded by _partySnapshotLock (tiny critical sections both sides).
+    private readonly HashSet<uint> _partySnapshot = new();
+    private readonly object _partySnapshotLock = new();
 
     // Burst window history tracking
     private readonly List<(DateTime Start, DateTime End)> _burstWindowHistory = new();
@@ -124,26 +132,19 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
             return;
 
         var duration = CoordinatedRaidBuffs.GetBuffDuration(actionId);
-        var expiry = DateTime.UtcNow.AddSeconds(duration);
-        if (!_castEventBurstExpiry.HasValue || expiry > _castEventBurstExpiry.Value)
-            _castEventBurstExpiry = expiry;
+        var expiryTicks = DateTime.UtcNow.AddSeconds(duration).Ticks;
+        long current;
+        do
+        {
+            current = Interlocked.Read(ref _castEventBurstExpiryTicks);
+            if (expiryTicks <= current) return;
+        } while (Interlocked.CompareExchange(ref _castEventBurstExpiryTicks, expiryTicks, current) != current);
     }
 
     private bool IsCasterInParty(uint casterEntityId)
     {
-        // Self-cast always counts: the local player's own raid buff applies to them.
-        if (_objectTable?.LocalPlayer?.EntityId == casterEntityId)
-            return true;
-
-        // Party member cast: their raid buff applies to the local player.
-        if (_partyList == null)
-            return false;
-        foreach (var member in _partyList)
-        {
-            if (member?.GameObject?.EntityId == casterEntityId)
-                return true;
-        }
-        return false;
+        lock (_partySnapshotLock)
+            return _partySnapshot.Contains(casterEntityId);
     }
 
     #region IBurstWindowService
@@ -195,6 +196,24 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
 
     public void Update(IPlayerCharacter player, IBattleChara? currentTarget = null)
     {
+        // Rebuild party snapshot on the frame thread so the hook thread can read it safely.
+        lock (_partySnapshotLock)
+        {
+            _partySnapshot.Clear();
+            var localId = _objectTable?.LocalPlayer?.EntityId;
+            if (localId.HasValue)
+                _partySnapshot.Add(localId.Value);
+            if (_partyList != null)
+            {
+                foreach (var member in _partyList)
+                {
+                    var id = member?.GameObject?.EntityId;
+                    if (id.HasValue)
+                        _partySnapshot.Add(id.Value);
+                }
+            }
+        }
+
         // Scan player status list for active party raid buffs
         var scanActive = false;
         var scanRemaining = 0f;
@@ -235,21 +254,23 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
 
         // Cast-event early detection: keep the burst window open until the signal expires,
         // covering the 50-200ms status propagation delay after a party member's buff resolves.
+        var expiryTicks = Interlocked.Read(ref _castEventBurstExpiryTicks);
+        DateTime? castEventExpiry = expiryTicks == 0 ? null : new DateTime(expiryTicks, DateTimeKind.Utc);
         var now = DateTime.UtcNow;
         var castEventRemaining = 0f;
-        if (_castEventBurstExpiry.HasValue)
+        if (castEventExpiry.HasValue)
         {
-            var remaining = (float)(_castEventBurstExpiry.Value - now).TotalSeconds;
+            var remaining = (float)(castEventExpiry.Value - now).TotalSeconds;
             if (remaining > 0f)
             {
                 castEventRemaining = remaining;
                 // Status scan has taken over with authoritative data; release the cast-event expiry.
                 if (scanActive && scanRemaining >= remaining)
-                    _castEventBurstExpiry = null;
+                    Interlocked.Exchange(ref _castEventBurstExpiryTicks, 0);
             }
             else
             {
-                _castEventBurstExpiry = null;
+                Interlocked.Exchange(ref _castEventBurstExpiryTicks, 0);
             }
         }
 
@@ -301,7 +322,7 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
         _burstWindowHistory.Clear();
         _lastBurstWindowEnd = null;
         _wasInBurst = false;
-        _castEventBurstExpiry = null;
+        Interlocked.Exchange(ref _castEventBurstExpiryTicks, 0);
     }
 
     #endregion
