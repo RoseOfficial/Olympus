@@ -68,7 +68,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
 
     protected readonly IPluginLog Log;
     protected readonly Configuration Configuration;
-    protected readonly ActionService ActionService;
+    protected readonly IActionService ActionService;
     protected readonly IActionTracker ActionTracker;
     protected readonly ICombatEventService CombatEventService;
     protected readonly IDamageIntakeService DamageIntakeService;
@@ -125,7 +125,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
         IPartyList partyList,
         ITargetingService targetingService,
         IHpPredictionService hpPredictionService,
-        ActionService actionService,
+        IActionService actionService,
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         IErrorMetricsService? errorMetrics = null,

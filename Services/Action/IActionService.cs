@@ -141,4 +141,7 @@ public interface IActionService
     /// <param name="preferHq">When true, dispatches the HQ variant (NQ + 1_000_000).</param>
     /// <param name="targetId">Target object ID. Pass 0 for self.</param>
     bool ExecuteItem(uint itemId, bool preferHq, ulong targetId);
+
+    /// <summary>Per-frame GCD/animation-lock state refresh. Call once per frame before dispatch.</summary>
+    void Update(bool isCasting);
 }

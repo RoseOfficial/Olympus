@@ -62,6 +62,7 @@ public class SpellCandidateEvaluatorTests
         public uint GetAdjustedActionId(uint baseActionId) => baseActionId;
         public bool PlayerHasStatus(uint statusId) => false;
         public bool ExecuteItem(uint itemId, bool preferHq, ulong targetId) => false;
+        public void Update(bool isCasting) { }
     }
 
     /// <summary>
