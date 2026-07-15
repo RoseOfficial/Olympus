@@ -394,6 +394,11 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
             && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
             return;
 
+        // Hard action locks (stun, sleep, petrify, deep freeze, transcendent, willful):
+        // every dispatch would be rejected by the game; skip the frame's rotation work.
+        if (PlayerSafetyHelper.IsHardActionLocked(context.Player))
+            return;
+
         if (TryDispatchTincture(context, inCombat))
             return;
 

@@ -67,6 +67,34 @@ public static class PlayerSafetyHelper
     }
 
     /// <summary>
+    /// Pure predicate over the hard-action-lock status ID list.
+    /// </summary>
+    public static bool IsHardActionLockStatusId(uint statusId) =>
+        FFXIVConstants.HardActionLockStatusIds.Contains(statusId);
+
+    /// <summary>
+    /// Returns true if the player has a hard-action-lock debuff active (stun, sleep, petrify,
+    /// deep freeze, transcendent, willful). All dispatches are rejected by the game while any
+    /// of these are active; skipping the frame avoids pointless UseAction calls.
+    /// Guards against null player and null StatusList.
+    /// </summary>
+    public static bool IsHardActionLocked(IBattleChara? player)
+    {
+        if (player?.StatusList == null)
+            return false;
+
+        foreach (var status in player.StatusList)
+        {
+            if (status == null)
+                continue;
+            if (FFXIVConstants.HardActionLockStatusIds.Contains(status.StatusId))
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Pure predicate over the player-intent channel status ID list.
     /// </summary>
     public static bool IsPlayerIntentChannelStatusId(uint statusId) =>

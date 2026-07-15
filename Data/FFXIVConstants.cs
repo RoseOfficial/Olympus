@@ -105,6 +105,20 @@ public static class FFXIVConstants
         3581,  // Willful (duty support auto-revive, actions locked ~7s)
     };
 
+    /// <summary>
+    /// Statuses that hard-lock ALL actions (dispatch is pointless while active).
+    /// Deliberately excludes Bind (4): bound players can still act, only movement is lost.
+    /// </summary>
+    public static readonly HashSet<uint> HardActionLockStatusIds = new()
+    {
+        18,    // Stun
+        3,     // Sleep
+        1,     // Petrification
+        149,   // Deep Freeze
+        2656,  // Transcendent (post-raise, actions locked)
+        3581,  // Willful (duty support auto-revive, actions locked)
+    };
+
     // Enemy invulnerability status IDs — enemy cannot take damage.
     // Used by TargetingService to skip immune targets during auto-targeting (aggregate
     // strategies only — explicit CurrentTarget/FocusTarget selections are never filtered).
