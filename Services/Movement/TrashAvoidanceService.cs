@@ -35,6 +35,14 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     private readonly Dictionary<ulong, float> arrivalTolerancePerCast = new();
     private DateTime lastDodgeCompleted = DateTime.MinValue;
 
+    private bool _isInjectingMovement;
+    private int _activeThreatCount;
+    private string _lastDecision = "idle";
+
+    public bool IsInjectingMovement => _isInjectingMovement;
+    public int ActiveThreatCount => _activeThreatCount;
+    public string LastDecision => _lastDecision;
+
     public TrashAvoidanceService(IRMIWalkHookService hook, IEnemyAOECastTracker tracker,
         IBossCombatDetector boss, IBGCollisionProbe collision, IMovementClock clock,
         Func<MovementConfig> configAccessor, IPluginLog log,
@@ -87,11 +95,11 @@ public class TrashAvoidanceService : ITrashAvoidanceService
 
         var cfg = configAccessor();
 
-        if (!cfg.EnableTrashAoEAvoidance) { ClearVector(); return; }
-        if (!hook.HookInstalled) { ClearVector(); return; }
-        if (IsHighEndZone()) { ClearVector(); return; }
-        if (boss.IsBossEngaged) { ClearVector(); return; }
-        if (IsPlayerUnavailable()) { ClearVector(); return; }
+        if (!cfg.EnableTrashAoEAvoidance) { Suppress("disabled"); ClearVector(); return; }
+        if (!hook.HookInstalled) { Suppress("no-hook"); ClearVector(); return; }
+        if (IsHighEndZone()) { Suppress("high-end-zone"); ClearVector(); return; }
+        if (boss.IsBossEngaged) { Suppress("boss-engaged"); ClearVector(); return; }
+        if (IsPlayerUnavailable()) { Suppress("player-unavailable"); ClearVector(); return; }
 
         var now = clock.UtcNow;
         var playerPos2D = GetPlayerPos2D();
@@ -124,7 +132,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
             activeThreats.Add(t);
         }
 
-        if (activeThreats.Count == 0) { ClearVector(); return; }
+        if (activeThreats.Count == 0) { Suppress("no-threats"); ClearVector(); return; }
 
         // Reaction gate: track first-seen, decide if past delay
         var earliestFirstSeen = DateTime.MaxValue;
@@ -148,7 +156,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         var reactionDelayMs = reactionDelayPerCast[earliestCasterId];
         if ((now - earliestFirstSeen).TotalMilliseconds < reactionDelayMs)
         {
-            ClearVector(); return;
+            Suppress("reaction-delay", activeThreats.Count); ClearVector(); return;
         }
 
         // Inter-cast pause (skip unless any threat resolves within 0.5s)
@@ -164,7 +172,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         }
         if (!anyImminent && (now - lastDodgeCompleted).TotalMilliseconds < interCastPauseMs)
         {
-            ClearVector(); return;
+            Suppress("inter-cast-pause", activeThreats.Count); ClearVector(); return;
         }
 
         // Sample candidates and score
@@ -184,7 +192,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
             }
         }
 
-        if (bestCandidate == null) { ClearVector(); return; }
+        if (bestCandidate == null) { Suppress("no-safe-candidate", activeThreats.Count); ClearVector(); return; }
 
         // Already-safe check: consistent with the activeThreats filter above. All entries in
         // activeThreats were selected by ContainsExpanded, so this check re-confirms each one
@@ -202,6 +210,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         }
         if (!anyContains)
         {
+            Suppress("outside-threat", activeThreats.Count);
             ClearVector();
             lastDodgeCompleted = now;
             return;
@@ -210,7 +219,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         // Compute input vector
         var direction = bestCandidate.Value - playerPos2D;
         var distance = direction.Length();
-        if (distance < 0.001f) { ClearVector(); return; }
+        if (distance < 0.001f) { Suppress("no-safe-candidate", activeThreats.Count); ClearVector(); return; }
         direction /= distance;
 
         direction = DirectionalNoise.Apply(direction, now, earliestCasterId, cfg.DirectionalNoiseDegrees);
@@ -227,9 +236,24 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         // Fail CLOSED: with no camera reading, do not move at all. A wrong-direction
         // dodge (into the AoE at 180 degrees) is worse than standing still.
         var azimuth = cameraProbe?.GetCameraAzimuthRadians();
-        if (azimuth is null) { ClearVector(); return; }
+        if (azimuth is null) { Suppress("no-camera", activeThreats.Count); ClearVector(); return; }
         var (sumForward, sumLeft) = WorldDirectionToCameraInput(direction, azimuth.Value);
+
+        _isInjectingMovement = true;
+        _activeThreatCount = activeThreats.Count;
+        _lastDecision = "dodging";
         hook.DesiredInputVector = new Vector3(sumForward * magnitude, sumLeft * magnitude, 0f);
+    }
+
+    /// <summary>
+    /// Sets the suppressed state fields without injecting movement.
+    /// Called at every early-return exit in <see cref="Update"/>.
+    /// </summary>
+    private void Suppress(string reason, int threatCount = 0)
+    {
+        _isInjectingMovement = false;
+        _activeThreatCount = threatCount;
+        _lastDecision = reason;
     }
 
     private void ClearVector() => hook.DesiredInputVector = null;

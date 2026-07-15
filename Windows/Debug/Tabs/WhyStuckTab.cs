@@ -23,7 +23,7 @@ public static class WhyStuckTab
         // GCD Priority Chain
         if (IsSectionVisible(config, "GcdPriority"))
         {
-            DrawGcdPriorityChain(rotation, healing);
+            DrawGcdPriorityChain(rotation, healing, snapshot.Movement);
             ImGui.Spacing();
         }
 
@@ -74,7 +74,7 @@ public static class WhyStuckTab
         ImGui.TextColored(actionColor, Loc.TFormat(LocalizedStrings.Debug.LastFormat, "Last: {0}", rotation.PlannedAction));
     }
 
-    private static void DrawGcdPriorityChain(DebugRotationState rotation, DebugHealingState healing)
+    private static void DrawGcdPriorityChain(DebugRotationState rotation, DebugHealingState healing, DebugMovementState movement)
     {
         ImGui.Text(Loc.T(LocalizedStrings.Debug.GcdPriorityChainHeader, "GCD Priority Chain (checked top to bottom)"));
         ImGui.Separator();
@@ -112,7 +112,10 @@ public static class WhyStuckTab
             DrawPriorityRow("4", Loc.T(LocalizedStrings.Debug.Regen, "Regen"), regenState, "");
 
             // Priority 5: DPS
-            DrawPriorityRow("5", Loc.T(LocalizedStrings.Debug.DpsLabel, "DPS"), rotation.DpsState, rotation.TargetInfo);
+            var dpsState = rotation.DpsState == "Moving" && movement.IsInjectingMovement
+                ? $"Moving (AoE avoidance: {movement.ActiveThreatCount} threats)"
+                : rotation.DpsState;
+            DrawPriorityRow("5", Loc.T(LocalizedStrings.Debug.DpsLabel, "DPS"), dpsState, rotation.TargetInfo);
 
             ImGui.EndTable();
         }

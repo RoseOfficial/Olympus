@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Rotation;
+using Olympus.Services.Movement;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Common;
 using CommonDebugState = Olympus.Rotation.Common.DebugState;
@@ -55,6 +56,8 @@ public sealed class DebugService
     private readonly RotationManager _rotationManager;
     private readonly IObjectTable _objectTable;
     private readonly IDataManager _dataManager;
+    private readonly ITrashAvoidanceService? _trashAvoidance;
+    private readonly Configuration? _configuration;
 
     // Cached snapshot - updated on demand
     private DebugSnapshot? _cachedSnapshot;
@@ -71,7 +74,9 @@ public sealed class DebugService
         SpellStatusService spellStatusService,
         RotationManager rotationManager,
         IObjectTable objectTable,
-        IDataManager dataManager)
+        IDataManager dataManager,
+        ITrashAvoidanceService? trashAvoidance = null,
+        Configuration? configuration = null)
     {
         _actionTracker = actionTracker;
         _actionService = actionService;
@@ -83,6 +88,8 @@ public sealed class DebugService
         _rotationManager = rotationManager;
         _objectTable = objectTable;
         _dataManager = dataManager;
+        _trashAvoidance = trashAvoidance;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -117,9 +124,18 @@ public sealed class DebugService
             Rotation = BuildRotationState(),
             Healing = BuildHealingState(),
             Actions = BuildActionState(),
-            OverhealStats = BuildOverhealStats()
+            OverhealStats = BuildOverhealStats(),
+            Movement = BuildMovementState()
         };
     }
+
+    private DebugMovementState BuildMovementState() => new()
+    {
+        AvoidanceEnabled = _configuration?.Movement.EnableTrashAoEAvoidance ?? false,
+        IsInjectingMovement = _trashAvoidance?.IsInjectingMovement ?? false,
+        ActiveThreatCount = _trashAvoidance?.ActiveThreatCount ?? 0,
+        LastDecision = _trashAvoidance?.LastDecision ?? "n/a",
+    };
 
     private DebugStatistics BuildStatistics()
     {

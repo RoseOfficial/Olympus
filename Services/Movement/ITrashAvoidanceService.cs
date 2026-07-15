@@ -9,4 +9,13 @@ namespace Olympus.Services.Movement;
 public interface ITrashAvoidanceService : IDisposable
 {
     void Update();
+
+    /// <summary>True when the service wrote a movement vector this frame.</summary>
+    bool IsInjectingMovement { get; }
+
+    /// <summary>Threats currently containing the player (0 when idle).</summary>
+    int ActiveThreatCount { get; }
+
+    /// <summary>Short reason for the current state (e.g. "dodging", "player-unavailable", "idle").</summary>
+    string LastDecision { get; }
 }

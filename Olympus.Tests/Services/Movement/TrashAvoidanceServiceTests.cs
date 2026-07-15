@@ -184,6 +184,54 @@ public class TrashAvoidanceServiceTests
     }
 
     [Fact]
+    public void Update_PlayerCasting_SetsPlayerUnavailableDecision()
+    {
+        var ctx = new MovementTestContext();
+        ctx.ActiveAOEs.Add(new TrackedAOE(
+            CasterId: 200,
+            Origin: new Vector2(0, 0),
+            RotationRadians: 0f,
+            Shape: new Olympus.Services.Movement.Geometry.AOEShapeCircle(5f),
+            ResolveAt: ctx.Now.AddSeconds(2)));
+
+        var svc = new TestableTrashAvoidanceService(ctx) { OverridePlayerCasting = true };
+        svc.OverridePlayerPos2D = new Vector2(0, 0);
+        svc.OverridePlayerPos3D = new Vector3(0, 0, 0);
+        ctx.Now = ctx.Now.AddMilliseconds(800); // past reaction delay
+
+        svc.Update();
+
+        Assert.False(svc.IsInjectingMovement);
+        Assert.Equal("player-unavailable", svc.LastDecision);
+    }
+
+    [Fact]
+    public void Update_ActiveThreat_AfterReactionDelay_SetsDodgingDecision()
+    {
+        var ctx = new MovementTestContext();
+        ctx.ActiveAOEs.Add(new TrackedAOE(
+            CasterId: 300,
+            Origin: new Vector2(0, 0),
+            RotationRadians: 0f,
+            Shape: new Olympus.Services.Movement.Geometry.AOEShapeCircle(5f),
+            ResolveAt: ctx.Now.AddSeconds(2)));
+
+        var svc = new TestableTrashAvoidanceService(ctx);
+        svc.OverridePlayerPos2D = new Vector2(0, 0); // inside threat
+        svc.OverridePlayerPos3D = new Vector3(0, 0, 0);
+
+        // First update: registers first-seen, still within reaction delay
+        svc.Update();
+
+        // Advance past max reaction delay
+        ctx.Now = ctx.Now.AddMilliseconds(800);
+        svc.Update();
+
+        Assert.True(svc.IsInjectingMovement);
+        Assert.Equal("dodging", svc.LastDecision);
+    }
+
+    [Fact]
     public void OnTerritoryChanged_ClearsAllState()
     {
         var ctx = new MovementTestContext();

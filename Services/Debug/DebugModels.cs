@@ -18,6 +18,18 @@ public sealed class DebugSnapshot
     public DebugHealingState Healing { get; init; } = new();
     public DebugActionState Actions { get; init; } = new();
     public DebugOverhealStats OverhealStats { get; init; } = new();
+    public DebugMovementState Movement { get; init; } = new();
+}
+
+/// <summary>
+/// AoE avoidance movement state for the debug window.
+/// </summary>
+public sealed class DebugMovementState
+{
+    public bool AvoidanceEnabled { get; init; }
+    public bool IsInjectingMovement { get; init; }
+    public int ActiveThreatCount { get; init; }
+    public string LastDecision { get; init; } = string.Empty;
 }
 
 /// <summary>
