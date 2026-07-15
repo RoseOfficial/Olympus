@@ -318,6 +318,10 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
         // Classify entry type based on keywords
         var entryType = ClassifyEntryType(abilityName, modifiers);
 
+        // Label-bearing entries are phase anchors by definition (jump targets / phase starts).
+        if (!string.IsNullOrEmpty(label))
+            entryType = TimelineEntryType.Phase;
+
         return new TimelineEntry(
             timestamp,
             abilityName,
@@ -347,6 +351,12 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
     private static TimelineEntryType ClassifyEntryType(string abilityName, string modifiers)
     {
         var combined = abilityName + " " + modifiers;
+
+        // Targetability transitions are the real phase boundaries in Cactbot convention
+        // (--sync-- entries are hidden by hideall and invisible to !IsHidden queries).
+        if (abilityName.Contains("--untargetable--", StringComparison.OrdinalIgnoreCase) ||
+            abilityName.Contains("--targetable--", StringComparison.OrdinalIgnoreCase))
+            return TimelineEntryType.Phase;
 
         // Check in priority order. TankBuster is checked first because tank-buster names
         // sometimes also contain raidwide-sounding words (e.g. "stack cleave").

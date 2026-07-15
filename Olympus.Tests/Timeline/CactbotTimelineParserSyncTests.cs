@@ -83,4 +83,29 @@ public class CactbotTimelineParserSyncTests
         Assert.Single(tl!.SyncIndex);
         Assert.True(tl.SyncIndex.ContainsKey(0x63C6));
     }
+
+    [Theory]
+    [InlineData("67.5 \"--untargetable--\"\n", "--untargetable--")]
+    [InlineData("120.1 \"--targetable--\"\n", "--targetable--")]
+    public void Parse_TargetabilityMarkers_ClassifiedAsPhase(string line, string name)
+    {
+        var parser = new CactbotTimelineParser();
+        var tl = parser.Parse(line, 1, "t", "t");
+        Assert.NotNull(tl);
+        var entry = Assert.Single(tl!.Entries);
+        Assert.Equal(name, entry.Name);
+        Assert.Equal(Olympus.Timeline.Models.TimelineEntryType.Phase, entry.EntryType);
+    }
+
+    [Fact]
+    public void Parse_LabelBearingEntry_ClassifiedAsPhase()
+    {
+        var parser = new CactbotTimelineParser();
+        var tl = parser.Parse(
+            "200.0 \"Adds Appear\" Ability { id: \"B400\" } label \"p2-start\"\n", 1, "t", "t");
+        Assert.NotNull(tl);
+        var entry = Assert.Single(tl!.Entries);
+        Assert.Equal(Olympus.Timeline.Models.TimelineEntryType.Phase, entry.EntryType);
+        Assert.Equal("p2-start", entry.Label);
+    }
 }

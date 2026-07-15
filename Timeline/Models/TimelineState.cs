@@ -81,8 +81,11 @@ public sealed class TimelineState
         if (LastSyncTime != DateTime.MinValue)
         {
             var secondsSinceSync = (float)(DateTime.UtcNow - LastSyncTime).TotalSeconds;
-            // Confidence decays from 1.0 to 0.0 linearly over 120 seconds without a sync
-            Confidence = Math.Clamp(1f - secondsSinceSync / 120f, 0f, 1f);
+            // Confidence decays linearly over 300s without a sync: crosses the default
+            // 0.8 gate at 60s. Sync gaps of 30-60s are routine in ultimates (downtime,
+            // transition phases with no parseable casts); 120s crossed the gate at 24s
+            // and silently disabled every timeline consumer mid-fight.
+            Confidence = Math.Clamp(1f - secondsSinceSync / 300f, 0f, 1f);
         }
         else
         {
