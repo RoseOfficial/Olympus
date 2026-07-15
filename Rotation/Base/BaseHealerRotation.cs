@@ -121,7 +121,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// </summary>
     protected virtual void UpdateDamageTrend(IPlayerCharacter player, IEnumerable<uint> partyEntityIds)
     {
-        DamageTrendService.Update(1f / 60f, partyEntityIds);
+        DamageTrendService.Update(FrameDeltaSeconds, partyEntityIds);
     }
 
     /// <summary>

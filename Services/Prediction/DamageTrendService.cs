@@ -65,6 +65,9 @@ public sealed class DamageTrendService : IDamageTrendService
     // Party entity ID cache — populated each Update() so party-rate methods filter correctly
     private readonly List<uint> _cachedPartyEntityIds = new();
 
+    // Reused by frame-thread callers only (rotation modules); guarded by _spikeLock while filling.
+    private readonly List<uint> _partyIdsSnapshot = new(8);
+
     /// <summary>
     /// Updates the internal timer and automatically detects spikes.
     /// Should be called each frame with delta time.
@@ -100,9 +103,8 @@ public sealed class DamageTrendService : IDamageTrendService
     /// </summary>
     private void UpdateHighDamagePhaseTracking()
     {
-        List<uint> partyIds;
-        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
-        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 1.5f);
+        lock (_spikeLock) { _partyIdsSnapshot.Clear(); _partyIdsSnapshot.AddRange(_cachedPartyEntityIds); }
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, 1.5f);
 
         if (currentPartyDps >= DefaultHighDamageThreshold)
         {
@@ -161,11 +163,10 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public DamageTrend GetPartyDamageTrend(float windowSeconds = 10f)
     {
-        List<uint> partyIds;
-        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+        lock (_spikeLock) { _partyIdsSnapshot.Clear(); _partyIdsSnapshot.AddRange(_cachedPartyEntityIds); }
 
-        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, windowSeconds / 2);
-        var previousRate = GetPreviousPeriodPartyRate(partyIds, windowSeconds);
+        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, windowSeconds / 2);
+        var previousRate = GetPreviousPeriodPartyRate(_partyIdsSnapshot, windowSeconds);
 
         return ClassifyTrend(currentRate, previousRate);
     }
@@ -184,8 +185,7 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public bool IsDamageSpikeImminent(float confidenceThreshold = 0.8f)
     {
-        List<uint> partyIds;
-        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+        lock (_spikeLock) { _partyIdsSnapshot.Clear(); _partyIdsSnapshot.AddRange(_cachedPartyEntityIds); }
 
         // Check party-wide damage trend
         var partyTrend = GetPartyDamageTrend(5f);
@@ -205,8 +205,8 @@ public sealed class DamageTrendService : IDamageTrendService
         if (partyTrend == DamageTrend.Increasing)
         {
             // Check if the increase is significant enough
-            var currentRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 2.5f);
-            var previousRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 5f);
+            var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, 2.5f);
+            var previousRate = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, 5f);
 
             if (previousRate > MinDamageRateForTrend)
             {
@@ -269,9 +269,8 @@ public sealed class DamageTrendService : IDamageTrendService
         var severity = baseSeverity * hpMultiplier;
 
         // Also factor in raw damage rate for additional context
-        List<uint> partyIds;
-        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
-        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 3f);
+        lock (_spikeLock) { _partyIdsSnapshot.Clear(); _partyIdsSnapshot.AddRange(_cachedPartyEntityIds); }
+        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, 3f);
         if (currentRate > 5000f)  // Very high damage intake
         {
             severity += 0.2f;
@@ -533,11 +532,10 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public bool IsInHighDamagePhase(float thresholdDps = 800f, float durationSeconds = 3f)
     {
-        List<uint> partyIds;
-        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+        lock (_spikeLock) { _partyIdsSnapshot.Clear(); _partyIdsSnapshot.AddRange(_cachedPartyEntityIds); }
 
         // Check if currently above threshold
-        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 1.5f);
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, 1.5f);
         if (currentPartyDps < thresholdDps)
             return false;
 
@@ -553,18 +551,17 @@ public sealed class DamageTrendService : IDamageTrendService
         }
 
         // Custom threshold - check damage over the duration window
-        var avgDpsOverDuration = _damageIntakeService.GetPartyMemberDamageRate(partyIds, durationSeconds);
+        var avgDpsOverDuration = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, durationSeconds);
         return avgDpsOverDuration >= thresholdDps;
     }
 
     /// <inheritdoc />
     public float GetHighDamagePhaseDuration(float thresholdDps = 800f)
     {
-        List<uint> partyIds;
-        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+        lock (_spikeLock) { _partyIdsSnapshot.Clear(); _partyIdsSnapshot.AddRange(_cachedPartyEntityIds); }
 
         // Check if currently above threshold
-        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 1.5f);
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, 1.5f);
         if (currentPartyDps < thresholdDps)
             return 0f;
 
@@ -581,7 +578,7 @@ public sealed class DamageTrendService : IDamageTrendService
 
         foreach (var window in windows)
         {
-            var avgDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, window);
+            var avgDps = _damageIntakeService.GetPartyMemberDamageRate(_partyIdsSnapshot, window);
             if (avgDps >= thresholdDps)
             {
                 lastValidDuration = window;

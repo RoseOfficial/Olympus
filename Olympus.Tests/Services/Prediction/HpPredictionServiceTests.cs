@@ -385,6 +385,29 @@ public sealed class HpPredictionServiceTests : IDisposable
 
     #endregion
 
+    #region Lock Path Interleaving
+
+    [Fact]
+    public void GetPredictedHp_InterleavedRegistrationAndRead_AccumulatesCorrectly()
+    {
+        // Arrange: exercises the sum-inside-lock path with interleaved register/read calls
+        const uint entityId = 42;
+        const uint currentHp = 5000;
+        const uint maxHp = 10000;
+
+        // Register first heal, read once
+        _service.RegisterPendingHeal(entityId, 1000);
+        var afterFirst = _service.GetPredictedHp(entityId, currentHp, maxHp);
+        Assert.Equal(6000u, afterFirst);
+
+        // Register second heal, read again — both heals must accumulate
+        _service.RegisterPendingHeal(entityId, 1500);
+        var afterSecond = _service.GetPredictedHp(entityId, currentHp, maxHp);
+        Assert.Equal(7500u, afterSecond);
+    }
+
+    #endregion
+
     #region Edge Cases
 
     [Fact]

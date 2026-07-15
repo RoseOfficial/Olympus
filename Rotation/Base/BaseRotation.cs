@@ -107,6 +107,11 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     // Cached timestamp for current frame — set once at start of ExecuteInternal
     protected DateTime FrameTimestamp;
 
+    // Wall-clock delta since the previous frame, clamped to [0, 0.25]s (loading stalls,
+    // alt-tab). First frame uses a nominal 60fps delta.
+    protected float FrameDeltaSeconds { get; private set; } = 1f / 60f;
+    private DateTime _previousFrameTimestamp = DateTime.MinValue;
+
     #endregion
 
     #region Constructor
@@ -206,6 +211,10 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     {
         // Cache timestamp once per frame for all consumers
         FrameTimestamp = DateTime.UtcNow;
+        FrameDeltaSeconds = _previousFrameTimestamp == DateTime.MinValue
+            ? 1f / 60f
+            : Math.Clamp((float)(FrameTimestamp - _previousFrameTimestamp).TotalSeconds, 0f, 0.25f);
+        _previousFrameTimestamp = FrameTimestamp;
 
         // Invalidate frame cache at start of each frame
         FrameCache.InvalidateAll();

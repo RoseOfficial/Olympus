@@ -121,7 +121,7 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
         {
             _damageTrendIds.Clear();
             _damageTrendIds.Add(player.EntityId);
-            DamageTrendService.Update(1f / 60f, _damageTrendIds);
+            DamageTrendService.Update(FrameDeltaSeconds, _damageTrendIds);
         }
     }
 
