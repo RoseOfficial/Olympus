@@ -835,6 +835,37 @@ public class RotationSchedulerTests
     }
 
     [Fact]
+    public void SequentialFrames_ComboChain_DispatchesStepsInOrder()
+    {
+        // Two GCD steps share priority 1. On frame 1, step1's ComboStep predicate is satisfied
+        // (comboStep == 0) so it dispatches and advances comboStep to 1 via onDispatched.
+        // On frame 2, step1's predicate fails (comboStep != 0) so step2 dispatches and
+        // advances comboStep to 2. Verifies the scheduler's combo gate and callback interact
+        // correctly across consecutive Reset/Push/Dispatch cycles.
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+        var ctx = CreateContextWithPlayerLevel(80);
+
+        var comboStep = 0; // simulated gauge state, advanced by onDispatched like production
+        var step1 = TestBehaviors.InstantGcd(actionId: 21001) with { ComboStep = _ => comboStep == 0 };
+        var step2 = TestBehaviors.InstantGcd(actionId: 21002) with { ComboStep = _ => comboStep == 1 };
+
+        for (var frame = 0; frame < 2; frame++)
+        {
+            scheduler.Reset();
+            scheduler.PushGcd(step1, 0, priority: 1, onDispatched: _ => comboStep = 1);
+            scheduler.PushGcd(step2, 0, priority: 1, onDispatched: _ => comboStep = 2);
+            Assert.True(scheduler.DispatchGcd(ctx).Dispatched);
+        }
+
+        Assert.Equal(2, comboStep);
+        actionService.Verify(x => x.ExecuteGcd(It.Is<ActionDefinition>(a => a.ActionId == 21001), It.IsAny<ulong>()), Times.Once);
+        actionService.Verify(x => x.ExecuteGcd(It.Is<ActionDefinition>(a => a.ActionId == 21002), It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
     public void Dispatch_TargetingOverride_SameStrategyDifferentRanges_ResolveIndependentlyWithinPass()
     {
         // Both candidates share TargetingOverride = HighestHp but have different Range values.

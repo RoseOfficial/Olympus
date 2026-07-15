@@ -2,8 +2,8 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
 using Olympus.Data;
-using Olympus.Rotation.HecateCore.Abilities;
-using Olympus.Rotation.HecateCore.Modules;
+using Olympus.Rotation.EchidnaCore.Abilities;
+using Olympus.Rotation.EchidnaCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Party;
 using Olympus.Services.Targeting;
@@ -11,80 +11,80 @@ using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
 
-namespace Olympus.Tests.Rotation.HecateCore.Modules;
+namespace Olympus.Tests.Rotation.EchidnaCore.Modules;
 
 /// <summary>
-/// Tests for Hecate (BLM) DamageModule.TryPushAddle. Pushes Addle via the
-/// scheduler at oGCD priority 7 once the player is Lv.8+ and Addle is off
+/// Tests for Echidna (VPR) DamageModule Feint push. Pushes Feint via the
+/// scheduler at oGCD priority 7 once the player is Lv.22+ and Feint is off
 /// cooldown. Catches a regression where the push is wired to the wrong
 /// priority, the level gate is removed, or the IsActionReady gate is bypassed.
 /// </summary>
-public class DamageModuleAddleTests
+public class DamageModuleFeintTests
 {
     private readonly DamageModule _module = new();
 
     [Fact]
-    public void Addle_PushedAtPriority7_WhenLevel8AndReady()
+    public void Feint_PushedAtPriority7_WhenLevel22AndReady()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
-        targeting.Setup(x => x.FindEnemy(
-                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
 
         var actionService = MockBuilders.CreateMockActionService();
         actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
 
         var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
-        var context = HecateTestContext.Create(
+        var context = EchidnaTestContext.Create(
             actionService: actionService,
             targetingService: targeting,
-            level: 8);
+            level: 22);
 
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         var ogcd = scheduler.InspectOgcdQueue();
-        Assert.Contains(ogcd, c => c.Behavior == HecateAbilities.Addle && c.Priority == 7);
+        Assert.Contains(ogcd, c => c.Behavior == EchidnaAbilities.Feint && c.Priority == 7);
     }
 
     [Fact]
-    public void Addle_NotPushed_WhenLevelBelow8()
+    public void Feint_NotPushed_WhenLevelBelow22()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
-        targeting.Setup(x => x.FindEnemy(
-                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
 
         var actionService = MockBuilders.CreateMockActionService();
         actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
 
         var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
-        var context = HecateTestContext.Create(
+        var context = EchidnaTestContext.Create(
             actionService: actionService,
             targetingService: targeting,
-            level: 7);
+            level: 21);
 
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         var ogcd = scheduler.InspectOgcdQueue();
-        Assert.DoesNotContain(ogcd, c => c.Behavior == HecateAbilities.Addle);
+        Assert.DoesNotContain(ogcd, c => c.Behavior == EchidnaAbilities.Feint);
     }
 
     [Fact]
-    public void Addle_NotPushed_WhenIsActionReadyReturnsFalse()
+    public void Feint_NotPushed_WhenIsActionReadyReturnsFalse()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
-        targeting.Setup(x => x.FindEnemy(
-                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
 
         var actionService = MockBuilders.CreateMockActionService();
         actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
 
         var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
-        var context = HecateTestContext.Create(
+        var context = EchidnaTestContext.Create(
             actionService: actionService,
             targetingService: targeting,
             level: 100);
@@ -92,16 +92,16 @@ public class DamageModuleAddleTests
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         var ogcd = scheduler.InspectOgcdQueue();
-        Assert.DoesNotContain(ogcd, c => c.Behavior == HecateAbilities.Addle);
+        Assert.DoesNotContain(ogcd, c => c.Behavior == EchidnaAbilities.Feint);
     }
 
     [Fact]
-    public void Addle_OnDispatched_BroadcastsCooldownToParty()
+    public void Feint_OnDispatched_BroadcastsCooldownToParty()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
-        targeting.Setup(x => x.FindEnemy(
-                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
 
         var actionService = MockBuilders.CreateMockActionService();
@@ -109,19 +109,19 @@ public class DamageModuleAddleTests
 
         var partyCoordination = new Mock<IPartyCoordinationService>();
         var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
-        var context = HecateTestContext.Create(
+        var context = EchidnaTestContext.Create(
             actionService: actionService,
             targetingService: targeting,
-            level: 8);
+            level: 22);
         Mock.Get(context).Setup(c => c.PartyCoordinationService).Returns(partyCoordination.Object);
 
         _module.CollectCandidates(context, scheduler, isMoving: false);
         var candidate = Assert.Single(scheduler.InspectOgcdQueue(),
-            c => c.Behavior == HecateAbilities.Addle);
+            c => c.Behavior == EchidnaAbilities.Feint);
 
         candidate.OnDispatched?.Invoke(context);
 
-        partyCoordination.Verify(p => p.OnCooldownUsed(RoleActions.Addle.ActionId, 90_000), Times.Once);
+        partyCoordination.Verify(p => p.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000), Times.Once);
     }
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)

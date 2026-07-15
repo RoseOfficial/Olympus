@@ -5,6 +5,7 @@ using Olympus.Data;
 using Olympus.Rotation.ZeusCore.Abilities;
 using Olympus.Rotation.ZeusCore.Modules;
 using Olympus.Services;
+using Olympus.Services.Party;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
@@ -91,6 +92,35 @@ public class DamageModuleFeintTests
 
         var ogcd = scheduler.InspectOgcdQueue();
         Assert.DoesNotContain(ogcd, c => c.Behavior == ZeusAbilities.Feint);
+    }
+
+    [Fact]
+    public void Feint_OnDispatched_BroadcastsCooldownToParty()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var partyCoordination = new Mock<IPartyCoordinationService>();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = ZeusTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 22);
+        Mock.Get(context).Setup(c => c.PartyCoordinationService).Returns(partyCoordination.Object);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+        var candidate = Assert.Single(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == ZeusAbilities.Feint);
+
+        candidate.OnDispatched?.Invoke(context);
+
+        partyCoordination.Verify(p => p.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000), Times.Once);
     }
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)

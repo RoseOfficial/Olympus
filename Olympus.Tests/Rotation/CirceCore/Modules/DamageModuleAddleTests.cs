@@ -5,6 +5,7 @@ using Olympus.Data;
 using Olympus.Rotation.CirceCore.Abilities;
 using Olympus.Rotation.CirceCore.Modules;
 using Olympus.Services;
+using Olympus.Services.Party;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
@@ -91,6 +92,35 @@ public class DamageModuleAddleTests
 
         var ogcd = scheduler.InspectOgcdQueue();
         Assert.DoesNotContain(ogcd, c => c.Behavior == CirceAbilities.Addle);
+    }
+
+    [Fact]
+    public void Addle_OnDispatched_BroadcastsCooldownToParty()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var partyCoordination = new Mock<IPartyCoordinationService>();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CirceTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 8);
+        Mock.Get(context).Setup(c => c.PartyCoordinationService).Returns(partyCoordination.Object);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+        var candidate = Assert.Single(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == CirceAbilities.Addle);
+
+        candidate.OnDispatched?.Invoke(context);
+
+        partyCoordination.Verify(p => p.OnCooldownUsed(RoleActions.Addle.ActionId, 90_000), Times.Once);
     }
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
