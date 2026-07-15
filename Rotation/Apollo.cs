@@ -123,7 +123,6 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             healingSpellSelector: HealingSpellSelector,

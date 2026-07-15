@@ -226,7 +226,6 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

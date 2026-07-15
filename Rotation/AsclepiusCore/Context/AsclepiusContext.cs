@@ -7,7 +7,6 @@ using Olympus.Rotation.AsclepiusCore.Helpers;
 using Olympus.Rotation.Common;
 using Olympus.Services;
 using Olympus.Services.Action;
-using Olympus.Services.Cache;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
@@ -92,7 +91,6 @@ public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,
-        IFrameScopedCache frameCache,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
         IHpPredictionService hpPredictionService,
@@ -119,7 +117,7 @@ public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
         IPluginLog? log = null)
         : base(player, inCombat, isMoving, canExecuteGcd, canExecuteOgcd,
                actionService, actionTracker, combatEventService, damageIntakeService, damageTrendService,
-               frameCache, configuration, debuffDetectionService, hpPredictionService, mpForecastService,
+               configuration, debuffDetectionService, hpPredictionService, mpForecastService,
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,

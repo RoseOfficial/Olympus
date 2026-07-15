@@ -235,7 +235,6 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

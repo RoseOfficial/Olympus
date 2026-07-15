@@ -75,7 +75,6 @@ public static class AstraeaTestContext
         var combatEventService = MockBuilders.CreateMockCombatEventService();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
-        var frameCache = MockBuilders.CreateMockFrameScopedCache();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
         var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
@@ -120,7 +119,6 @@ public static class AstraeaTestContext
             combatEventService.Object,
             damageIntakeService.Object,
             damageTrendService.Object,
-            frameCache.Object,
             config,
             debuffDetectionService.Object,
             hpPredictionService.Object,
@@ -172,7 +170,6 @@ public static class AstraeaTestContext
         var combatEventService = MockBuilders.CreateMockCombatEventService();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
-        var frameCache = MockBuilders.CreateMockFrameScopedCache();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
         var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
@@ -213,7 +210,6 @@ public static class AstraeaTestContext
             combatEventService.Object,
             damageIntakeService.Object,
             damageTrendService.Object,
-            frameCache.Object,
             config,
             debuffDetectionService.Object,
             hpPredictionService.Object,

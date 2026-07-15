@@ -184,7 +184,6 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

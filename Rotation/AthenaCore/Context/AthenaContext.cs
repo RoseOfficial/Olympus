@@ -12,7 +12,6 @@ using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
-using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
 using Olympus.Services.Training;
@@ -71,7 +70,6 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,
-        IFrameScopedCache frameCache,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
         IHpPredictionService hpPredictionService,
@@ -97,7 +95,7 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
         IPluginLog? log = null)
         : base(player, inCombat, isMoving, canExecuteGcd, canExecuteOgcd,
                actionService, actionTracker, combatEventService, damageIntakeService, damageTrendService,
-               frameCache, configuration, debuffDetectionService, hpPredictionService, mpForecastService,
+               configuration, debuffDetectionService, hpPredictionService, mpForecastService,
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,

@@ -294,7 +294,6 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

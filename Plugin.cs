@@ -20,7 +20,6 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
-using Olympus.Services.Cache;
 using Olympus.Services.Tank;
 using Olympus.Services.Positional;
 using Olympus.Services.Analytics;

@@ -14,7 +14,6 @@ using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
-using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 using Olympus.Timeline;
@@ -104,7 +103,6 @@ public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,
-        IFrameScopedCache frameCache,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
         IHpPredictionService hpPredictionService,
@@ -129,7 +127,7 @@ public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
         IPluginLog? log = null)
         : base(player, inCombat, isMoving, canExecuteGcd, canExecuteOgcd,
                actionService, actionTracker, combatEventService, damageIntakeService, damageTrendService,
-               frameCache, configuration, debuffDetectionService, hpPredictionService, mpForecastService,
+               configuration, debuffDetectionService, hpPredictionService, mpForecastService,
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,

@@ -7,7 +7,6 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CalliopeCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
-using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
 using Olympus.Services.Party;
 using Olympus.Services.Prediction;
@@ -38,7 +37,6 @@ public sealed class CalliopeContext : ICalliopeContext
     public ICombatEventService CombatEventService { get; }
     public IDamageIntakeService DamageIntakeService { get; }
     public IDamageTrendService DamageTrendService { get; }
-    public IFrameScopedCache FrameCache { get; }
     public Configuration Configuration { get; }
     public IDebuffDetectionService DebuffDetectionService { get; }
     public IHpPredictionService HpPredictionService { get; }
@@ -125,7 +123,6 @@ public sealed class CalliopeContext : ICalliopeContext
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,
-        IFrameScopedCache frameCache,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
         IHpPredictionService hpPredictionService,
@@ -160,7 +157,6 @@ public sealed class CalliopeContext : ICalliopeContext
         CombatEventService = combatEventService;
         DamageIntakeService = damageIntakeService;
         DamageTrendService = damageTrendService;
-        FrameCache = frameCache;
         Configuration = configuration;
         DebuffDetectionService = debuffDetectionService;
         HpPredictionService = hpPredictionService;

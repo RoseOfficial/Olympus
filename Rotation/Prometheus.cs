@@ -212,7 +212,6 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

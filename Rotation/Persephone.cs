@@ -266,7 +266,6 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

@@ -239,7 +239,6 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

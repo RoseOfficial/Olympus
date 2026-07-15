@@ -226,7 +226,6 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             combatEventService: CombatEventService,
             damageIntakeService: DamageIntakeService,
             damageTrendService: DamageTrendService,
-            frameCache: FrameCache,
             configuration: Configuration,
             debuffDetectionService: DebuffDetectionService,
             hpPredictionService: HpPredictionService,

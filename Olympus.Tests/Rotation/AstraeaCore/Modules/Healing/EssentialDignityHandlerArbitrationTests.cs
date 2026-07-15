@@ -184,7 +184,6 @@ public class EssentialDignityHandlerArbitrationTests
             combatEventService: MockBuilders.CreateMockCombatEventService().Object,
             damageIntakeService: MockBuilders.CreateMockDamageIntakeService().Object,
             damageTrendService: MockBuilders.CreateMockDamageTrendService().Object,
-            frameCache: MockBuilders.CreateMockFrameScopedCache().Object,
             configuration: config,
             debuffDetectionService: MockBuilders.CreateMockDebuffDetectionService().Object,
             hpPredictionService: MockBuilders.CreateMockHpPredictionService().Object,

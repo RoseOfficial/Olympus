@@ -3,7 +3,6 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Services;
 using Olympus.Services.Action;
-using Olympus.Services.Cache;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
@@ -78,11 +77,6 @@ public interface IRotationContext
     /// Service for damage trend analysis (spike detection).
     /// </summary>
     IDamageTrendService DamageTrendService { get; }
-
-    /// <summary>
-    /// Frame-scoped cache for reducing redundant calculations.
-    /// </summary>
-    IFrameScopedCache FrameCache { get; }
 
     /// <summary>
     /// Plugin configuration.

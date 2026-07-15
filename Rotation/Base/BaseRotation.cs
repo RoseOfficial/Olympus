@@ -12,7 +12,6 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services;
 using Olympus.Services.Action;
-using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
@@ -85,7 +84,6 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     protected readonly IBurstWindowService? BurstWindowService;
     protected readonly Olympus.Services.Consumables.ITinctureDispatcher? TinctureDispatcher;
     protected readonly Olympus.Rotation.Common.Modules.PrePullModule? PrePullModule;
-    protected readonly FrameScopedCache FrameCache = new();
 
     #endregion
 
@@ -215,9 +213,6 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
             ? 1f / 60f
             : Math.Clamp((float)(FrameTimestamp - _previousFrameTimestamp).TotalSeconds, 0f, 0.25f);
         _previousFrameTimestamp = FrameTimestamp;
-
-        // Invalidate frame cache at start of each frame
-        FrameCache.InvalidateAll();
 
         var actionManager = SafeGameAccess.GetActionManager(ErrorMetrics);
         if (actionManager == null)

@@ -8,7 +8,6 @@ using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
-using Olympus.Services.Cache;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
@@ -88,7 +87,6 @@ public static class AsclepiusTestContext
         var combatEventService = MockBuilders.CreateMockCombatEventService();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
-        var frameCache = MockBuilders.CreateMockFrameScopedCache();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
         var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
@@ -130,7 +128,6 @@ public static class AsclepiusTestContext
             combatEventService.Object,
             damageIntakeService.Object,
             damageTrendService.Object,
-            frameCache.Object,
             config,
             debuffDetectionService.Object,
             hpPredictionService.Object,
@@ -188,7 +185,6 @@ public static class AsclepiusTestContext
         var combatEventService = MockBuilders.CreateMockCombatEventService();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
-        var frameCache = MockBuilders.CreateMockFrameScopedCache();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
         var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
@@ -229,7 +225,6 @@ public static class AsclepiusTestContext
             combatEventService.Object,
             damageIntakeService.Object,
             damageTrendService.Object,
-            frameCache.Object,
             config,
             debuffDetectionService.Object,
             hpPredictionService.Object,

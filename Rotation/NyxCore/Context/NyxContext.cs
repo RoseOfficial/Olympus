@@ -5,7 +5,6 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Services;
 using Olympus.Services.Action;
-using Olympus.Services.Cache;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Prediction;
@@ -39,7 +38,6 @@ public sealed class NyxContext : INyxContext
     public ICombatEventService CombatEventService { get; }
     public IDamageIntakeService DamageIntakeService { get; }
     public IDamageTrendService DamageTrendService { get; }
-    public IFrameScopedCache FrameCache { get; }
     public Configuration Configuration { get; }
     public IDebuffDetectionService DebuffDetectionService { get; }
     public IHpPredictionService HpPredictionService { get; }
@@ -129,7 +127,6 @@ public sealed class NyxContext : INyxContext
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,
-        IFrameScopedCache frameCache,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
         IHpPredictionService hpPredictionService,
@@ -163,7 +160,6 @@ public sealed class NyxContext : INyxContext
         CombatEventService = combatEventService;
         DamageIntakeService = damageIntakeService;
         DamageTrendService = damageTrendService;
-        FrameCache = frameCache;
         Configuration = configuration;
         DebuffDetectionService = debuffDetectionService;
         HpPredictionService = hpPredictionService;

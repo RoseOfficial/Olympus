@@ -13,7 +13,6 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
-using Olympus.Services.Cache;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
@@ -523,25 +522,6 @@ public static class MockBuilders
 
         mock.Setup(x => x.GetCurrentDamageRate(It.IsAny<uint>(), It.IsAny<float>()))
             .Returns(0f);
-
-        return mock;
-    }
-
-    /// <summary>
-    /// Creates a mock IFrameScopedCache with basic behavior.
-    /// </summary>
-    public static Mock<IFrameScopedCache> CreateMockFrameScopedCache()
-    {
-        var mock = new Mock<IFrameScopedCache>();
-
-        mock.Setup(x => x.CurrentTime).Returns(DateTime.UtcNow);
-        mock.Setup(x => x.FrameNumber).Returns(1ul);
-
-        mock.Setup(x => x.GetOrCompute(It.IsAny<string>(), It.IsAny<Func<object>>()))
-            .Returns((string key, Func<object> compute) => compute());
-
-        mock.Setup(x => x.TryGetCached<object>(It.IsAny<string>(), out It.Ref<object?>.IsAny))
-            .Returns(false);
 
         return mock;
     }
