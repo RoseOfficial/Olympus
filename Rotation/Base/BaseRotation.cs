@@ -340,9 +340,13 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     {
         var jobId = context.Player.ClassJob.RowId;
 
-        // Path 1: pre-pull (only fires when PullIntent != None inside PrePullModule)
+        // Path 1: pre-pull (only fires when PullIntent != None inside PrePullModule).
+        // Deliberately NOT gated on CanExecuteOgcd: pre-pull there is no rolling GCD,
+        // so the weave-window gate is always false there; the only physical constraints
+        // are casting and animation lock.
         if (PrePullModule is not null
-            && ActionService.CanExecuteOgcd
+            && !ActionService.IsCasting
+            && ActionService.AnimationLockRemaining <= FFXIVConstants.WeaveWindowBuffer
             && PrePullModule.TryDispatch(jobId, context))
         {
             return true;

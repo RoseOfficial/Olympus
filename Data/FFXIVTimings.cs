@@ -13,8 +13,11 @@ public static class FFXIVTimings
     /// <summary>Minimum GCD with maximum spell/skill speed.</summary>
     public const float GcdMinimum = 1.5f;
 
-    /// <summary>Base animation lock for most actions (~0.7 seconds).</summary>
-    public const float AnimationLockBase = 0.7f;
+    /// <summary>
+    /// Base animation lock for most actions. The server sends 0.6s; do not pad this
+    /// constant with latency (ping compensation is a separate, explicit term).
+    /// </summary>
+    public const float AnimationLockBase = 0.6f;
 
     /// <summary>Animation lock for true instant abilities (~0.1 seconds).</summary>
     public const float AnimationLockInstant = 0.1f;
@@ -33,9 +36,6 @@ public static class FFXIVTimings
     public const float ActionEffectDelay = 0.6f;
 
     // oGCD Weaving Windows
-    /// <summary>Time available for 1 oGCD after an instant GCD.</summary>
-    public const float SingleWeaveWindow = 0.7f;
-
     /// <summary>GCD must be at least this long for safe double weave.</summary>
     public const float DoubleWeaveThreshold = 2.1f;
 

@@ -362,25 +362,11 @@ public sealed unsafe class ActionService : IActionService
     }
 
     /// <summary>
-    /// Checks if we're in a valid weave window for oGCDs.
-    /// Supports double-weaving when timing allows.
+    /// Checks if we're in a valid weave window for oGCDs. All conditions (not casting,
+    /// no animation lock, queue-window tail reserved, per-cycle cap) live in
+    /// <see cref="ComputeWeaveSlots"/>.
     /// </summary>
-    public bool IsInWeaveWindow()
-    {
-        // In weave window if:
-        // 1. Not casting
-        // 2. No animation lock blocking us
-        // 3. Have available weave slots remaining
-        // 4. Not inside the GCD queue window (last 0.5s is reserved for the next GCD's early-submit)
-        var availableSlots = GetAvailableWeaveSlots();
-        if (_lastIsCasting || AnimationLockRemaining >= FFXIVConstants.WeaveWindowBuffer)
-            return false;
-        if (availableSlots <= _ogcdsUsedThisCycle)
-            return false;
-        if (GcdRemaining > 0 && GcdRemaining <= FFXIVTimings.QueueWindow)
-            return false;
-        return true;
-    }
+    public bool IsInWeaveWindow() => GetAvailableWeaveSlots() > 0;
 
     /// <summary>
     /// Checks if it's safe to weave an oGCD without clipping the GCD.
@@ -467,19 +453,31 @@ public sealed unsafe class ActionService : IActionService
     }
 
     /// <summary>
-    /// Gets the number of available weave slots before the GCD is ready.
+    /// Gets the number of oGCDs that still fit before the GCD comes back up.
     /// </summary>
     public int GetAvailableWeaveSlots()
+        => ComputeWeaveSlots(GcdRemaining, AnimationLockRemaining, _lastIsCasting, _ogcdsUsedThisCycle);
+
+    /// <summary>
+    /// Pure weave-capacity computation (internal for unit tests). One more weave fits
+    /// when the oGCD's animation lock plus the clip-prevention buffer completes before
+    /// the GCD comes back up, capped at 2 per cycle. The queue-window tail (last
+    /// <see cref="FFXIVTimings.QueueWindow"/>s) is reserved for the next GCD's early
+    /// submit. When no GCD is rolling the answer is 0: the GCD pass dispatches in the
+    /// same frame and an oGCD fired at GCD-ready would clip it.
+    /// </summary>
+    internal static int ComputeWeaveSlots(
+        float gcdRemaining, float animationLockRemaining, bool isCasting, int ogcdsUsedThisCycle)
     {
-        if (AnimationLockRemaining > FFXIVConstants.WeaveWindowBuffer || _lastIsCasting)
+        if (isCasting || animationLockRemaining > FFXIVConstants.WeaveWindowBuffer)
+            return 0;
+        if (gcdRemaining <= FFXIVTimings.QueueWindow)
             return 0;
 
-        // Each oGCD takes ~0.7s animation lock. Reserve the queue window at the tail of the GCD for the next
-        // GCD's early submission so a weaved oGCD can never clip into it.
-        var availableTime = GcdRemaining - FFXIVTimings.QueueWindow - FFXIVConstants.WeaveWindowBuffer;
-        var slots = (int)(availableTime / FFXIVTimings.AnimationLockBase);
-
-        return Math.Max(0, Math.Min(2, slots)); // Max 2 weaves (double weave)
+        var capacityNow = (int)((gcdRemaining - FFXIVTimings.ClipPreventionBuffer)
+                                / FFXIVTimings.AnimationLockBase);
+        var remainingCap = 2 - ogcdsUsedThisCycle;
+        return Math.Max(0, Math.Min(capacityNow, remainingCap));
     }
 
     /// <summary>
