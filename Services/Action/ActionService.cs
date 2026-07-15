@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Threading;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Data;
@@ -54,8 +55,11 @@ public sealed unsafe class ActionService : IActionService
     private bool _gcdSubmittedThisCycle;
 
     // Ping compensation: smoothed request->ActionEffect delay for the local player.
-    private float _animLockDelayEstimate;
-    private DateTime _lastUseActionUtc = DateTime.MinValue;
+    // _animLockDelayEstimate: volatile so the frame-thread read sees hook-thread writes without a lock.
+    // _lastUseActionTicks: Interlocked ticks (0 = never) to safely bridge frame thread (write) and
+    //   hook thread (read) without a lock; matches the Interlocked-ticks convention in CombatEventService.
+    private volatile float _animLockDelayEstimate;
+    private long _lastUseActionTicks;
 
     /// <summary>Current GCD state.</summary>
     public GcdState CurrentGcdState { get; private set; } = GcdState.Ready;
@@ -115,8 +119,10 @@ public sealed unsafe class ActionService : IActionService
     /// </summary>
     public void OnLocalActionEffect(DateTime effectUtc)
     {
-        if (_lastUseActionUtc == DateTime.MinValue) return;
-        var delay = (float)(effectUtc - _lastUseActionUtc).TotalSeconds;
+        var ticks = Interlocked.Read(ref _lastUseActionTicks);
+        if (ticks == 0) return;
+        var submitUtc = new DateTime(ticks, DateTimeKind.Utc);
+        var delay = (float)(effectUtc - submitUtc).TotalSeconds;
         if (delay is < 0f or > 1f) return;
         _animLockDelayEstimate = SmoothDelaySample(_animLockDelayEstimate, delay);
     }
@@ -213,7 +219,7 @@ public sealed unsafe class ActionService : IActionService
 
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
-            _lastUseActionUtc = _lastExecuteTime;
+            Interlocked.Exchange(ref _lastUseActionTicks, _lastExecuteTime.Ticks);
 
             // Track for statistics
             var gcdDuration = actionManager->GetRecastTime(ActionType.Action, action.ActionId);
@@ -250,7 +256,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
-            _lastUseActionUtc = _lastExecuteTime;
+            Interlocked.Exchange(ref _lastUseActionTicks, _lastExecuteTime.Ticks);
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
@@ -284,7 +290,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
-            _lastUseActionUtc = _lastExecuteTime;
+            Interlocked.Exchange(ref _lastUseActionTicks, _lastExecuteTime.Ticks);
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);
@@ -325,7 +331,7 @@ public sealed unsafe class ActionService : IActionService
 
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
-            _lastUseActionUtc = _lastExecuteTime;
+            Interlocked.Exchange(ref _lastUseActionTicks, _lastExecuteTime.Ticks);
 
             var gcdDuration = actionManager->GetRecastTime(ActionType.Action, rawDispatchId);
             _actionTracker.LogGcdCast(gcdDuration);
@@ -350,7 +356,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
-            _lastUseActionUtc = _lastExecuteTime;
+            Interlocked.Exchange(ref _lastUseActionTicks, _lastExecuteTime.Ticks);
             _ogcdsUsedThisCycle++;
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
             RaiseActionExecuted(action);

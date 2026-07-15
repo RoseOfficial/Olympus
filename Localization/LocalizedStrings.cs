@@ -149,6 +149,8 @@ public static class LocalizedStrings
         public const string CombatBehaviorHeader = "config.general.combat_behavior_header";
         public const string StartOnAutoAttack = "config.general.start_on_auto_attack";
         public const string StartOnAutoAttackDesc = "config.general.start_on_auto_attack_desc";
+        public const string EnablePingCompensation = "config.general.enable_ping_compensation";
+        public const string EnablePingCompensationDesc = "config.general.enable_ping_compensation_desc";
     }
 
     /// <summary>Keys for window behavior settings.</summary>

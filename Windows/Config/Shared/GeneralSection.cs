@@ -195,10 +195,10 @@ public sealed class GeneralSection
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
-                "Ping compensation (opt-in)",
+                Loc.T(LocalizedStrings.General.EnablePingCompensation, "Ping compensation (opt-in)"),
                 () => this.config.EnablePingCompensation,
                 v => this.config.EnablePingCompensation = v,
-                "Adds your measured network delay to the weave-window cost calculation, reducing GCD clipping on high-latency connections. Leave off unless you notice clipped GCDs.",
+                Loc.T(LocalizedStrings.General.EnablePingCompensationDesc, "Adds your measured network delay to the weave-window cost calculation, reducing GCD clipping on high-latency connections. Leave off unless you notice clipped GCDs."),
                 this.save);
 
             ConfigUIHelpers.EndIndent();
