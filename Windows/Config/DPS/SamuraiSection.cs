@@ -181,9 +181,9 @@ public sealed class SamuraiSection
                 actionId: SAMActions.Ikishoten.ActionId);
 
             config.Samurai.IkishotenHoldTime = ConfigUIHelpers.FloatSlider(
-                Loc.T(LocalizedStrings.Samurai.IkishotenHoldTime, "Ikishoten Hold Time"),
+                Loc.T(LocalizedStrings.Samurai.IkishotenHoldTime, "Ikishoten / Senei / Guren Hold Time"),
                 config.Samurai.IkishotenHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Samurai.IkishotenHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Samurai.IkishotenHoldTime = v);
+                Loc.T(LocalizedStrings.Samurai.IkishotenHoldTimeDesc, "How many seconds before an expected burst window to start holding Ikishoten, Senei, and Guren."), save, v => config.Samurai.IkishotenHoldTime = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Samurai.EnableMeikyoShisui, "Enable Meikyo Shisui"),
