@@ -28,7 +28,7 @@ public sealed class AssizeHealingHandler : IHealingHandler
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Healing.EnableAssizeHealing) return;
+        if (!config.EnableHealing || !config.Healing.EnableAssize || !config.Healing.EnableAssizeHealing) return;
         if (player.Level < WHMActions.Assize.MinLevel) return;
         if (!context.ActionService.IsActionReady(WHMActions.Assize.ActionId)) return;
 

@@ -45,7 +45,7 @@ public static class ApolloAbilities
     public static readonly AbilityBehavior AssizeHeal = new()
     {
         Action = WHMActions.Assize,
-        Toggle = cfg => cfg.EnableHealing && cfg.Healing.EnableAssizeHealing,
+        Toggle = cfg => cfg.EnableHealing && cfg.Healing.EnableAssize && cfg.Healing.EnableAssizeHealing,
     };
 
     public static readonly AbilityBehavior AssizeBuff = new() { Action = WHMActions.Assize };
