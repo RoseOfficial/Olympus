@@ -74,6 +74,7 @@ public sealed class TetragrammatonHandler : IHealingHandler
             }
         }
 
+        // Must stay below the HasNoHealStatus early return: the emergency bypass may override overheal, never invuln skips.
         if (hpPercentForDefer < config.Healing.OgcdEmergencyThreshold)
             overhealMultiplier = float.MaxValue;
 
