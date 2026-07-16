@@ -74,6 +74,9 @@ public sealed class TetragrammatonHandler : IHealingHandler
             }
         }
 
+        if (hpPercentForDefer < config.Healing.OgcdEmergencyThreshold)
+            overhealMultiplier = float.MaxValue;
+
         if (healAmount > missingHp * overhealMultiplier) return;
 
         var capturedTarget = target;

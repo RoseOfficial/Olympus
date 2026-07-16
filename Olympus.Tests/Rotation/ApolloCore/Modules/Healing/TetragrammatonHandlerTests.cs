@@ -202,4 +202,63 @@ public class TetragrammatonHandlerTests
         Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
             c => c.Behavior == ApolloAbilities.Tetragrammaton);
     }
+
+    // -----------------------------------------------------------------------
+    // 8. Target below OgcdEmergencyThreshold with small missingHp
+    //    → overheal guard bypassed → push
+    //
+    //    OgcdEmergencyThreshold = 0.9f (at the setter's max clamp — no distortion).
+    //    currentHp=44000, maxHp=50000 → hpPercentForDefer=0.88 < 0.9 → emergency fires.
+    //    missingHp=6000, normal threshold=9000 (6000 * 1.5).
+    //    estHeal ≈18224 > 9000 → would normally block.
+    //    After bypass: overhealMultiplier=float.MaxValue → check always false → push.
+    // -----------------------------------------------------------------------
+    [Fact]
+    public void CollectCandidates_BelowEmergencyThreshold_SmallMissingHp_BypassesOverheal()
+    {
+        var target = MockBuilders.CreateMockBattleChara(entityId: 5u, currentHp: 44000, maxHp: 50000);
+        var partyHelper = MockBuilders.CreateMockPartyHelper(lowestHpMember: target.Object);
+
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Healing.UseDamageIntakeTriage = false;
+        config.Healing.OgcdEmergencyThreshold = 0.9f; // stored as 0.9f (at clamp boundary); 88% HP is below this
+
+        var context = ApolloTestContext.Create(config: config, partyHelper: partyHelper);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        _handler.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == ApolloAbilities.Tetragrammaton &&
+                 c.Priority == (int)HealingPriority.Tetragrammaton);
+    }
+
+    // -----------------------------------------------------------------------
+    // 9. Target above OgcdEmergencyThreshold with small missingHp
+    //    → overheal guard still active → no push
+    //
+    //    OgcdEmergencyThreshold = 0.9f (at the setter's max clamp — no distortion).
+    //    currentHp=46000, maxHp=50000 → hpPercentForDefer=0.92 ≥ 0.9 → no bypass.
+    //    missingHp=4000, threshold=6000 (4000 * 1.5).
+    //    estHeal ≈18224 > 6000 → overheal guard fires → no push.
+    // -----------------------------------------------------------------------
+    [Fact]
+    public void CollectCandidates_AboveEmergencyThreshold_SmallMissingHp_OverhealBlocks()
+    {
+        var target = MockBuilders.CreateMockBattleChara(entityId: 5u, currentHp: 46000, maxHp: 50000);
+        var partyHelper = MockBuilders.CreateMockPartyHelper(lowestHpMember: target.Object);
+
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Healing.UseDamageIntakeTriage = false;
+        config.Healing.OgcdEmergencyThreshold = 0.9f; // stored as 0.9f; 92% HP is above this → no bypass
+        // Default mock: GetCurrentCharges=0u, GetMaxCharges=0u → isAtMaxCharges=false → 1.5x multiplier
+
+        var context = ApolloTestContext.Create(config: config, partyHelper: partyHelper);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        _handler.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == ApolloAbilities.Tetragrammaton);
+    }
 }
