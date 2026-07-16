@@ -113,14 +113,18 @@ public sealed class BuffModule : IApolloModule
 
         if (!shouldUseThinAir && config.Resurrection.EnableRaise && player.CurrentMp >= RaiseMpCost)
         {
-            var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
-            if (deadMember is not null)
+            var mpPercent = (float)player.CurrentMp / player.MaxMp;
+            if (mpPercent >= config.Resurrection.RaiseMpThreshold)
             {
-                var swiftcastReady = RoleActionGates.SwiftcastReady(context);
-                if (context.HasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
+                var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
+                if (deadMember is not null)
                 {
-                    shouldUseThinAir = true;
-                    usageReason = $"For Raise ({chargeInfo})";
+                    var swiftcastReady = RoleActionGates.SwiftcastReady(context);
+                    if (context.HasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
+                    {
+                        shouldUseThinAir = true;
+                        usageReason = $"For Raise ({chargeInfo})";
+                    }
                 }
             }
         }

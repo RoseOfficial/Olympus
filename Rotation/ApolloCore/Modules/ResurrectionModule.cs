@@ -153,6 +153,8 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IApolloContext>,
         if (deadMember is null) return;
 
         if (player.CurrentMp < RaiseMpCost) return;
+        var mpPercent = (float)player.CurrentMp / player.MaxMp;
+        if (mpPercent < config.Resurrection.RaiseMpThreshold) return;
         if (!context.ActionService.IsActionReady(SwiftcastAction.ActionId)) return;
 
         scheduler.PushOgcd(ApolloAbilities.Swiftcast, player.GameObjectId, priority: 1);

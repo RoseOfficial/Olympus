@@ -384,4 +384,74 @@ public class BuffModuleSchedulerTests
         Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
             c => c.Behavior.Action.ActionId == WHMActions.AetherialShift.ActionId);
     }
+
+    [Fact]
+    public void CollectCandidates_ThinAir_DoesNotPushForRaise_WhenMpAboveAbsoluteButBelowPercentThreshold()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Buffs.EnableThinAir = true;
+        config.Resurrection.EnableRaise = true;
+        config.Resurrection.RaiseMpThreshold = 0.50f;
+        config.EnableHealing = false; // disable AoE/CureII branches so only the raise branch can trigger
+
+        var dead = MockBuilders.CreateMockBattleChara(entityId: 2u, currentHp: 0, maxHp: 50000, isDead: true);
+        var partyHelper = MockBuilders.CreateMockPartyHelper(deadMember: dead.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.ThinAir.ActionId)).Returns(true);
+        // Charges: 0/2 — not at cap, so the cap-avoidance branch cannot fire
+        actionService.Setup(x => x.GetCurrentCharges(WHMActions.ThinAir.ActionId)).Returns(0u);
+        actionService.Setup(x => x.GetMaxCharges(WHMActions.ThinAir.ActionId, It.IsAny<uint>())).Returns((ushort)2);
+
+        // currentMp 3000 / default maxMp 10000 = 30%, below 50% threshold
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            partyHelper: partyHelper,
+            currentMp: 3000,
+            inCombat: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.ThinAir.ActionId);
+    }
+
+    [Fact]
+    public void CollectCandidates_ThinAir_PushesForRaise_WhenMpAboveBothAbsoluteAndPercentThreshold()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Buffs.EnableThinAir = true;
+        config.Resurrection.EnableRaise = true;
+        config.Resurrection.RaiseMpThreshold = 0.50f;
+        config.EnableHealing = false; // disable AoE/CureII branches so only the raise branch can trigger
+
+        var dead = MockBuilders.CreateMockBattleChara(entityId: 2u, currentHp: 0, maxHp: 50000, isDead: true);
+        var partyHelper = MockBuilders.CreateMockPartyHelper(deadMember: dead.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.ThinAir.ActionId)).Returns(true);
+        // Charges: 0/2 — not at cap
+        actionService.Setup(x => x.GetCurrentCharges(WHMActions.ThinAir.ActionId)).Returns(0u);
+        actionService.Setup(x => x.GetMaxCharges(WHMActions.ThinAir.ActionId, It.IsAny<uint>())).Returns((ushort)2);
+
+        // currentMp 6000 / default maxMp 10000 = 60%, above 50% threshold
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            partyHelper: partyHelper,
+            currentMp: 6000,
+            inCombat: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.ThinAir.ActionId);
+    }
 }
