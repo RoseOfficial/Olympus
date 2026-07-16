@@ -577,6 +577,7 @@ public sealed class BuffModule : IApolloModule
         var player = context.Player;
 
         if (!config.Buffs.EnableAetherialShift) return;
+        if (player.ClassJob.RowId == JobRegistry.Conjurer) return;
         if (!config.Buffs.AutoAetherialShift) return;
         if (!ActionValidator.IsAvailable(player, context.ActionService, WHMActions.AetherialShift)) return;
 

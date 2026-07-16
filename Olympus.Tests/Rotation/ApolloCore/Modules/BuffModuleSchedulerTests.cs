@@ -1,4 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Lumina.Excel;
+using Lumina.Excel.Sheets;
 using Moq;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore;
@@ -325,6 +327,61 @@ public class BuffModuleSchedulerTests
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         Assert.Contains(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.AetherialShift.ActionId);
+    }
+
+    [Fact]
+    public void CollectCandidates_AetherialShift_Conjurer_NeverPushed()
+    {
+        // Aetherial Shift is WHM-exclusive. Even with Auto=true and all geometry conditions
+        // satisfied, a Conjurer player must never push the candidate.
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Buffs.EnableAetherialShift = true;
+        config.Buffs.AutoAetherialShift = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.AetherialShift.ActionId)).Returns(true);
+
+        // Enemy at (0, 0, 30): same geometry as the positive test — all gates pass except job.
+        var fakeEnemy = new Mock<IBattleNpc>();
+        fakeEnemy.Setup(e => e.Position).Returns(new System.Numerics.Vector3(0, 0, 30));
+
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(t => t.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns(fakeEnemy.Object);
+
+        // Build a Conjurer player: ClassJob.RowId = 6. RowRef<ClassJob>(null!, conjurerId, null)
+        // stores the RowId without accessing game data, so null ExcelModule is safe here.
+        var conjurerClassJob = new RowRef<ClassJob>(null!, JobRegistry.Conjurer, null);
+        var playerMock = MockBuilders.CreateMockPlayerCharacter(level: 100);
+        playerMock.Setup(x => x.ClassJob).Returns(conjurerClassJob);
+
+        var ctx = new Mock<IApolloContext>();
+        ctx.Setup(x => x.Configuration).Returns(config);
+        ctx.Setup(x => x.Player).Returns(playerMock.Object);
+        ctx.Setup(x => x.ActionService).Returns(actionService.Object);
+        ctx.Setup(x => x.TargetingService).Returns(targetingService.Object);
+        ctx.Setup(x => x.Debug).Returns(new DebugState());
+        ctx.Setup(x => x.InCombat).Returns(true);
+        ctx.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        ctx.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
+        ctx.Setup(x => x.PartyHelper).Returns(MockBuilders.CreateMockPartyHelper().Object);
+        ctx.Setup(x => x.MpForecastService).Returns(MockBuilders.CreateMockMpForecastService().Object);
+        ctx.Setup(x => x.PlayerStatsService).Returns(MockBuilders.CreateMockPlayerStatsService().Object);
+        ctx.Setup(x => x.HasThinAir).Returns(false);
+        ctx.Setup(x => x.HasFreecure).Returns(false);
+        ctx.Setup(x => x.HasSwiftcast).Returns(false);
+        ctx.Setup(x => x.BloodLilyCount).Returns(0);
+        ctx.Setup(x => x.LilyCount).Returns(0);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(ctx.Object, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
             c => c.Behavior.Action.ActionId == WHMActions.AetherialShift.ActionId);
     }
 }
