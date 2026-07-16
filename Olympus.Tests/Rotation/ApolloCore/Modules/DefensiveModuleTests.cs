@@ -5,6 +5,8 @@ using Olympus.Rotation.ApolloCore;
 using Olympus.Rotation.ApolloCore.Modules;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.ApolloCore.Modules;
 
@@ -473,6 +475,53 @@ public class DefensiveModuleTests
             config: config,
             actionService: actionService,
             partyHelper: partyHelper,
+            level: 90,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Contains(queue, c => c.Behavior.Action.ActionId == WHMActions.LiturgyOfTheBell.ActionId);
+        var candidate = queue.First(c => c.Behavior.Action.ActionId == WHMActions.LiturgyOfTheBell.ActionId);
+        Assert.Equal(130, candidate.Priority);
+        // Ground-targeted push: GroundPosition must be set, TargetId must be 0.
+        Assert.NotNull(candidate.GroundPosition);
+        Assert.Equal(0ul, candidate.TargetId);
+    }
+
+    /// <summary>
+    /// When a raidwide is imminent (timeline prediction within the preparation window) the Bell
+    /// must be pushed proactively even with a healthy party (injuredCount=0). The reactive
+    /// injuredCount gate is bypassed when raidwideImminent is true.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_LiturgyRaidwideImminent_HealthyParty_PushesGroundTargetedAtPriority130()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Defensive.EnableLiturgyOfTheBell = true;
+        config.Timeline.EnableTimelinePredictions = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.LiturgyOfTheBell.ActionId)).Returns(true);
+
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        // injuredCount=0 — reactive gate alone would block the push.
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((0.95f, 0.90f, 0));
+
+        var timelineService = new Mock<ITimelineService>();
+        timelineService.Setup(t => t.IsActive).Returns(true);
+        timelineService.Setup(t => t.Confidence).Returns(0.95f);
+        timelineService.Setup(t => t.NextRaidwide).Returns(new MechanicPrediction(
+            secondsUntil: 4f, type: TimelineEntryType.Raidwide, name: "Flare", confidence: 0.95f));
+
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            partyHelper: partyHelper,
+            timelineService: timelineService.Object,
             level: 90,
             inCombat: true,
             canExecuteOgcd: true);

@@ -93,7 +93,7 @@ public sealed class BuffModule : IApolloModule
         var shouldUseThinAir = false;
         var usageReason = "";
 
-        if (isAtMaxCharges)
+        if (isAtMaxCharges && !IsNextGcdFreeMP(context))
         {
             shouldUseThinAir = true;
             usageReason = WillCastExpensiveSpell(context)
@@ -143,7 +143,7 @@ public sealed class BuffModule : IApolloModule
             if (target is not null)
             {
                 var hpPercent = context.PartyHelper.GetHpPercent(target);
-                if (hpPercent < 0.80f)
+                if (hpPercent < 0.80f && !context.HasFreecure)
                 {
                     shouldUseThinAir = true;
                     usageReason = $"For Cure II ({chargeInfo})";
@@ -520,6 +520,23 @@ public sealed class BuffModule : IApolloModule
         {
             context.Debug.SurecastState = "Ready";
         }
+    }
+
+    /// <summary>
+    /// Returns true when the next GCD will cost 0 MP regardless of Thin Air.
+    /// Burning a charge on overcap prevention when this is true wastes the charge.
+    /// Cases: Afflatus Misery (blood lily full = 3) or a lily-consuming heal
+    /// (Solace/Rapture are free and there is a valid target needing healing).
+    /// </summary>
+    private static bool IsNextGcdFreeMP(IApolloContext context)
+    {
+        // Blood lily at 3: next GCD is Afflatus Misery (costs 0 MP).
+        if (context.BloodLilyCount >= 3) return true;
+        // Lily heals (Solace/Rapture) cost 0 MP; skip ThinAir if one is coming.
+        if (context.LilyCount > 0 &&
+            context.PartyHelper.FindLowestHpPartyMember(context.Player) is not null)
+            return true;
+        return false;
     }
 
     private bool WillCastExpensiveSpell(IApolloContext context)

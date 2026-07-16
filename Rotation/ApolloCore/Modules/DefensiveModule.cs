@@ -512,7 +512,9 @@ public sealed class DefensiveModule : IApolloModule
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.LiturgyOfTheBell, config,
             c => c.Defensive.EnableLiturgyOfTheBell))
             return;
-        if (injuredCount < 2) return;
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService, context.BossMechanicDetector, config, out var raidwideSource);
+        if (!raidwideImminent && injuredCount < 2) return;
 
         var tank = context.PartyHelper.FindTankInParty(player);
         Vector3 targetPosition;
@@ -561,17 +563,23 @@ public sealed class DefensiveModule : IApolloModule
 
         var capturedTargetName = targetName;
         var capturedInjured = injuredCount;
+        var capturedRaidwideImminent = raidwideImminent;
+        var capturedRaidwideSource = raidwideSource;
 
         scheduler.PushGroundTargetedOgcd(ApolloAbilities.LiturgyOfTheBell, targetPosition, priority: 130,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = WHMActions.LiturgyOfTheBell.Name;
-                context.Debug.DefensiveState = $"Bell placed at {capturedTargetName} ({capturedInjured} injured)";
+                context.Debug.DefensiveState = capturedRaidwideImminent && capturedInjured < 2
+                    ? $"Bell placed at {capturedTargetName} (proactive - {capturedRaidwideSource})"
+                    : $"Bell placed at {capturedTargetName} ({capturedInjured} injured)";
                 partyCoord?.OnCooldownUsed(WHMActions.LiturgyOfTheBell.ActionId, 180_000);
 
                 if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    var shortReason = $"Liturgy placed near {capturedTargetName} - {capturedInjured} injured";
+                    var shortReason = capturedRaidwideImminent && capturedInjured < 2
+                        ? $"Liturgy placed near {capturedTargetName} - proactive before {capturedRaidwideSource}"
+                        : $"Liturgy placed near {capturedTargetName} - {capturedInjured} injured";
                     var factors = new[]
                     {
                         $"Injured count: {capturedInjured}",

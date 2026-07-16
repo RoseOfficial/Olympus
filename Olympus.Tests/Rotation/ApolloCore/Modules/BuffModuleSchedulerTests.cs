@@ -1,7 +1,18 @@
+using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore;
+using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
+using Olympus.Rotation.Common;
 using Olympus.Services.Action;
+using Olympus.Services.Healing;
+using Olympus.Services.Party;
+using Olympus.Services.Prediction;
+using Olympus.Services.Stats;
+using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
@@ -105,6 +116,106 @@ public class BuffModuleSchedulerTests
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    /// <summary>
+    /// At max charges (2/2) but blood lily is full (3/3): next GCD will be Afflatus Misery
+    /// (costs 0 MP), so burning a ThinAir charge on overcap prevention wastes it.
+    /// The push must be suppressed.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_ThinAir_AtMaxCharges_BloodLilyFull_SkipsPush()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.ThinAir.ActionId)).Returns(true);
+        actionService.Setup(x => x.GetCurrentCharges(WHMActions.ThinAir.ActionId)).Returns(2u);
+        actionService.Setup(x => x.GetMaxCharges(WHMActions.ThinAir.ActionId, It.IsAny<uint>())).Returns((ushort)2);
+
+        var context = BuildThinAirContext(
+            config: config,
+            actionService: actionService,
+            bloodLilyCount: 3,
+            hasFreecure: false);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.ThinAir.ActionId);
+    }
+
+    /// <summary>
+    /// A low-HP target would normally trigger "For Cure II" ThinAir, but the Freecure proc
+    /// already makes the next Cure II free (0 MP). No charge should be spent.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_ThinAir_CureIITarget_Freecure_SkipsPush()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.ThinAir.ActionId)).Returns(true);
+        // Charges below max so the overcap block does not fire.
+        actionService.Setup(x => x.GetCurrentCharges(WHMActions.ThinAir.ActionId)).Returns(1u);
+        actionService.Setup(x => x.GetMaxCharges(WHMActions.ThinAir.ActionId, It.IsAny<uint>())).Returns((ushort)2);
+
+        var lowHpTarget = new Mock<IBattleChara>();
+        lowHpTarget.Setup(x => x.CurrentHp).Returns(30000u);
+        lowHpTarget.Setup(x => x.MaxHp).Returns(50000u);
+        lowHpTarget.Setup(x => x.GameObjectId).Returns(8ul);
+
+        var partyHelper = MockBuilders.CreateMockPartyHelper(lowestHpMember: lowHpTarget.Object);
+        partyHelper.Setup(p => p.GetHpPercent(It.IsAny<IBattleChara>())).Returns(0.60f);
+
+        var context = BuildThinAirContext(
+            config: config,
+            actionService: actionService,
+            bloodLilyCount: 0,
+            hasFreecure: true,
+            partyHelper: partyHelper);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.ThinAir.ActionId);
+    }
+
+    /// <summary>
+    /// Builds a direct IApolloContext mock for ThinAir tests that need controllable
+    /// BloodLilyCount and HasFreecure — both come from SafeGameAccess in the real
+    /// ApolloContext and are always 0/false in unit tests.
+    /// </summary>
+    private static IApolloContext BuildThinAirContext(
+        Configuration config,
+        Mock<IActionService> actionService,
+        int bloodLilyCount,
+        bool hasFreecure,
+        Mock<IPartyHelper>? partyHelper = null)
+    {
+        var player = MockBuilders.CreateMockPlayerCharacter(level: 90);
+        partyHelper ??= MockBuilders.CreateMockPartyHelper();
+        var mpForecast = MockBuilders.CreateMockMpForecastService();
+        var playerStats = MockBuilders.CreateMockPlayerStatsService();
+        var targetingService = MockBuilders.CreateMockTargetingService();
+
+        var ctx = new Mock<IApolloContext>();
+        ctx.Setup(x => x.Configuration).Returns(config);
+        ctx.Setup(x => x.Player).Returns(player.Object);
+        ctx.Setup(x => x.ActionService).Returns(actionService.Object);
+        ctx.Setup(x => x.PartyHelper).Returns(partyHelper.Object);
+        ctx.Setup(x => x.PlayerStatsService).Returns(playerStats.Object);
+        ctx.Setup(x => x.MpForecastService).Returns(mpForecast.Object);
+        ctx.Setup(x => x.TargetingService).Returns(targetingService.Object);
+        ctx.Setup(x => x.Debug).Returns(new DebugState());
+        ctx.Setup(x => x.InCombat).Returns(true);
+        ctx.Setup(x => x.HasThinAir).Returns(false);
+        ctx.Setup(x => x.HasFreecure).Returns(hasFreecure);
+        ctx.Setup(x => x.BloodLilyCount).Returns(bloodLilyCount);
+        ctx.Setup(x => x.LilyCount).Returns(0);
+        ctx.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        ctx.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
+        return ctx.Object;
     }
 
     [Fact]
