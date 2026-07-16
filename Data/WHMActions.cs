@@ -712,6 +712,22 @@ public static class WHMActions
     };
 
     /// <summary>
+    /// True when Afflatus Misery is fully charged AND the rotation is allowed to fire it
+    /// (blood lily 3/3, damage + Misery enabled, level 74+). While this holds, lily heals
+    /// must not be preferred over other options: spending a lily returns no blood lily
+    /// progress and the lily-heal candidate outranks Misery in the GCD queue, starving it.
+    /// When Misery can never fire (damage disabled, below 74), lily heals stay preferred —
+    /// they are free and prevent lily overcap.
+    /// </summary>
+    public static bool IsMiseryDispatchable(Configuration configuration, int bloodLilyCount, byte playerLevel)
+    {
+        return bloodLilyCount >= 3
+            && configuration.EnableDamage
+            && configuration.Damage.EnableAfflatusMisery
+            && playerLevel >= AfflatusMisery.MinLevel;
+    }
+
+    /// <summary>
     /// Gets the appropriate AoE damage GCD for the player's level.
     /// Returns null if player level is below Holy (level 45).
     /// </summary>

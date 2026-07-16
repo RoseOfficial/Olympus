@@ -36,7 +36,9 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
         // === TIER 1: Lily GCD (Afflatus Solace) ===
         // Blood Lily optimization: prefer lily heals based on strategy to generate Blood Lilies
         // MP conservation: aggressively prefer lily heals when MP is low
-        var shouldUseLily = context.LilyCount > 0 &&
+        // MiseryReady gate: with blood lily capped and Misery dispatchable, a lily heal returns
+        // no gauge and outranks Misery in the GCD queue, starving it — never prefer lilies here.
+        var shouldUseLily = context.LilyCount > 0 && !context.MiseryReady &&
             (ShouldPreferLilyHeal(context) ||
              (context.IsInMpConservationMode && context.Config.PreferLiliesInConservationMode));
 
@@ -239,7 +241,9 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
         // Blood Lily optimization: prefer lily heals based on strategy to generate Blood Lilies
         // MP conservation: aggressively prefer lily heals when MP is low
         // For AoE heals, we use 0 for HP percent since we're healing multiple targets
-        var shouldUseLilyAoE = context.LilyCount > 0 && hasSelfCenteredTargets &&
+        // MiseryReady gate: see SelectBestSingleHeal Tier 1 — never prefer Rapture while a
+        // dispatchable Misery is waiting on the blood gauge.
+        var shouldUseLilyAoE = context.LilyCount > 0 && hasSelfCenteredTargets && !context.MiseryReady &&
             (ShouldPreferLilyHealForAoE(context) ||
              (context.IsInMpConservationMode && context.Config.PreferLiliesInConservationMode));
 
@@ -381,7 +385,9 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
         // If the lily strategy didn't prefer Rapture at Tier 1 but everything else failed
         // (e.g. EnableAoEOverhealCheck is on and Medicas were blocked), use Rapture anyway.
         // Rapture has no overheal check and costs no MP — better than casting nothing.
-        if (selectedAction is null && context.LilyCount > 0 && hasSelfCenteredTargets)
+        // MiseryReady gate: when a dispatchable Misery is waiting, "nothing" from this
+        // selector lets Misery win the GCD instead — that IS the better fallback.
+        if (selectedAction is null && context.LilyCount > 0 && hasSelfCenteredTargets && !context.MiseryReady)
         {
             var result = evaluator.EvaluateAoE(
                 WHMActions.AfflatusRapture,
@@ -424,8 +430,9 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
         if (context.CombatDuration > 60f && context.BloodLilyCount >= 2 && context.LilyCount > 0)
             return true;
 
-        // If we have full blood lilies (3/3) and lilies available, we should spend
-        // lilies even though blood lily won't increase (prevents lily waste)
+        // Full blood lilies (3/3) with lilies available: spend lilies to prevent lily waste.
+        // Only reachable when MiseryReady is false (the caller gates it) — i.e. Misery can
+        // never fire (damage disabled or below level 74), so overcap prevention wins.
         if (context.BloodLilyCount >= 3 && context.LilyCount > 0)
             return true;
 

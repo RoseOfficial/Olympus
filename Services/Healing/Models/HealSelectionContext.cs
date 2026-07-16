@@ -89,6 +89,13 @@ public sealed record HealSelectionContext
     /// Survivability info for comprehensive healing decisions.
     /// </summary>
     public SurvivabilityInfo? Survivability { get; init; }
+
+    /// <summary>
+    /// Whether Afflatus Misery is fully charged and dispatchable (see
+    /// WHMActions.IsMiseryDispatchable). While true, lily heals must not be
+    /// preferred: they return no gauge and starve the pending Misery.
+    /// </summary>
+    public bool MiseryReady { get; init; }
 }
 
 /// <summary>
@@ -156,4 +163,11 @@ public sealed record AoEHealSelectionContext
 
     /// <summary>Number of party members with active mitigation buffs.</summary>
     public int MitigatedMemberCount { get; init; }
+
+    /// <summary>
+    /// Whether Afflatus Misery is fully charged and dispatchable (see
+    /// WHMActions.IsMiseryDispatchable). While true, Rapture must not be
+    /// preferred: it returns no gauge and starves the pending Misery.
+    /// </summary>
+    public bool MiseryReady { get; init; }
 }

@@ -72,8 +72,10 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
 
         var candidates = new List<(ActionDefinition action, int healAmount, float score, string reason)>();
 
-        // Evaluate Afflatus Solace (Lily heal)
-        if (context.LilyCount > 0)
+        // Evaluate Afflatus Solace (Lily heal).
+        // MiseryReady excludes the candidate outright: score-zeroing the lily benefit is
+        // not enough because Solace's 0-MP efficiency term alone outscores Cure II.
+        if (context.LilyCount > 0 && !context.MiseryReady)
         {
             var result = evaluator.EvaluateSingleTarget(
                 WHMActions.AfflatusSolace,
@@ -220,8 +222,9 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
 
         var candidates = new List<(ActionDefinition action, int healAmount, IBattleChara? target, float score, string reason)>();
 
-        // Evaluate Afflatus Rapture (Lily AoE)
-        if (context.LilyCount > 0 && hasSelfCenteredTargets)
+        // Evaluate Afflatus Rapture (Lily AoE).
+        // MiseryReady excludes the candidate outright — see the Solace note above.
+        if (context.LilyCount > 0 && hasSelfCenteredTargets && !context.MiseryReady)
         {
             var result = evaluator.EvaluateAoE(
                 WHMActions.AfflatusRapture,
@@ -340,13 +343,15 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
                          action.ActionId == WHMActions.AfflatusRapture.ActionId;
         if (isLilyHeal && context.LilyCount > 0)
         {
-            // More benefit when blood lilies are low (need to build toward Misery)
+            // More benefit when blood lilies are low (need to build toward Misery).
+            // The MiseryReady case never reaches scoring — lily candidates are excluded
+            // at the evaluation sites above.
             lilyBenefit = context.BloodLilyCount switch
             {
                 0 => 1.0f,  // Maximum benefit - need to start building
                 1 => 0.85f, // High benefit - close to Misery
                 2 => 0.70f, // Good benefit - one more for Misery
-                _ => 0.3f   // Minimal benefit - already have Misery ready
+                _ => 0.3f   // Blood capped but Misery can never fire (heal-only config)
             };
 
             // Bonus if in MP conservation mode
@@ -446,7 +451,7 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
                 0 => 1.0f,
                 1 => 0.85f,
                 2 => 0.70f,
-                _ => 0.3f
+                _ => 0.3f // MiseryReady never reaches scoring (excluded at evaluation)
             };
             if (context.IsInMpConservationMode)
                 lilyBenefit = Math.Min(1f, lilyBenefit + 0.2f);

@@ -175,12 +175,13 @@ public class LilyCapPreventionHandlerTests
     }
 
     // -----------------------------------------------------------------------
-    // 6. Capped, level 60, but FindLowestHpPartyMember returns null → no Solace target, no push
+    // 6. Capped, level 60, fully healed party (FindLowestHpPartyMember = null)
+    //    → Solace falls back to self so lily regeneration is not wasted
     // -----------------------------------------------------------------------
     [Fact]
-    public void CollectCandidates_LiliesCapped_NoSolaceTarget_NoPush()
+    public void CollectCandidates_LiliesCapped_PartyFullyHealed_PushesSolaceOnSelf()
     {
-        // injuredInRange = 0 → Rapture branch skipped; FindLowestHp = null → Solace fails
+        // injuredInRange = 0 → Rapture branch skipped; FindLowestHp = null → self fallback
         var partyHelper = CreatePartyHelper(lowestHpMember: null, injuredInRange: 0);
 
         var context = BuildContext(
@@ -194,7 +195,72 @@ public class LilyCapPreventionHandlerTests
 
         _handler.CollectCandidates(context, scheduler, isMoving: false);
 
+        var queue = scheduler.InspectGcdQueue();
+        Assert.Contains(queue, c =>
+            c.Behavior == ApolloAbilities.AfflatusSolace &&
+            c.Priority == (int)HealingPriority.LilyCapPrevention &&
+            c.TargetId == 1ul); // CreateMockPlayerCharacter GameObjectId = 1 (self)
+    }
+
+    // -----------------------------------------------------------------------
+    // 7. Blood lily 3/3 with Misery dispatchable (damage on, level 74+)
+    //    → handler stands down so the lily heal cannot outrank Misery
+    // -----------------------------------------------------------------------
+    [Fact]
+    public void CollectCandidates_BloodLiliesFull_MiseryDispatchable_NoPush()
+    {
+        var target = CreateTarget(entityId: 8u);
+        var partyHelper = CreatePartyHelper(lowestHpMember: target.Object, injuredInRange: 0);
+
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableDamage = true;
+        config.Damage.EnableAfflatusMisery = true;
+
+        var context = BuildContext(
+            lilyCount: 3,
+            playerLevel: 80,
+            config: config,
+            partyHelper: partyHelper,
+            playerStatsService: MockBuilders.CreateMockPlayerStatsService(),
+            bloodLilyCount: 3);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        _handler.CollectCandidates(context, scheduler, isMoving: false);
+
         Assert.Empty(scheduler.InspectGcdQueue());
+    }
+
+    // -----------------------------------------------------------------------
+    // 8. Blood lily 3/3 but damage disabled (heal-only config) → Misery can
+    //    never fire, so overcap prevention keeps spending lilies
+    // -----------------------------------------------------------------------
+    [Fact]
+    public void CollectCandidates_BloodLiliesFull_DamageDisabled_StillPushesSolace()
+    {
+        var target = CreateTarget(entityId: 8u);
+        var partyHelper = CreatePartyHelper(lowestHpMember: target.Object, injuredInRange: 0);
+
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableDamage = false;
+
+        var context = BuildContext(
+            lilyCount: 3,
+            playerLevel: 80,
+            config: config,
+            partyHelper: partyHelper,
+            playerStatsService: MockBuilders.CreateMockPlayerStatsService(),
+            bloodLilyCount: 3);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        _handler.CollectCandidates(context, scheduler, isMoving: false);
+
+        var queue = scheduler.InspectGcdQueue();
+        Assert.Contains(queue, c =>
+            c.Behavior == ApolloAbilities.AfflatusSolace &&
+            c.Priority == (int)HealingPriority.LilyCapPrevention &&
+            c.TargetId == target.Object.GameObjectId);
     }
 
     // -----------------------------------------------------------------------
@@ -238,16 +304,16 @@ public class LilyCapPreventionHandlerTests
 
     /// <summary>
     /// Builds a mock IApolloContext wired for LilyCapPreventionHandler.
-    /// LilyCount is explicitly controllable; other gauge properties (BloodLilyCount,
-    /// SacredSightStacks) are only accessed inside onDispatched callbacks and are
-    /// left at Moq defaults (0).
+    /// LilyCount and BloodLilyCount are explicitly controllable — BloodLilyCount
+    /// feeds the WHMActions.IsMiseryDispatchable stand-down gate.
     /// </summary>
     private static IApolloContext BuildContext(
         int lilyCount,
         byte playerLevel,
         Configuration config,
         Mock<IPartyHelper> partyHelper,
-        Mock<IPlayerStatsService> playerStatsService)
+        Mock<IPlayerStatsService> playerStatsService,
+        int bloodLilyCount = 0)
     {
         var player = MockBuilders.CreateMockPlayerCharacter(level: playerLevel);
         var actionService = MockBuilders.CreateMockActionService();
@@ -265,7 +331,7 @@ public class LilyCapPreventionHandlerTests
         ctx.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         ctx.Setup(x => x.Debug).Returns(new DebugState());
         ctx.Setup(x => x.LilyCount).Returns(lilyCount);
-        ctx.Setup(x => x.BloodLilyCount).Returns(0); // not gate-checked; only in onDispatched
+        ctx.Setup(x => x.BloodLilyCount).Returns(bloodLilyCount); // gate-checked via IsMiseryDispatchable
 
         return ctx.Object;
     }

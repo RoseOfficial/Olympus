@@ -49,6 +49,10 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
         if (!config.EnableHealing || !config.Healing.EnableAggressiveLilyFlush) return;
         if (config.Healing.LilyStrategy == LilyGenerationStrategy.Disabled) return;
         if (context.BloodLilyCount < BloodLilyBuildingThreshold) return;
+        // Building is complete at 3 blood lilies. A lily heal pushed here would outrank
+        // the pending Misery in the GCD queue while returning no gauge — stand down and
+        // let Misery (or LilyCapPreventionHandler for heal-only configs) take over.
+        if (context.BloodLilyCount >= 3) return;
         if (context.LilyCount < 1) return;
         if (player.Level < AfflatusSolaceMinLevel) return;
 

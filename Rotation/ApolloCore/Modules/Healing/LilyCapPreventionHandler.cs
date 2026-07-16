@@ -1,4 +1,5 @@
 using System;
+using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models;
@@ -45,6 +46,11 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
         if (!config.EnableHealing || !config.Healing.EnableLilyCapPrevention) return;
         if (player.Level < AfflatusSolaceMinLevel) return;
 
+        // A dispatchable Misery frees the blood gauge within a GCD; a lily heal pushed now
+        // would outrank Misery in the GCD queue while returning no gauge. Let Misery fire
+        // first — this handler resumes on the next frame with blood lilies at 0.
+        if (WHMActions.IsMiseryDispatchable(config, context.BloodLilyCount, player.Level)) return;
+
         if (player.Level >= AfflatusRaptureMinLevel)
         {
             var injuredInRange = context.PartyHelper.CountInjuredInAoERange(
@@ -59,8 +65,11 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
     {
         if (!context.Configuration.Healing.EnableAfflatusSolace) return false;
 
-        var target = context.PartyHelper.FindLowestHpPartyMember(context.Player, healAmount: 1);
-        if (target is null) return false;
+        // Fully healed party: fall back to self. Overcapped lilies waste regeneration
+        // (one per 20s) and stall blood lily progress, so an overheal Solace on self is
+        // still the better GCD — it costs no MP and banks a blood lily toward Misery.
+        var target = context.PartyHelper.FindLowestHpPartyMember(context.Player, healAmount: 1)
+            ?? (IBattleChara)context.Player;
         if (context.HealingCoordination.IsTargetReserved(target.EntityId)) return false;
         if (!DistanceHelper.IsInRange(context.Player, target, WHMActions.AfflatusSolace.Range)) return false;
 

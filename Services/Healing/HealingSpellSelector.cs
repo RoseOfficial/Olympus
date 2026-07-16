@@ -161,6 +161,7 @@ public class HealingSpellSelector : IHealingSpellSelector
             LilyStrategy = configuration.Healing.LilyStrategy,
             CombatDuration = combatDuration,
             Config = configuration.Healing,
+            MiseryReady = WHMActions.IsMiseryDispatchable(configuration, bloodLilyCount, player.Level),
             DamageRate = damageRate,
             // Shield and survivability data
             ShieldValue = survivability.ShieldValue,
@@ -234,6 +235,7 @@ public class HealingSpellSelector : IHealingSpellSelector
             LilyStrategy = configuration.Healing.LilyStrategy,
             CombatDuration = combatDuration,
             Config = configuration.Healing,
+            MiseryReady = WHMActions.IsMiseryDispatchable(configuration, bloodLilyCount, player.Level),
             PartyDamageRate = partyDamageRate
         };
 
