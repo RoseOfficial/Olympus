@@ -9,7 +9,25 @@ public sealed class BuffConfig
 {
     public bool EnablePresenceOfMind { get; set; } = true;
     public bool EnableThinAir { get; set; } = true;
+    /// <summary>
+    /// Master gate: may Olympus ever use Aetherial Shift at all?
+    /// When false the ability is completely suppressed regardless of <see cref="AutoAetherialShift"/>.
+    /// </summary>
     public bool EnableAetherialShift { get; set; } = true;
+
+    /// <summary>
+    /// Proactive gap-close gate: fire Aetherial Shift automatically when out of cast range
+    /// and facing the target.
+    ///
+    /// Defaults to <c>false</c> because Aetherial Shift is a fixed-direction 15-yalm dash
+    /// with no target lock — firing it blindly risks dashing off ledges or into hazards.
+    /// Enable only when you are comfortable with the bot deciding when to dash.
+    ///
+    /// Follows the Enable/Auto convention used for other movement abilities (e.g. RPR
+    /// Hell's Ingress has no auto gap-close at all for exactly this reason — fixed-direction
+    /// dashes demand explicit opt-in). <see cref="EnableAetherialShift"/> must also be true.
+    /// </summary>
+    public bool AutoAetherialShift { get; set; } = false;
 
     // Predictive Lucid Dreaming Settings
     // Note: The master EnableLucidDreaming toggle lives in HealerSharedConfig

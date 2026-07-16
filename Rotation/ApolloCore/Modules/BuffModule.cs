@@ -577,6 +577,7 @@ public sealed class BuffModule : IApolloModule
         var player = context.Player;
 
         if (!config.Buffs.EnableAetherialShift) return;
+        if (!config.Buffs.AutoAetherialShift) return;
         if (!ActionValidator.IsAvailable(player, context.ActionService, WHMActions.AetherialShift)) return;
 
         const float dashDistance = 15f;

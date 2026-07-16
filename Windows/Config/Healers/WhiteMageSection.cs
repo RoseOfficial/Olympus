@@ -148,6 +148,14 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.Toggle("Aetherial Shift", () => config.Buffs.EnableAetherialShift, v => config.Buffs.EnableAetherialShift = v,
                 null, save, actionId: WHMActions.AetherialShift.ActionId);
 
+            ConfigUIHelpers.BeginDisabledGroup(!config.Buffs.EnableAetherialShift);
+            ConfigUIHelpers.BeginIndent();
+            ConfigUIHelpers.Toggle("Auto Aetherial Shift", () => config.Buffs.AutoAetherialShift, v => config.Buffs.AutoAetherialShift = v,
+                "Automatically dash toward the target when out of cast range and facing them. Off by default — Aetherial Shift is a fixed-direction dash that can send you off ledges.", save,
+                actionId: WHMActions.AetherialShift.ActionId);
+            ConfigUIHelpers.EndIndent();
+            ConfigUIHelpers.EndDisabledGroup();
+
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.EmergencyThresholds, "Emergency Thresholds:"));
 

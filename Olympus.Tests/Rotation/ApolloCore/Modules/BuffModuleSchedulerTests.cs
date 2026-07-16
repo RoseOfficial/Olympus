@@ -16,6 +16,7 @@ using Olympus.Services.Training;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
+using IBattleNpc = Dalamud.Game.ClientState.Objects.Types.IBattleNpc;
 
 namespace Olympus.Tests.Rotation.ApolloCore.Modules;
 
@@ -242,5 +243,88 @@ public class BuffModuleSchedulerTests
 
         var queue = scheduler.InspectOgcdQueue();
         Assert.Contains(queue, c => c.Behavior.Action.ActionId == WHMActions.PresenceOfMind.ActionId);
+    }
+
+    [Fact]
+    public void CollectCandidates_AetherialShift_AutoFalse_NeverPushed()
+    {
+        // Auto = false (default) must suppress the push even when Enable = true,
+        // the ability is ready, and the target is positioned correctly for a dash.
+        // All gates downstream of AutoAetherialShift are satisfied here to prove
+        // that AutoAetherialShift itself is the only thing blocking the push.
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Buffs.EnableAetherialShift = true;
+        config.Buffs.AutoAetherialShift = false;   // the gate under test
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.AetherialShift.ActionId)).Returns(true);
+
+        // Place enemy 30y directly in front of player (player at origin, rotation 0 = facing +Z).
+        // distance 30 > spellRange 25, dot = 1.0 > 0.7 — all downstream gates pass.
+        var fakeEnemy = new Mock<IBattleNpc>();
+        fakeEnemy.Setup(e => e.Position).Returns(new System.Numerics.Vector3(0, 0, 30));
+
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(t => t.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns(fakeEnemy.Object);
+
+        // Default player mock: position = (0,0,0), Rotation = 0f (Moq default for float).
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targetingService,
+            level: 100,
+            inCombat: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.AetherialShift.ActionId);
+    }
+
+    [Fact]
+    public void CollectCandidates_AetherialShift_AutoTrue_ConditionsMet_PushesCandidate()
+    {
+        // Auto = true and player is out of cast range but facing the target → must push.
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Buffs.EnableAetherialShift = true;
+        config.Buffs.AutoAetherialShift = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.AetherialShift.ActionId)).Returns(true);
+
+        // Player at origin, rotation 0 → forward = (sin(0), 0, cos(0)) = (0, 0, 1).
+        // Enemy at (0, 0, 30): distance 30 > spellRange 25, dot = 1.0 > 0.7.
+        var fakeEnemy = new Mock<IBattleNpc>();
+        fakeEnemy.Setup(e => e.Position).Returns(new System.Numerics.Vector3(0, 0, 30));
+
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(t => t.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns(fakeEnemy.Object);
+
+        // Default player mock: position = (0,0,0), Rotation = 0f (Moq default for float).
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targetingService,
+            level: 100,
+            inCombat: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.AetherialShift.ActionId);
     }
 }
