@@ -960,6 +960,9 @@ public static class LocalizedStrings
         public const string TimelineMasterMoved = "config.job.healer_shared.timeline_master_moved";
         public const string RaidwideWindow = "config.job.healer_shared.raidwide_window";
         public const string TankBusterWindow = "config.job.healer_shared.tank_buster_window";
+        public const string BurstSection = "config.job.healer_shared.burst_section";
+        public const string EnableBurstPooling = "config.job.healer_shared.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.healer_shared.enable_burst_pooling_desc";
     }
 
     /// <summary>Keys for the shared Timeline Integration settings section.</summary>

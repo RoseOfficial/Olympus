@@ -216,6 +216,32 @@ public class ConfigurationPresetsTests
     }
 
     // ──────────────────────────────────────────────────────────────
+    // Healer burst pooling: Conservative disables, Balanced/Aggressive/Proactive enable
+    // ──────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Conservative_DisablesBurstPoolingForHealerShared()
+    {
+        var config = new Configuration();
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Conservative);
+
+        Assert.False(config.HealerShared.EnableBurstPooling);
+    }
+
+    [Theory]
+    [InlineData(ConfigurationPreset.Balanced)]
+    [InlineData(ConfigurationPreset.Aggressive)]
+    [InlineData(ConfigurationPreset.Proactive)]
+    public void Preset_AfterConservative_ReenablesHealerBurstPooling(ConfigurationPreset preset)
+    {
+        var config = new Configuration();
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Conservative);
+        ConfigurationPresets.ApplyPreset(config, preset);
+
+        Assert.True(config.HealerShared.EnableBurstPooling);
+    }
+
+    // ──────────────────────────────────────────────────────────────
     // GetJobRole: all 21 combat job IDs return the correct role
     // ──────────────────────────────────────────────────────────────
 

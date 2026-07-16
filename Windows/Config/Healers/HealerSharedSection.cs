@@ -29,6 +29,7 @@ public sealed class HealerSharedSection
         ConfigUIHelpers.Spacing();
 
         DrawMpManagement();
+        DrawBurstWindow();
         DrawPredictionAndAwareness();
         DrawTimelineIntegration();
     }
@@ -121,6 +122,24 @@ public sealed class HealerSharedSection
                     save,
                     v => config.Healing.TankBusterPreparationWindow = v);
             }
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawBurstWindow()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.HealerShared.BurstSection, "Burst Window"), "Healer"))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.HealerShared.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.HealerShared.EnableBurstPooling,
+                v => config.HealerShared.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.HealerShared.EnableBurstPoolingDesc,
+                    "Pool healer damage cooldowns for raid buff burst windows. Holds Chain Stratagem, Phlegma, Psyche, Presence of Mind, and Afflatus Misery until the burst window opens."),
+                save);
 
             ConfigUIHelpers.EndIndent();
         }

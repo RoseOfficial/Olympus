@@ -26,4 +26,10 @@ public sealed class HealerSharedConfig
         get => _lucidDreamingThreshold;
         set => _lucidDreamingThreshold = Math.Clamp(value, 0f, 1f);
     }
+
+    /// <summary>
+    /// Pool healer damage cooldowns (Chain Stratagem, Phlegma, Psyche, Presence of Mind,
+    /// Afflatus Misery) for raid buff burst windows.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
 }

@@ -307,6 +307,7 @@ public static class ConfigurationPresets
             config.Scholar.EnableEnergyDrain = false;
             config.Sage.AddersgallReserve = 2;
             config.HealerShared.LucidDreamingThreshold = 0.80f;
+            config.HealerShared.EnableBurstPooling = false;
         }
 
         // Tanks
@@ -373,6 +374,7 @@ public static class ConfigurationPresets
             config.Scholar.EnableEnergyDrain = true;
             config.Sage.AddersgallReserve = 1;
             config.HealerShared.LucidDreamingThreshold = 0.70f;
+            config.HealerShared.EnableBurstPooling = true;
         }
 
         // Tanks
@@ -439,6 +441,7 @@ public static class ConfigurationPresets
             config.Scholar.EnableEnergyDrain = true;
             config.Sage.AddersgallReserve = 0;
             config.HealerShared.LucidDreamingThreshold = 0.60f;
+            config.HealerShared.EnableBurstPooling = true;
         }
 
         // Tanks
@@ -505,6 +508,7 @@ public static class ConfigurationPresets
             config.Scholar.AetherflowReserve = 1;
             config.Sage.AddersgallReserve = 1;
             config.HealerShared.LucidDreamingThreshold = 0.70f;
+            config.HealerShared.EnableBurstPooling = true;
         }
 
         // Tanks
