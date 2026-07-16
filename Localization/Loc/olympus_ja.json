@@ -257,7 +257,6 @@
   "config.job.whm.use_with_aoe_heals": "範囲ヒールと併用",
   "config.job.whm.use_with_aoe_heals_desc": "インドゥルゲンティアを範囲ヒールと同期して威力ボーナスを得る",
   "config.job.whm.enable_damage": "攻撃有効",
-  "config.job.whm.dps_priority": "DPS優先度",
   "config.job.whm.holy_desc": "自己中心範囲（半径8m）。敵が密集している時に使用",
   "config.job.whm.misery_desc": "1240威力範囲ダメージ（ブラッドリリー3消費）。3スタック時に使用",
   "config.job.whm.enable_dot": "DoT有効",

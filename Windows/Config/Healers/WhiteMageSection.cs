@@ -15,13 +15,6 @@ public sealed class WhiteMageSection
     private readonly Configuration config;
     private readonly Action save;
 
-    private static string[] GetDpsPriorityNames() => new[]
-    {
-        Loc.T(LocalizedStrings.WhiteMage.DpsPriorityHealFirst, "Heal First"),
-        Loc.T(LocalizedStrings.WhiteMage.DpsPriorityBalanced, "Balanced"),
-        Loc.T(LocalizedStrings.WhiteMage.DpsPriorityDpsFirst, "DPS First"),
-    };
-
     public WhiteMageSection(Configuration config, Action save)
     {
         this.config = config;
@@ -336,24 +329,6 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.WhiteMage.EnableDamage, "Enable Damage"), () => config.EnableDamage, v => config.EnableDamage = v, null, save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.EnableDamage);
-
-            // DPS Priority Mode
-            var currentPriority = (int)config.Damage.DpsPriority;
-            ImGui.SetNextItemWidth(150);
-            var dpsPriorityNames = GetDpsPriorityNames();
-            if (ImGui.Combo(Loc.T(LocalizedStrings.WhiteMage.DpsPriority, "DPS Priority"), ref currentPriority, dpsPriorityNames, dpsPriorityNames.Length))
-            {
-                config.Damage.DpsPriority = (DpsPriorityMode)currentPriority;
-                save();
-            }
-            var priorityDesc = config.Damage.DpsPriority switch
-            {
-                DpsPriorityMode.HealFirst => Loc.T(LocalizedStrings.WhiteMage.DpsPriorityHealFirstDesc, "Safest - only DPS when party is healthy"),
-                DpsPriorityMode.Balanced => Loc.T(LocalizedStrings.WhiteMage.DpsPriorityBalancedDesc, "Moderate - more aggressive DPS while healing"),
-                DpsPriorityMode.DpsFirst => Loc.T(LocalizedStrings.WhiteMage.DpsPriorityDpsFirstDesc, "Maximum DPS - minimal proactive healing"),
-                _ => ""
-            };
-            ImGui.TextDisabled(priorityDesc);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.StoneProgression, "Stone Progression:"));

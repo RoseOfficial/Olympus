@@ -132,7 +132,6 @@ public static class ConfigurationPresets
     private static void ApplyRaidPreset(Configuration config)
     {
         // Core behavior - balanced
-        config.Damage.DpsPriority = DpsPriorityMode.Balanced;
         config.MovementTolerance = 0.1f;
 
         // Healing behavior - co-healer aware, proactive
@@ -186,7 +185,6 @@ public static class ConfigurationPresets
     private static void ApplyDungeonPreset(Configuration config)
     {
         // Core behavior - aggressive DPS
-        config.Damage.DpsPriority = DpsPriorityMode.DpsFirst;
         config.MovementTolerance = 0.05f;
 
         // Healing behavior - reactive, solo healer
@@ -240,7 +238,6 @@ public static class ConfigurationPresets
     private static void ApplyCasualPreset(Configuration config)
     {
         // Core behavior - safety first
-        config.Damage.DpsPriority = DpsPriorityMode.HealFirst;
         config.MovementTolerance = 0.15f;
 
         // Healing behavior - conservative, proactive
@@ -299,7 +296,6 @@ public static class ConfigurationPresets
         // Healers
         if (role is null or JobRole.Healer)
         {
-            config.Damage.DpsPriority = DpsPriorityMode.HealFirst;
             config.Healing.BenedictionEmergencyThreshold = 0.40f;
             config.Healing.OgcdEmergencyThreshold = 0.60f;
             config.Healing.GcdEmergencyThreshold = 0.50f;
@@ -366,7 +362,6 @@ public static class ConfigurationPresets
         // Healers
         if (role is null or JobRole.Healer)
         {
-            config.Damage.DpsPriority = DpsPriorityMode.Balanced;
             config.Healing.BenedictionEmergencyThreshold = 0.30f;
             config.Healing.OgcdEmergencyThreshold = 0.50f;
             config.Healing.GcdEmergencyThreshold = 0.40f;
@@ -433,7 +428,6 @@ public static class ConfigurationPresets
         // Healers
         if (role is null or JobRole.Healer)
         {
-            config.Damage.DpsPriority = DpsPriorityMode.DpsFirst;
             config.Healing.BenedictionEmergencyThreshold = 0.25f;
             config.Healing.OgcdEmergencyThreshold = 0.40f;
             config.Healing.GcdEmergencyThreshold = 0.30f;
@@ -500,7 +494,6 @@ public static class ConfigurationPresets
         // Healers
         if (role is null or JobRole.Healer)
         {
-            config.Damage.DpsPriority = DpsPriorityMode.Balanced;
             config.Healing.EnablePreemptiveHealing = true;
             config.Healing.EnableMechanicAwareness = true;
             config.Healing.BenedictionEmergencyThreshold = 0.30f;

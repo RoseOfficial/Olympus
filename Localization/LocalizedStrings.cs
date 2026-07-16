@@ -467,13 +467,9 @@ public static class LocalizedStrings
         public const string UseWithAoEHeals = "config.job.whm.use_with_aoe_heals";
         public const string UseWithAoEHealsDesc = "config.job.whm.use_with_aoe_heals_desc";
         public const string EnableDamage = "config.job.whm.enable_damage";
-        public const string DpsPriority = "config.job.whm.dps_priority";
         public const string HolyDesc = "config.job.whm.holy_desc";
         public const string MiseryDesc = "config.job.whm.misery_desc";
         public const string EnableDoT = "config.job.whm.enable_dot";
-        public const string DpsPriorityHealFirst = "config.whm.dps_priority_heal_first";
-        public const string DpsPriorityBalanced = "config.whm.dps_priority_balanced";
-        public const string DpsPriorityDpsFirst = "config.whm.dps_priority_dps_first";
 
         // Lily strategy
         public const string LilyStrategyLabel = "config.job.whm.lily_strategy_label";
@@ -492,11 +488,6 @@ public static class LocalizedStrings
 
         // Advanced healing settings
         public const string AdvancedHealingSettings = "config.job.whm.advanced_healing_settings";
-
-        // DPS priority descriptions
-        public const string DpsPriorityHealFirstDesc = "config.job.whm.dps_priority_heal_first_desc";
-        public const string DpsPriorityBalancedDesc = "config.job.whm.dps_priority_balanced_desc";
-        public const string DpsPriorityDpsFirstDesc = "config.job.whm.dps_priority_dps_first_desc";
     }
 
     /// <summary>Keys for Scholar specific settings.</summary>

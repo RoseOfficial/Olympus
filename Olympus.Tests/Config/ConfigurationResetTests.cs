@@ -110,29 +110,40 @@ public class ConfigurationResetTests
     // ──────────────────────────────────────────────────────────────
 
     [Fact]
-    public void OnDeserialized_V1Config_BumpsVersionTo2()
+    public void OnDeserialized_V1Config_BumpsVersionTo3()
     {
         var config = new Configuration { Version = 1 };
 
         config.OnDeserialized();
 
-        Assert.Equal(2, config.Version);
+        Assert.Equal(3, config.Version);
     }
 
     [Fact]
-    public void OnDeserialized_V2Config_VersionUnchanged()
+    public void OnDeserialized_V2Config_BumpsVersionTo3()
     {
+        // v2->v3 migration removes DpsPriority; old JSON field silently dropped by deserializer.
         var config = new Configuration { Version = 2 };
 
         config.OnDeserialized();
 
-        Assert.Equal(2, config.Version);
+        Assert.Equal(3, config.Version);
+    }
+
+    [Fact]
+    public void OnDeserialized_V3Config_VersionUnchanged()
+    {
+        var config = new Configuration { Version = 3 };
+
+        config.OnDeserialized();
+
+        Assert.Equal(3, config.Version);
     }
 
     [Fact]
     public void OnDeserialized_FreshConfig_VersionUnchanged()
     {
-        // A brand-new Configuration already has Version = 2, so migration is a no-op.
+        // A brand-new Configuration already has Version = 3, so migration is a no-op.
         var config = new Configuration();
         var initialVersion = config.Version;
 

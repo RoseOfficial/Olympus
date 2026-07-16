@@ -8,7 +8,7 @@ namespace Olympus;
 
 public sealed class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 2;
+    public int Version { get; set; } = 3;
 
     // Runtime state
     public bool Enabled { get; set; } = false;
@@ -160,6 +160,14 @@ public sealed class Configuration : IPluginConfiguration
             // no longer exist on the config classes and are silently dropped by the deserializer.
             // Old values are unrecoverable; new shared configs receive their defaults.
             Version = 2;
+        }
+
+        if (Version < 3)
+        {
+            // v2 -> v3: DamageConfig.DpsPriority and DpsPriorityMode were removed.
+            // The field was never read by any rotation or service and had no effect on behavior.
+            // System.Text.Json drops the unknown JSON field on load; no value migration needed.
+            Version = 3;
         }
     }
 

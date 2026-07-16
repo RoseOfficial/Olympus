@@ -285,7 +285,6 @@
   "config.job.whm.use_with_aoe_heals": "Use with AoE Heals",
   "config.job.whm.use_with_aoe_heals_desc": "Sync Plenary Indulgence with AoE healing for bonus potency.",
   "config.job.whm.enable_damage": "Enable Damage",
-  "config.job.whm.dps_priority": "DPS Priority",
   "config.job.whm.holy_desc": "Self-centered AoE (8y radius). Use when enemies are stacked.",
   "config.job.whm.misery_desc": "1240p AoE damage (costs 3 Blood Lilies). Use at 3 stacks.",
   "config.job.whm.enable_dot": "Enable DoT",
@@ -2530,9 +2529,6 @@
   "analytics.no_pull_history": "No pulls recorded this session.",
   "analytics.trend_label": "Trend",
 
-  "config.whm.dps_priority_heal_first": "Heal First",
-  "config.whm.dps_priority_balanced": "Balanced",
-  "config.whm.dps_priority_dps_first": "DPS First",
   "config.import.party_coord_warning": "Party coordination changes require a plugin reload to take effect.",
 
   "config.job.whm.lily_strategy_label": "Lily Strategy",
@@ -2547,9 +2543,6 @@
   "config.job.whm.aoe_min_targets_label": "AoE Min Targets",
   "config.job.whm.aoe_hp_threshold_label": "AoE HP Threshold",
   "config.job.whm.advanced_healing_settings": "Advanced Healing Settings",
-  "config.job.whm.dps_priority_heal_first_desc": "Safest - only DPS when party is healthy",
-  "config.job.whm.dps_priority_balanced_desc": "Moderate - more aggressive DPS while healing",
-  "config.job.whm.dps_priority_dps_first_desc": "Maximum DPS - minimal proactive healing",
 
   "ui.helpers.tooltip_gcd": "GCD",
   "ui.helpers.tooltip_ogcd": "oGCD",
