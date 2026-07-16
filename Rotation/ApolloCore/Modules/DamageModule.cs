@@ -144,13 +144,15 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
     private void TryPushAfflatusMisery(IApolloContext context, RotationScheduler scheduler)
     {
         var player = context.Player;
-        var config = context.Configuration;
 
         if (context.BloodLilyCount < 3) { context.Debug.MiseryState = $"{context.BloodLilyCount}/3 Blood Lily"; return; }
         if (player.Level < WHMActions.AfflatusMisery.MinLevel) { context.Debug.MiseryState = $"Level {player.Level} < 74"; return; }
         if (!IsActionEnabled(context, WHMActions.AfflatusMisery)) { context.Debug.MiseryState = "Disabled"; return; }
 
-        var target = context.TargetingService.FindEnemy(config.Targeting.EnemyStrategy, WHMActions.AfflatusMisery.Range, player);
+        // Misery has a 5y splash — target the densest cluster, mirroring the Glare IV path,
+        // instead of the generic enemy strategy (which can pick an isolated enemy in packs).
+        var (target, _) = context.TargetingService.FindBestAoETarget(
+            WHMActions.AfflatusMisery.Radius, WHMActions.AfflatusMisery.Range, player);
         if (target == null) { context.Debug.MiseryState = "No target"; return; }
 
         var capturedTarget = target;
@@ -218,13 +220,21 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         var dotAction = GetDoTAction(context);
         if (dotAction == null) return;
 
+        var aoePreferred = false;
         if (IsAoEDamageEnabled(context))
         {
             var aoeAction = GetAoEDamageAction(context);
             if (aoeAction != null)
             {
                 var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, context.Player);
-                if (enemyCount >= AoEMinTargets(context)) { SetDpsState(context, $"DoT: skipped ({enemyCount} enemies, AoE preferred)"); return; }
+                if (enemyCount >= AoEMinTargets(context))
+                {
+                    // Stationary in a pack: Holy wins, skip the DoT entirely. Moving in a pack:
+                    // Holy's cast cannot start, so the instant DoT is the only damage GCD that
+                    // can land — push it as movement filler at a priority below Misery/Glare IV.
+                    if (!isMoving) { SetDpsState(context, $"DoT: skipped ({enemyCount} enemies, AoE preferred)"); return; }
+                    aoePreferred = true;
+                }
             }
         }
 
@@ -242,7 +252,10 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         var capturedAction = dotAction;
         var behavior = new AbilityBehavior { Action = dotAction };
 
-        scheduler.PushGcd(behavior, target.GameObjectId, priority: 310,
+        // 298: a due DoT refresh outranks Misery (300) — holding Misery one GCD costs nothing,
+        // a late DoT loses ticks. 315: moving-in-a-pack filler slots behind the Misery/Glare IV
+        // instants but ahead of Holy (320), which cannot be cast while moving.
+        scheduler.PushGcd(behavior, target.GameObjectId, priority: aoePreferred ? 315 : 298,
             onDispatched: _ =>
             {
                 SetPlannedAction(context, capturedAction.Name);
