@@ -70,6 +70,10 @@ public sealed class BuffModule : INikeModule
         var player = context.Player;
         if (player.Level < SAMActions.Shoha.MinLevel) return;
         if (context.Meditation < MeditationMaxStacks) return;
+        // No burst hold: Shoha requires exactly MeditationMaxStacks (3) stacks, so any
+        // escape condition "fire if at max stacks" is always true at this point. Holding
+        // Shoha for burst would waste future meditation generation — Meditation cannot
+        // exceed 3, so a delayed Shoha cast has nowhere for incoming stacks to go.
         if (!context.ActionService.IsActionReady(SAMActions.Shoha.ActionId)) return;
 
         scheduler.PushOgcd(NikeAbilities.Shoha, target.GameObjectId, priority: 1,
@@ -189,6 +193,17 @@ public sealed class BuffModule : INikeModule
         if (context.HasMeikyoShisui) return;
         if (!context.Configuration.Samurai.UseMeikyoInBurst && _burstWindowService?.IsInBurstWindow == true) return;
 
+        // Pull-forward: hold Meikyo for imminent burst when UseMeikyoInBurst is on.
+        // Escape when both charges are capped (2) to prevent losing a charge restock.
+        if (context.Configuration.Samurai.EnableBurstPooling &&
+            context.Configuration.Samurai.UseMeikyoInBurst &&
+            context.ActionService.GetCurrentCharges(SAMActions.MeikyoShisui.ActionId) < 2u &&
+            ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Meikyo Shisui held — burst imminent";
+            return;
+        }
+
         var shouldUseMeikyo = false;
         if (!context.HasFugetsu || context.FugetsuRemaining < BuffRefreshThreshold) shouldUseMeikyo = true;
         if (!context.HasFuka || context.FukaRemaining < BuffRefreshThreshold) shouldUseMeikyo = true;
@@ -228,6 +243,15 @@ public sealed class BuffModule : INikeModule
         var player = context.Player;
         var level = player.Level;
         if (context.Kenki < 25) return;
+
+        // Hold Senei/Guren for imminent burst window; escape at Kenki >= 90 to prevent overcap.
+        if (context.Configuration.Samurai.EnableBurstPooling &&
+            context.Kenki < 90 &&
+            ShouldHoldForBurst(context.Configuration.Samurai.IkishotenHoldTime))
+        {
+            context.Debug.BuffState = "Senei/Guren held — burst imminent";
+            return;
+        }
 
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
         var useAoe = enemyCount >= 3 && level >= SAMActions.Guren.MinLevel;
