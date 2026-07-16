@@ -140,7 +140,7 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
         var player = context.Player;
         if (player.Level < WARActions.Infuriate.MinLevel) return;
 
-        if (context.BeastGauge > 50)
+        if (context.BeastGauge > 50 && !context.HasInnerRelease)
         {
             context.Debug.BuffState = $"Gauge too high ({context.BeastGauge})";
             return;
