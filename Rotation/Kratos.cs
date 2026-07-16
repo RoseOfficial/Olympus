@@ -170,6 +170,40 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
     }
 
     /// <summary>
+    /// Determines the next Beast Chakra form to build during Perfect Balance based on nadi state.
+    /// </summary>
+    /// <param name="hasLunar">Whether Lunar Nadi is active.</param>
+    /// <param name="hasSolar">Whether Solar Nadi is active.</param>
+    /// <param name="hasOpo">Whether at least one Opo-opo Beast Chakra slot is filled.</param>
+    /// <param name="hasRaptor">Whether at least one Raptor Beast Chakra slot is filled.</param>
+    /// <param name="hasCoeurl">Whether at least one Coeurl Beast Chakra slot is filled.</param>
+    /// <returns>
+    /// The MonkForm to use for the next Perfect Balance GCD.
+    /// Both nadi: OpoOpo (Phantom Rush — any 3 fires it; Opo is highest potency).
+    /// Lunar only: first missing of OpoOpo, Raptor, Coeurl (3 different = Rising Phoenix = Solar).
+    /// Solar only or no nadi: OpoOpo (3 same = Elixir Burst = Lunar; Lunar first by convention).
+    /// </returns>
+    internal static MonkForm ComputePerfectBalanceBuild(
+        bool hasLunar, bool hasSolar, bool hasOpo, bool hasRaptor, bool hasCoeurl)
+    {
+        // Both nadi: any 3 Beast Chakra fires Phantom Rush. Opo-opo is highest potency.
+        if (hasLunar && hasSolar)
+            return MonkForm.OpoOpo;
+
+        // Lunar only: need Solar. Build 3 DIFFERENT chakra (Opo, Raptor, Coeurl) for Rising Phoenix.
+        if (hasLunar)
+        {
+            if (!hasOpo) return MonkForm.OpoOpo;
+            if (!hasRaptor) return MonkForm.Raptor;
+            return MonkForm.Coeurl;
+        }
+
+        // Solar only or no nadi: need Lunar. Build 3 SAME chakra (Opo x3) for Elixir Burst.
+        // Community standard: build Lunar first even when neither nadi is active.
+        return MonkForm.OpoOpo;
+    }
+
+    /// <summary>
     /// Determines the required positional for the next Monk GCD based on current form.
     /// Opo-opo form → Rear (Bootshine/LeapingOpo)
     /// Raptor form → Flank (TrueStrike/TwinSnakes/RisingRaptor)

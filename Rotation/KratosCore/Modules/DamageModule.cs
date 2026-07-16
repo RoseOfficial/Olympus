@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config.DPS;
+using Olympus.Rotation;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
@@ -680,10 +681,24 @@ public sealed class DamageModule : IKratosModule
         if (string.IsNullOrWhiteSpace(chakraStr)) chakraStr = "None";
 
         if (context.HasBothNadi)
-            return ("Phantom Rush", "Both Nadi active - using same Beast Chakra type 3 times for Phantom Rush.", chakraStr, "Spam Opo-opo GCDs for highest potency Phantom Rush.");
+            return ("Phantom Rush",
+                "Both Nadi active. Any 3 Beast Chakra will trigger Phantom Rush. Using Opo-opo GCDs for highest potency.",
+                chakraStr,
+                "Spam Opo-opo GCDs to fill 3 Beast Chakra for Phantom Rush.");
         if (context.HasLunarNadi)
-            return ("Solar Nadi", "Have Lunar, need Solar. Building 2 same + 1 different for Rising Phoenix.", chakraStr, "Use Opo-opo twice, then a different form.");
-        return ("Lunar Nadi", "Need Lunar first. Building 3 different Beast Chakra for Elixir Field.", chakraStr, "Use Opo → Raptor → Coeurl for Elixir Field.");
+            return ("Solar Nadi",
+                "Have Lunar, need Solar. Building 3 different Beast Chakra (Opo, Raptor, Coeurl) for Rising Phoenix.",
+                chakraStr,
+                "Use Opo-opo, then Raptor, then Coeurl form GCDs to earn Solar Nadi via Rising Phoenix.");
+        if (context.HasSolarNadi)
+            return ("Lunar Nadi",
+                "Have Solar, need Lunar. Building 3 of the same Beast Chakra (Opo x3) for Elixir Burst.",
+                chakraStr,
+                "Spam Opo-opo GCDs to fill 3 same chakra for Elixir Burst (grants Lunar Nadi).");
+        return ("Lunar Nadi",
+            "No Nadi active. Building Lunar first with 3 of the same Beast Chakra (Opo x3) for Elixir Burst.",
+            chakraStr,
+            "Spam Opo-opo GCDs to fill 3 same chakra for Elixir Burst (Lunar Nadi first).");
     }
 
     private ActionDefinition? GetPerfectBalanceAction(IKratosContext context, bool useAoe)
@@ -694,47 +709,27 @@ public sealed class DamageModule : IKratosModule
         var hasRaptor = context.BeastChakra1 == 2 || context.BeastChakra2 == 2 || context.BeastChakra3 == 2;
         var hasCoeurl = context.BeastChakra1 == 3 || context.BeastChakra2 == 3 || context.BeastChakra3 == 3;
 
-        if (context.HasBothNadi)
-        {
-            return useAoe
-                ? (level >= MNKActions.ShadowOfTheDestroyer.MinLevel ? MNKActions.ShadowOfTheDestroyer : MNKActions.ArmOfTheDestroyer)
-                : GetOpoOpoAction(context, (uint)level);
-        }
-        if (context.HasLunarNadi)
-        {
-            if (!hasOpo || (hasOpo && !hasRaptor && !hasCoeurl))
-            {
-                return useAoe
-                    ? (level >= MNKActions.ShadowOfTheDestroyer.MinLevel ? MNKActions.ShadowOfTheDestroyer : MNKActions.ArmOfTheDestroyer)
-                    : GetOpoOpoAction(context, (uint)level);
-            }
-            return useAoe
-                ? (level >= MNKActions.FourPointFury.MinLevel ? MNKActions.FourPointFury : MNKActions.TwinSnakes)
-                : GetRaptorAction(context, (uint)level);
-        }
+        var form = Kratos.ComputePerfectBalanceBuild(
+            context.HasLunarNadi, context.HasSolarNadi, hasOpo, hasRaptor, hasCoeurl);
 
-        if (!hasOpo)
+        return form switch
         {
-            return useAoe
-                ? (level >= MNKActions.ShadowOfTheDestroyer.MinLevel ? MNKActions.ShadowOfTheDestroyer : MNKActions.ArmOfTheDestroyer)
-                : GetOpoOpoAction(context, (uint)level);
-        }
-        if (!hasRaptor)
-        {
-            return useAoe
-                ? (level >= MNKActions.FourPointFury.MinLevel ? MNKActions.FourPointFury : MNKActions.TwinSnakes)
-                : GetRaptorAction(context, (uint)level);
-        }
-        if (!hasCoeurl)
-        {
-            return useAoe
-                ? (level >= MNKActions.Rockbreaker.MinLevel ? MNKActions.Rockbreaker : MNKActions.SnapPunch)
-                : GetCoeurlAction(context, (uint)level);
-        }
-
-        return useAoe
-            ? (level >= MNKActions.ShadowOfTheDestroyer.MinLevel ? MNKActions.ShadowOfTheDestroyer : MNKActions.ArmOfTheDestroyer)
-            : GetOpoOpoAction(context, (uint)level);
+            MonkForm.Raptor => useAoe
+                ? (level >= MNKActions.FourPointFury.MinLevel
+                    ? MNKActions.FourPointFury
+                    : MNKActions.TwinSnakes)
+                : GetRaptorAction(context, (uint)level),
+            MonkForm.Coeurl => useAoe
+                ? (level >= MNKActions.Rockbreaker.MinLevel
+                    ? MNKActions.Rockbreaker
+                    : MNKActions.SnapPunch)
+                : GetCoeurlAction(context, (uint)level),
+            _ => useAoe
+                ? (level >= MNKActions.ShadowOfTheDestroyer.MinLevel
+                    ? MNKActions.ShadowOfTheDestroyer
+                    : MNKActions.ArmOfTheDestroyer)
+                : GetOpoOpoAction(context, (uint)level),
+        };
     }
 
     private static ActionDefinition GetOpoOpoAction(IKratosContext context, uint level)
