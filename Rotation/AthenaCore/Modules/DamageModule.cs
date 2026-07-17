@@ -87,7 +87,7 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
         // inside the 2-minute party raid buff window for maximum party damage.
         if (context.Configuration.HealerShared.EnableBurstPooling && ShouldHoldForBurst(15f))
         {
-            SetDpsState(context, "Chain Stratagem held — burst imminent");
+            SetDpsState(context, "Chain Stratagem held: burst imminent");
             return;
         }
 
@@ -184,18 +184,40 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
         if (!config.EnableAetherflow) return;
         if (player.Level < SCHActions.Aetherflow.MinLevel) return;
         if (!context.ActionService.IsActionReady(SCHActions.Aetherflow.ActionId)) return;
-        if (context.AetherflowService.CurrentStacks > 0) return;
 
-        // Raidwide banking overrides the burst hold: if a raidwide is imminent we need
-        // Aetherflow stacks available for emergency oGCD heals, so fire regardless of
-        // burst alignment.
+        var stacks = context.AetherflowService.CurrentStacks;
+
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
+        var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
+        var (_, lowestHp, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+        var emergency = lowestHp < context.Configuration.Healing.OgcdEmergencyThreshold;
 
-        if (context.Configuration.HealerShared.EnableBurstPooling && !raidwideImminent &&
-            ShouldHoldForBurst(8f))
+        // Banking: enter planned damage or an incoming hit with full stacks.
+        // At 1 stack, refreshing now means 3 stacks going into the mechanic instead of 1.
+        if ((raidwideImminent || tankBusterImminent) && stacks < 2)
         {
-            SetDpsState(context, "Aetherflow held — burst imminent");
+            scheduler.PushOgcd(AthenaAbilities.Aetherflow, player.GameObjectId, priority: 295,
+                onDispatched: _ =>
+                {
+                    SetPlannedAction(context, SCHActions.Aetherflow.Name);
+                    SetDpsState(context, "Aetherflow (banking)");
+                    context.TrainingService?.RecordConceptApplication(SchConcepts.AetherflowRefresh, wasSuccessful: true);
+                });
+            return;
+        }
+
+        // Normal gate: don't refresh with stacks already in hand.
+        if (stacks > 0) return;
+
+        // Burst-sync hold at 0 stacks.
+        // Escapes: any threat signal or emergency low HP on a party member.
+        if (context.Configuration.HealerShared.EnableBurstPooling
+            && !raidwideImminent && !tankBusterImminent && !emergency
+            && ShouldHoldForBurst(8f))
+        {
+            SetDpsState(context, "Aetherflow held: burst imminent");
             return;
         }
 
