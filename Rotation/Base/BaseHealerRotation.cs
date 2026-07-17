@@ -71,6 +71,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         ShieldTrackingService shieldTrackingService,
         IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null,
+        IBurstWindowService? burstWindowService = null,
         Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
         Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
@@ -88,6 +89,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
             playerStatsService,
             debuffDetectionService,
             errorMetrics,
+            burstWindowService: burstWindowService,
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {

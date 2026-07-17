@@ -129,8 +129,9 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             shieldTrackingService,
             partyCoordinationService,
             errorMetrics,
-            tinctureDispatcher,
-            pullIntentService)
+            burstWindowService: burstWindowService,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         // Store burst window service (Update() called each frame in UpdateJobSpecificServices)
         _burstWindowService = burstWindowService;

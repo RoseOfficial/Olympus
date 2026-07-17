@@ -130,8 +130,9 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             shieldTrackingService,
             partyCoordinationService,
             errorMetrics,
-            tinctureDispatcher,
-            pullIntentService)
+            burstWindowService: burstWindowService,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         // Store timeline service
         _timelineService = timelineService;

@@ -96,6 +96,13 @@ public sealed class StatusHelper : BaseStatusHelper
         GetStatusStacks(player, StatusIds.SacredSight);
 
     /// <summary>
+    /// Gets the remaining duration of the Sacred Sight buff in seconds (0 if inactive).
+    /// Used to fire Glare IV before stacks expire even when burst is imminent.
+    /// </summary>
+    public static float GetSacredSightRemaining(IPlayerCharacter player) =>
+        GetStatusRemaining(player, StatusIds.SacredSight);
+
+    /// <summary>
     /// Gets the appropriate DoT status ID for the player's level.
     /// </summary>
     public static uint GetDotStatusId(byte playerLevel) =>

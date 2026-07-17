@@ -69,13 +69,14 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
+        IBurstWindowService? burstWindowService = null,
         Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
         Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(log, actionTracker, combatEventService, damageIntakeService, damageTrendService,
                configuration, objectTable, partyList, targetingService, hpPredictionService,
                actionService, playerStatsService, debuffDetectionService, healingSpellSelector,
                cooldownPlanner, shieldTrackingService, partyCoordinationService, errorMetrics,
-               tinctureDispatcher, pullIntentService)
+               burstWindowService, tinctureDispatcher, pullIntentService)
     {
         _timelineService = timelineService;
         _trainingService = trainingService;
@@ -90,8 +91,8 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
             new ResurrectionModule(),
             new HealingModule(),
             new DefensiveModule(),
-            new BuffModule(),
-            new DamageModule(),
+            new BuffModule(BurstWindowService),
+            new DamageModule(BurstWindowService),
         };
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 

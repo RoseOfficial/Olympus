@@ -123,8 +123,8 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
             shieldTrackingService,
             partyCoordinationService,
             errorMetrics,
-            tinctureDispatcher,
-            pullIntentService)
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         // Store timeline service
         _timelineService = timelineService;

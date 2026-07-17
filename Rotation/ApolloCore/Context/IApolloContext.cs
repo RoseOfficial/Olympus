@@ -79,6 +79,12 @@ public interface IApolloContext : IHealerRotationContext
     /// </summary>
     int SacredSightStacks { get; }
 
+    /// <summary>
+    /// Remaining duration in seconds of the Sacred Sight buff (0 if inactive).
+    /// Used to fire Glare IV before stacks expire even when burst is imminent.
+    /// </summary>
+    float SacredSightRemaining { get; }
+
     // Logging helpers (implemented in ApolloContext)
     void LogHealDecision(string targetName, float hpPercent, string spellName, int predictedHeal, string reason);
     void LogOgcdDecision(string targetName, float hpPercent, string spellName, string reason);

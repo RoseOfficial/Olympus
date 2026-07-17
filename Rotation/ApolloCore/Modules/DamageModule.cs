@@ -9,6 +9,7 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.Common.Scheduling;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
@@ -20,6 +21,19 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public DamageModule() { }
+
+    public DamageModule(IBurstWindowService? burstWindowService)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool IsInBurst() => BurstHoldHelper.IsInBurst(_burstWindowService);
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
+
     private static readonly string[] _afflatusMiseryFactors =
     {
         "Blood Lilies: 3/3 (Misery ready!)",
@@ -121,7 +135,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
             return;
         }
 
-        TryPushSpecialDamage(context, scheduler);
+        TryPushSpecialDamage(context, scheduler, isMoving);
         TryPushDoT(context, scheduler, isMoving);
         TryPushAoEDamage(context, scheduler);
         TryPushSingleTargetDamage(context, scheduler, isMoving);
@@ -135,19 +149,37 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         context.Debug.SacredSightStacks = context.SacredSightStacks;
     }
 
-    private void TryPushSpecialDamage(IApolloContext context, RotationScheduler scheduler)
+    private void TryPushSpecialDamage(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
-        TryPushAfflatusMisery(context, scheduler);
+        TryPushAfflatusMisery(context, scheduler, isMoving);
         TryPushSacredSightGlare(context, scheduler);
     }
 
-    private void TryPushAfflatusMisery(IApolloContext context, RotationScheduler scheduler)
+    private void TryPushAfflatusMisery(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
         var player = context.Player;
 
         if (context.BloodLilyCount < 3) { context.Debug.MiseryState = $"{context.BloodLilyCount}/3 Blood Lily"; return; }
         if (player.Level < WHMActions.AfflatusMisery.MinLevel) { context.Debug.MiseryState = $"Level {player.Level} < 74"; return; }
         if (!IsActionEnabled(context, WHMActions.AfflatusMisery)) { context.Debug.MiseryState = "Disabled"; return; }
+
+        // Burst alignment: hold Misery until the raid-buff window opens so the 1240p AoE
+        // lands inside buff amplification. Two escapes:
+        //   isMoving       — Misery is instant; always use it during forced movement.
+        //   lilyCount >= 3 — white lilies are full; a 4th auto-tick would cap and waste a
+        //                    blood-lily point. Clear Misery now to stay clean.
+        if (context.Configuration.HealerShared.EnableBurstPooling &&
+            ShouldHoldForBurst() &&
+            !isMoving &&
+            context.LilyCount < 3)
+        {
+            context.Debug.MiseryState = $"Holding for burst ({_burstWindowService?.SecondsUntilNextBurst:F1}s)";
+            return;
+        }
+
+        // In-burst priority (295) fires Misery before the Glare IV cluster (305) so the
+        // highest-potency GCD lands first inside the brief buff window.
+        var priority = IsInBurst() ? 295 : 300;
 
         // Misery has a 5y splash — target the densest cluster, mirroring the Glare IV path,
         // instead of the generic enemy strategy (which can pick an isolated enemy in packs).
@@ -157,7 +189,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
 
         var capturedTarget = target;
 
-        scheduler.PushGcd(ApolloAbilities.AfflatusMisery, target.GameObjectId, priority: 300,
+        scheduler.PushGcd(ApolloAbilities.AfflatusMisery, target.GameObjectId, priority: priority,
             onDispatched: _ =>
             {
                 context.Debug.DpsState = "Afflatus Misery";
@@ -194,6 +226,18 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         if (context.SacredSightStacks == 0) return;
         if (player.Level < WHMActions.GlareIV.MinLevel) return;
         if (!IsActionEnabled(context, WHMActions.GlareIV)) return;
+
+        // Burst alignment: hold Glare IV stacks for the raid-buff window.
+        // Escape: fire immediately when stacks are about to expire (< 2.5s remaining)
+        // since wasting 3 stacks x 900p + AoE value costs far more than losing alignment.
+        var sacredSightRemaining = context.SacredSightRemaining;
+        if (context.Configuration.HealerShared.EnableBurstPooling &&
+            ShouldHoldForBurst() &&
+            sacredSightRemaining >= 2.5f)
+        {
+            context.Debug.DpsState = $"Holding Glare IV for burst ({sacredSightRemaining:F1}s remaining)";
+            return;
+        }
 
         var (aoeTarget, hitCount) = context.TargetingService.FindBestAoETarget(
             WHMActions.GlareIV.Radius, WHMActions.GlareIV.Range, player);

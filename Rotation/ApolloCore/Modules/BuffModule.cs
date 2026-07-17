@@ -8,6 +8,7 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -18,6 +19,18 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 /// </summary>
 public sealed class BuffModule : IApolloModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule() { }
+
+    public BuffModule(IBurstWindowService? burstWindowService)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
+
     private const int RaiseMpCost = 2400;
 
     private static readonly string[] _thinAirAlternatives =
@@ -237,6 +250,14 @@ public sealed class BuffModule : IApolloModule
             }
         }
 
+        // Burst alignment: hold PoM for the raid-buff window so the extra GCDs from
+        // the 20% haste land inside buff amplification.
+        if (config.HealerShared.EnableBurstPooling && ShouldHoldForBurst())
+        {
+            context.Debug.PoMState = $"Holding for burst ({_burstWindowService?.SecondsUntilNextBurst:F1}s)";
+            return;
+        }
+
         scheduler.PushOgcd(ApolloAbilities.PresenceOfMind, player.GameObjectId, priority: 210,
             onDispatched: _ =>
             {
@@ -425,6 +446,13 @@ public sealed class BuffModule : IApolloModule
 
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.Assize, config,
             c => c.Healing.EnableAssize))
+            return;
+
+        // Burst alignment: Assize's 40s recast can align with the 2-min burst window.
+        // Use a wider 10s threshold (vs. PoM's 8s) to ensure it lands inside the window
+        // rather than one GCD before it. Never drift a ready Assize past a window that
+        // is more than 10s away (the 40s recast means drift costs a use per fight).
+        if (config.HealerShared.EnableBurstPooling && ShouldHoldForBurst(thresholdSeconds: 10f))
             return;
 
         scheduler.PushOgcd(ApolloAbilities.AssizeBuff, player.GameObjectId, priority: 220,
