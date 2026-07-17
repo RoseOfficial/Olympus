@@ -416,16 +416,26 @@ public sealed class DamageModule : ICalliopeModule
         var level = context.Player.Level;
         if (target.MaxHp > 0 && (float)target.CurrentHp / target.MaxHp < context.Configuration.Bard.DotMinTargetHp) return;
 
-        // Resolve the target that will actually receive the DoT: prefer the highest-HP
-        // enemy (longest-lived), fall back to the primary strategy target when the service
-        // returns null. Checking DoT status on this target -- not on the primary strategy
-        // target -- ensures the gate and dispatch agree. Without this, in a boss+add phase
-        // where the primary strategy target is an add (no DoT) and the boss (highest HP)
-        // already has both DoTs, the gate fires on the add but dispatch redirects to the boss,
-        // refreshing a DoT that isn't due while leaving the add permanently uncovered.
-        var dotTarget = context.TargetingService.FindEnemy(
-            EnemyTargetingStrategy.HighestHp, FFXIVConstants.RangedTargetingRange, context.Player)
-            ?? target;
+        // Resolve the target that will actually receive the DoT.
+        //
+        // For aggregate strategies (LowestHp, HighestHp, Nearest, TankAssist) the bot is
+        // choosing the primary target on the player's behalf, so we redirect DoT application
+        // to the highest-HP enemy (longest-lived) to maximise uptime. Gate and dispatch both
+        // operate on this same dotTarget so they agree: the gate will not fire on the add
+        // while dispatch redirects to the boss.
+        //
+        // For explicit strategies (CurrentTarget, FocusTarget) the player has personally
+        // selected the target. Redirecting to the highest-HP enemy violates that intent
+        // (e.g. the player manually targets an add to apply DoTs while the party burns a boss).
+        // Honour the explicit selection and skip the HighestHp redirect entirely.
+        var isExplicitStrategy = context.Configuration.Targeting.EnemyStrategy
+            is EnemyTargetingStrategy.CurrentTarget
+            or EnemyTargetingStrategy.FocusTarget;
+        var dotTarget = isExplicitStrategy
+            ? target
+            : context.TargetingService.FindEnemy(
+                EnemyTargetingStrategy.HighestHp, FFXIVConstants.RangedTargetingRange, context.Player)
+              ?? target;
 
         // Stormbite first
         if (!context.StatusHelper.HasStormbite(dotTarget, context.Player.EntityId)

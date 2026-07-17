@@ -171,4 +171,83 @@ public class DamageModuleDoTTargetingTests
         // Falls back to the primary target.
         Assert.Equal(99ul, stormbiteCandidate.TargetId);
     }
+
+    /// <summary>
+    /// When EnemyStrategy is CurrentTarget, TryPushApplyDots must use the strategy-resolved
+    /// target directly and must NOT redirect to the highest-HP enemy, even when a higher-HP
+    /// enemy exists. The player's explicit targeting choice overrides the aggregate redirect.
+    /// </summary>
+    [Fact]
+    public void TryPushApplyDots_Stormbite_UsesStrategyTarget_WhenStrategyIsCurrentTarget()
+    {
+        var currentTarget = MakeEnemy(10ul, hp: 5_000u);  // player's explicit current target (low HP)
+        var bossTarget    = MakeEnemy(20ul, hp: 500_000u); // highest-HP enemy (should NOT be used)
+
+        // With CurrentTarget strategy: FindEnemy returns currentTarget for any strategy.
+        // For HighestHp it would return bossTarget -- the redirect we want to suppress.
+        var targetingMock = MockBuilders.CreateMockTargetingService(
+            findEnemy: (strategy, _, _) =>
+                strategy == EnemyTargetingStrategy.HighestHp
+                    ? bossTarget.Object
+                    : currentTarget.Object);
+
+        var config = CalliopeTestContext.CreateDefaultBardConfiguration();
+        config.Targeting.EnemyStrategy = EnemyTargetingStrategy.CurrentTarget;
+
+        var context = CalliopeTestContext.Create(
+            config: config,
+            targetingService: targetingMock,
+            inCombat: true,
+            level: 100);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        var module = new DamageModule();
+
+        module.CollectCandidates(context, scheduler, false);
+
+        var queue = scheduler.InspectGcdQueue();
+        var stormbiteCandidate = queue
+            .Single(c => c.Behavior.Action.ActionId == BRDActions.Stormbite.ActionId);
+
+        // Must push to the player's current target (id=10), NOT the boss (id=20).
+        Assert.Equal(10ul, stormbiteCandidate.TargetId);
+    }
+
+    /// <summary>
+    /// When EnemyStrategy is FocusTarget, TryPushApplyDots must use the strategy-resolved
+    /// target directly and must NOT redirect to the highest-HP enemy.
+    /// </summary>
+    [Fact]
+    public void TryPushApplyDots_Stormbite_UsesStrategyTarget_WhenStrategyIsFocusTarget()
+    {
+        var focusTarget = MakeEnemy(30ul, hp: 8_000u);   // player's explicit focus target (low HP)
+        var bossTarget  = MakeEnemy(40ul, hp: 500_000u); // highest-HP enemy (should NOT be used)
+
+        var targetingMock = MockBuilders.CreateMockTargetingService(
+            findEnemy: (strategy, _, _) =>
+                strategy == EnemyTargetingStrategy.HighestHp
+                    ? bossTarget.Object
+                    : focusTarget.Object);
+
+        var config = CalliopeTestContext.CreateDefaultBardConfiguration();
+        config.Targeting.EnemyStrategy = EnemyTargetingStrategy.FocusTarget;
+
+        var context = CalliopeTestContext.Create(
+            config: config,
+            targetingService: targetingMock,
+            inCombat: true,
+            level: 100);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        var module = new DamageModule();
+
+        module.CollectCandidates(context, scheduler, false);
+
+        var queue = scheduler.InspectGcdQueue();
+        var stormbiteCandidate = queue
+            .Single(c => c.Behavior.Action.ActionId == BRDActions.Stormbite.ActionId);
+
+        // Must push to the player's focus target (id=30), NOT the boss (id=40).
+        Assert.Equal(30ul, stormbiteCandidate.TargetId);
+    }
 }
