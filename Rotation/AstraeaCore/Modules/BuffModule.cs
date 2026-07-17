@@ -67,6 +67,7 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
         if (context.HasLightspeed) return;
 
         bool shouldUse;
+        bool isLeadingDivination = false;
         if (config.LightspeedStrategy == LightspeedUsageStrategy.OnCooldown)
         {
             if (context.Configuration.HealerShared.EnableBurstPooling)
@@ -84,6 +85,12 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
                         context.Debug.LightspeedState = "Held: pooling for Divination";
                         return;
                     }
+                }
+                else
+                {
+                    // divCd <= LeadWindowSeconds: Divination is imminent; fire Lightspeed so instant
+                    // casts are active when the burst window opens.
+                    isLeadingDivination = true;
                 }
             }
             shouldUse = true;
@@ -111,7 +118,9 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
                 {
                     var strategyReason = config.LightspeedStrategy switch
                     {
-                        LightspeedUsageStrategy.OnCooldown => "using on cooldown for maximum uptime",
+                        LightspeedUsageStrategy.OnCooldown => isLeadingDivination
+                            ? "leading Divination so instant casts cover the burst window"
+                            : "using on cooldown for maximum uptime",
                         LightspeedUsageStrategy.SaveForMovement => "movement detected",
                         _ => "manual usage",
                     };
