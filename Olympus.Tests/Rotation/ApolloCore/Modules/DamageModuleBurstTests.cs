@@ -278,4 +278,31 @@ public class DamageModuleBurstTests : IDisposable
         Assert.DoesNotContain(scheduler.InspectGcdQueue(),
             c => c.Behavior == ApolloAbilities.GlareIV);
     }
+
+    // -----------------------------------------------------------------------
+    // Glare IV: burst imminent, stacks fresh, BUT moving -> fires (instant GCD
+    // should not be wasted as movement filler just to wait for a buff window)
+    // -----------------------------------------------------------------------
+    [Fact]
+    public void GlareIV_BurstImminent_Moving_Fires()
+    {
+        var burstSvc = MakeBurst(isInBurst: false, isImminent: true);
+        var module = new DamageModule(burstSvc.Object);
+        var (context, targeting, player) = BuildContext(
+            bloodLilyCount: 0,
+            sacredSightStacks: 2,
+            sacredSightRemaining: 20f);  // well above 2.5f - would normally hold
+        var aoeTarget = MakeEnemy(7u);
+        targeting
+            .Setup(t => t.FindBestAoETarget(
+                WHMActions.GlareIV.Radius, WHMActions.GlareIV.Range, player))
+            .Returns((aoeTarget.Object, 1));
+
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        module.CollectCandidates(context, scheduler, isMoving: true);
+
+        Assert.Contains(scheduler.InspectGcdQueue(),
+            c => c.Behavior == ApolloAbilities.GlareIV);
+    }
 }

@@ -50,7 +50,7 @@ public sealed class BuffModule : IApolloModule
 
     private static readonly string[] _presenceOfMindAlternatives =
     {
-        "Hold for burst window",
+        "Fire immediately (no burst window near)",
         "Stack with Assize for more casts",
         "Save for healing emergency",
     };
@@ -274,7 +274,7 @@ public sealed class BuffModule : IApolloModule
                         Category = "Buff",
                         TargetName = null,
                         ShortReason = "Presence of Mind - 20% spell speed buff",
-                        DetailedReason = "Presence of Mind increases spell speed by 20% for 15 seconds. This means more Glares (DPS) and faster emergency heals. Used on cooldown for maximum value.",
+                        DetailedReason = "Presence of Mind increases spell speed by 20% for 15 seconds. Held for burst windows so the haste amplifies buffed GCDs; fires on cooldown when no window is near.",
                         Factors = _presenceOfMindFactors,
                         Alternatives = _presenceOfMindAlternatives,
                         Tip = "Presence of Mind is your DPS buff - use it on cooldown during damage phases!",

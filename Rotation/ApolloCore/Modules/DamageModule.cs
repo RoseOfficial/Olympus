@@ -152,7 +152,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
     private void TryPushSpecialDamage(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
         TryPushAfflatusMisery(context, scheduler, isMoving);
-        TryPushSacredSightGlare(context, scheduler);
+        TryPushSacredSightGlare(context, scheduler, isMoving);
     }
 
     private void TryPushAfflatusMisery(IApolloContext context, RotationScheduler scheduler, bool isMoving)
@@ -218,7 +218,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
             });
     }
 
-    private void TryPushSacredSightGlare(IApolloContext context, RotationScheduler scheduler)
+    private void TryPushSacredSightGlare(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
         var player = context.Player;
         var config = context.Configuration;
@@ -228,12 +228,15 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         if (!IsActionEnabled(context, WHMActions.GlareIV)) return;
 
         // Burst alignment: hold Glare IV stacks for the raid-buff window.
-        // Escape: fire immediately when stacks are about to expire (< 2.5s remaining)
+        // Escape 1: fire immediately when stacks are about to expire (< 2.5s remaining)
         // since wasting 3 stacks x 900p + AoE value costs far more than losing alignment.
+        // Escape 2: fire immediately when moving -- Glare IV is instant, so it is the
+        // best movement GCD available and holding it wastes an otherwise free damage GCD.
         var sacredSightRemaining = context.SacredSightRemaining;
         if (context.Configuration.HealerShared.EnableBurstPooling &&
             ShouldHoldForBurst() &&
-            sacredSightRemaining >= 2.5f)
+            sacredSightRemaining >= 2.5f &&
+            !isMoving)
         {
             context.Debug.DpsState = $"Holding Glare IV for burst ({sacredSightRemaining:F1}s remaining)";
             return;
@@ -296,9 +299,10 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         var capturedAction = dotAction;
         var behavior = new AbilityBehavior { Action = dotAction };
 
-        // 298: a due DoT refresh outranks Misery (300) — holding Misery one GCD costs nothing,
-        // a late DoT loses ticks. 315: moving-in-a-pack filler slots behind the Misery/Glare IV
-        // instants but ahead of Holy (320), which cannot be cast while moving.
+        // 298: a due DoT refresh outranks Misery (out-of-burst: 300, in-burst: 295) -- holding
+        // Misery one GCD costs nothing, a late DoT loses ticks. 315: moving-in-a-pack filler
+        // slots behind the Misery/Glare IV instants but ahead of Holy (320), which cannot be
+        // cast while moving.
         scheduler.PushGcd(behavior, target.GameObjectId, priority: aoePreferred ? 315 : 298,
             onDispatched: _ =>
             {

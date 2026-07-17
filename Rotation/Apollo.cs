@@ -106,6 +106,12 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
         PartyCoordinationService?.BroadcastGaugeState(JobRegistry.WhiteMage, lilyCount, bloodLily, 0);
     }
 
+    protected override void UpdateJobSpecificServices(IPlayerCharacter player, bool inCombat)
+    {
+        base.UpdateJobSpecificServices(player, inCombat);
+        BurstWindowService?.Update(player, TargetingService.GetUserEnemyTarget());
+    }
+
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
         MpForecastService.Update((int)player.CurrentMp, (int)player.MaxMp, StatusHelper.HasLucidDreaming(player));
