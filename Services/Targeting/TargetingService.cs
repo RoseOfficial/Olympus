@@ -290,6 +290,8 @@ public sealed class TargetingService : ITargetingService
 
     private IBattleNpc? FindEnemyByActionStrategy(EnemyTargetingStrategy strategy, uint actionId, IPlayerCharacter player)
     {
+        // NOTE: Attack marker promotion is NOT applied here, only in FindEnemyByStrategy.
+        // Add the UseAttackMarkers promotion check if this method gains callers that expect marker-aware results.
         return strategy switch
         {
             EnemyTargetingStrategy.LowestHp => FindLowestHpEnemyForAction(actionId, player),

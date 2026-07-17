@@ -113,6 +113,31 @@ public class BuffModuleLightspeedTests
     }
 
     [Fact]
+    public void OnCooldown_PoolingOn_DivinationExactlyAtBoundary_PushesLightspeed()
+    {
+        // Divination is exactly 5.0 s away -- the boundary of the 2-GCD lead window.
+        // The hold condition is (divCd > 5.0f), so 5.0f is NOT held: Lightspeed must fire.
+        var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+        config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.OnCooldown;
+        config.HealerShared.EnableBurstPooling = true;
+
+        var actionService = MakeActionService(divinationCdRemaining: 5.0f);
+
+        var context = AstraeaTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService, config: config);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Contains(queue, c => c.Behavior.Action.ActionId == ASTActions.Lightspeed.ActionId);
+    }
+
+    [Fact]
     public void OnCooldown_PoolingOn_DivinationFarAway_ChargesAtMax_PushesLightspeed()
     {
         // Pooling on, Divination far away -- normally a hold.

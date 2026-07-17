@@ -184,6 +184,11 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
     /// <inheritdoc />
     protected override void UpdateJobSpecificServices(IPlayerCharacter player, bool inCombat)
     {
+        // AST burst timing is driven by Divination's own cooldown (see AstraeaCore BuffModule Lightspeed
+        // lead), not BurstWindowService, so the Update() call the other three healers make is
+        // intentionally absent here. Do not add a BurstWindowService field or Update call without wiring
+        // the full consumer pattern (see Apollo commit 1c7abc3 for what silently breaks).
+
         // Call base healer service updates
         base.UpdateJobSpecificServices(player, inCombat);
 
