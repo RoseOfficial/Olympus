@@ -3,6 +3,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.HephaestusCore.Abilities;
 using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
@@ -13,6 +14,13 @@ namespace Olympus.Rotation.HephaestusCore.Modules;
 /// </summary>
 public sealed class DamageModule : IHephaestusModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public DamageModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
     public int Priority => 30; // Lower priority - damage comes after survival
     public string Name => "Damage";
 
@@ -557,11 +565,16 @@ public sealed class DamageModule : IHephaestusModule
         if (context.Player.Level < GNBActions.GnashingFang.MinLevel) return;
         if (context.Cartridges < 1) return;
 
-        // Hold briefly when No Mercy is imminent to align the combo under the buff
+        // Hold briefly when No Mercy is imminent to align the combo under the buff.
+        // Must mirror TryPushNoMercy's hold gates exactly, or GF desyncs from the No Mercy window.
         if (!context.HasNoMercy && !context.HasMaxCartridges)
         {
             var nmCd = context.ActionService.GetCooldownRemaining(GNBActions.NoMercy.ActionId);
-            if (nmCd > 0 && nmCd < 8f) return;
+            var nmComingSoon = nmCd > 0 && nmCd < 8f;
+            var nmReadyButHeld = nmCd <= 0f
+                && (BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, 8f)
+                    || BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService));
+            if (nmComingSoon || nmReadyButHeld) return;
         }
 
         if (!context.ActionService.IsActionReady(GNBActions.GnashingFang.ActionId)) return;

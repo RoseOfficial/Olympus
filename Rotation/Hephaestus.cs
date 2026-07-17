@@ -154,7 +154,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             new EnmityModule(),                                // Priority 5 - Enmity management is critical
             new MitigationModule(),                            // Priority 10 - Stay alive (Heart of Corundum intelligence)
             new BuffModule(_burstWindowService),               // Priority 20 - Buff management (No Mercy, Bloodfest)
-            new DamageModule(),                                // Priority 30 - DPS rotation with Gnashing Fang combo
+            new DamageModule(_burstWindowService),             // Priority 30 - DPS rotation with Gnashing Fang combo
         };
 
         // Sort by priority
