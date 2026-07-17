@@ -287,8 +287,8 @@ public static class BLMActions
     };
 
     /// <summary>
-    /// Umbral Soul - MP and element refresh out of combat (Lv.76)
-    /// Only usable in Umbral Ice, outside of combat
+    /// Umbral Soul - MP and element refresh, usable in combat (Lv.35+)
+    /// Only usable in Umbral Ice; self-targeted. Intended for combat downtime phases to maintain Umbral Ice stacks.
     /// </summary>
     public static readonly ActionDefinition UmbralSoul = new()
     {

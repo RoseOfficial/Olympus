@@ -950,7 +950,7 @@ public sealed class DamageModule : IHecateModule
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = BLMActions.UmbralSoul.Name;
-                context.Debug.DamageState = "Umbral Soul: downtime — maintaining Umbral Ice";
+                context.Debug.DamageState = "Umbral Soul (downtime): maintaining Umbral Ice";
             });
     }
 
