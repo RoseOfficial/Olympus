@@ -457,6 +457,88 @@ public class DamageModuleCollectCandidatesTests
             c => c.Behavior == GnbAbilities.BurstStrike && c.Priority == 6);
     }
 
+    // Mirror-the-hold: downtime dump must not steal the cartridge GF is saving for an imminent No Mercy.
+
+    [Fact]
+    public void CartridgeSpender_NotDumped_WhenDowntimeImminent_AndNoMercyImminent_And1Cartridge()
+    {
+        // RED before the guard: the dump path bypasses the NM hold and fires Burst Strike,
+        // consuming the single cartridge GF needs when No Mercy arrives 5 s later.
+        var enemy = CreateMockEnemy(12345UL);
+        var targeting = BuildTargetingWithMeleeEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.GetCooldownRemaining(GNBActions.NoMercy.ActionId)).Returns(5f);
+
+        var timeline = new Mock<ITimelineService>();
+        timeline.Setup(x => x.Confidence).Returns(1.0f);
+        timeline.Setup(x => x.SecondsUntilNextUntargetablePhase()).Returns((float?)5f);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CreateContext(targeting: targeting, actionService: actionService,
+            cartridges: 1, hasMaxCartridges: false, hasNoMercy: false, comboStep: 0,
+            level: 100, timelineService: timeline);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectGcdQueue(),
+            c => c.Behavior == GnbAbilities.BurstStrike && c.Priority == 6);
+    }
+
+    [Fact]
+    public void CartridgeSpender_Dumped_WhenDowntimeImminent_AndNoMercyImminent_ButSurplusCartridges()
+    {
+        // 2 cartridges: dump 1 (Burst Strike), still have 1 left for Gnashing Fang when NM arrives.
+        var enemy = CreateMockEnemy(12345UL);
+        var targeting = BuildTargetingWithMeleeEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.GetCooldownRemaining(GNBActions.NoMercy.ActionId)).Returns(5f);
+
+        var timeline = new Mock<ITimelineService>();
+        timeline.Setup(x => x.Confidence).Returns(1.0f);
+        timeline.Setup(x => x.SecondsUntilNextUntargetablePhase()).Returns((float?)5f);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CreateContext(targeting: targeting, actionService: actionService,
+            cartridges: 2, hasMaxCartridges: false, hasNoMercy: false, comboStep: 0,
+            level: 100, timelineService: timeline);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectGcdQueue(),
+            c => c.Behavior == GnbAbilities.BurstStrike && c.Priority == 6);
+    }
+
+    [Fact]
+    public void CartridgeSpender_Dumped_WhenDowntimeImminent_AndNoMercyNotImminent()
+    {
+        // NM cooldown is 0 (ready now or not pending), so the NM guard does not fire;
+        // the downtime dump should proceed as before (regression lock).
+        var enemy = CreateMockEnemy(12345UL);
+        var targeting = BuildTargetingWithMeleeEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        // GetCooldownRemaining defaults to 0f from MockBuilders (NM ready / not pending).
+
+        var timeline = new Mock<ITimelineService>();
+        timeline.Setup(x => x.Confidence).Returns(1.0f);
+        timeline.Setup(x => x.SecondsUntilNextUntargetablePhase()).Returns((float?)5f);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CreateContext(targeting: targeting, actionService: actionService,
+            cartridges: 1, hasMaxCartridges: false, hasNoMercy: false, comboStep: 0,
+            level: 100, timelineService: timeline);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectGcdQueue(),
+            c => c.Behavior == GnbAbilities.BurstStrike && c.Priority == 6);
+    }
+
     private static IHephaestusContext CreateContext(
         bool inCombat = true,
         byte level = 100,

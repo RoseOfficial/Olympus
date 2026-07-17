@@ -618,7 +618,16 @@ public sealed class DamageModule : IHephaestusModule
                           context.HasNoMercy ||
                           aboutToOvercapSt ||
                           aboutToOvercapAoe;
-        if (!shouldSpend && !BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f)) return;
+        if (!shouldSpend)
+        {
+            var nmCd = context.ActionService.GetCooldownRemaining(GNBActions.NoMercy.ActionId);
+            // Mirror TryPushStartGnashingFang: when No Mercy is imminent and we only have the one
+            // cartridge GF needs, don't dump it via the downtime path — the burst-window loss from
+            // Burst Strike outside No Mercy outweighs the gain from dumping.
+            // Surplus cartridges (> 1) still dump because GF only costs 1.
+            if (!context.HasNoMercy && nmCd > 0f && nmCd < 8f && context.Cartridges <= 1) return;
+            if (!BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f)) return;
+        }
 
         var aoe = context.Configuration.Tank.EnableAoEDamage
                   && enemyCount >= context.Configuration.Tank.AoEMinTargets
