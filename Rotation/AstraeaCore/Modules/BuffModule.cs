@@ -66,13 +66,37 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
         if (!context.ActionService.IsActionReady(ASTActions.Lightspeed.ActionId)) return;
         if (context.HasLightspeed) return;
 
-        bool shouldUse = config.LightspeedStrategy switch
+        bool shouldUse;
+        if (config.LightspeedStrategy == LightspeedUsageStrategy.OnCooldown)
         {
-            LightspeedUsageStrategy.OnCooldown => true,
-            LightspeedUsageStrategy.SaveForMovement => isMoving,
-            LightspeedUsageStrategy.SaveForRaise => false,
-            _ => false
-        };
+            if (context.Configuration.HealerShared.EnableBurstPooling)
+            {
+                // Two standard GCDs (2 x 2.5 s). No GcdDuration accessor exists on IActionService.
+                const float LeadWindowSeconds = 5.0f;
+                var divCd = context.ActionService.GetCooldownRemaining(ASTActions.Divination.ActionId);
+                if (divCd > LeadWindowSeconds)
+                {
+                    // Charge-cap escape: fire if both charges are full to avoid capping.
+                    var charges = context.ActionService.GetCurrentCharges(ASTActions.Lightspeed.ActionId);
+                    var maxCharges = context.ActionService.GetMaxCharges(ASTActions.Lightspeed.ActionId, player.Level);
+                    if (charges < maxCharges)
+                    {
+                        context.Debug.LightspeedState = "Held: pooling for Divination";
+                        return;
+                    }
+                }
+            }
+            shouldUse = true;
+        }
+        else
+        {
+            shouldUse = config.LightspeedStrategy switch
+            {
+                LightspeedUsageStrategy.SaveForMovement => isMoving,
+                LightspeedUsageStrategy.SaveForRaise => false,
+                _ => false
+            };
+        }
         if (!shouldUse) return;
 
         var capturedIsMoving = isMoving;
