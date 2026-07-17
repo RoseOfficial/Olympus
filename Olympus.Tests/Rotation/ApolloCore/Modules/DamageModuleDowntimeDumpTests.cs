@@ -21,8 +21,10 @@ namespace Olympus.Tests.Rotation.ApolloCore.Modules;
 /// Verifies that BurstHoldHelper.ShouldDumpForDowntime allows Afflatus Misery to fire
 /// when burst hold would otherwise suppress it (B2 interplay rule).
 /// </summary>
-public class DamageModuleDowntimeDumpTests : IDisposable
+public sealed class DamageModuleDowntimeDumpTests : IDisposable
 {
+    public DamageModuleDowntimeDumpTests() => BurstHoldHelper.ModifierKeys = null;
+
     public void Dispose() => BurstHoldHelper.ModifierKeys = null;
 
     // -----------------------------------------------------------------------

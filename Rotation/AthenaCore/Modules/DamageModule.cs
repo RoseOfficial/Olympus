@@ -166,9 +166,9 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
         };
 
         // Downtime dump: force Energy Drain before boss goes untargetable regardless of strategy.
-        // Aetherflow stacks expire during untargetable phases; always spend available stacks.
-        if (!shouldDrain && stacks > 0
-            && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f))
+        // Energy Drain requires a hostile target; the DPS opportunity is permanently lost if
+        // the boss becomes untargetable with stacks in hand.
+        if (!shouldDrain && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f))
             shouldDrain = true;
 
         if (!shouldDrain) return;

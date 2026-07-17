@@ -7,6 +7,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Timeline;
 
@@ -16,8 +17,12 @@ namespace Olympus.Tests.Rotation.TerpsichoreCore.Modules;
 /// Verifies that BurstHoldHelper.ShouldDumpForDowntime allows Fan Dance to fire
 /// at 3+ feathers before a boss untargetable phase, bypassing SaveFeathersForBurst.
 /// </summary>
-public class BuffModuleDowntimeDumpTests
+public sealed class BuffModuleDowntimeDumpTests : IDisposable
 {
+    public BuffModuleDowntimeDumpTests() => BurstHoldHelper.ModifierKeys = null;
+
+    public void Dispose() => BurstHoldHelper.ModifierKeys = null;
+
     // -----------------------------------------------------------------------
     // 1. Downtime imminent + feathers >= 3 + save-for-burst -> fires (dump wins)
     // -----------------------------------------------------------------------

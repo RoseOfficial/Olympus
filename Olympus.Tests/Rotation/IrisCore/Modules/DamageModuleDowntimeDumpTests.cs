@@ -7,6 +7,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Timeline;
 
@@ -16,8 +17,12 @@ namespace Olympus.Tests.Rotation.IrisCore.Modules;
 /// Verifies that BurstHoldHelper.ShouldDumpForDowntime allows Holy in White to fire
 /// at 4 paint before a boss untargetable phase, bypassing the PaletteGauge threshold.
 /// </summary>
-public class DamageModuleDowntimeDumpTests
+public sealed class DamageModuleDowntimeDumpTests : IDisposable
 {
+    public DamageModuleDowntimeDumpTests() => BurstHoldHelper.ModifierKeys = null;
+
+    public void Dispose() => BurstHoldHelper.ModifierKeys = null;
+
     // -----------------------------------------------------------------------
     // 1. Downtime imminent + paint >= 4 + low palette gauge -> fires (dump wins)
     // -----------------------------------------------------------------------

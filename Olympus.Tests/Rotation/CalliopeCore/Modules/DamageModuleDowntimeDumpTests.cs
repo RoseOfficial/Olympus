@@ -11,6 +11,7 @@ using Olympus.Services.Party;
 using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 using Olympus.Tests.Mocks;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Timeline;
 
@@ -20,8 +21,12 @@ namespace Olympus.Tests.Rotation.CalliopeCore.Modules;
 /// Verifies that BurstHoldHelper.ShouldDumpForDowntime allows Apex Arrow to fire
 /// at 80+ Soul Voice before a boss untargetable phase, bypassing the normal gauge threshold.
 /// </summary>
-public class DamageModuleDowntimeDumpTests
+public sealed class DamageModuleDowntimeDumpTests : IDisposable
 {
+    public DamageModuleDowntimeDumpTests() => BurstHoldHelper.ModifierKeys = null;
+
+    public void Dispose() => BurstHoldHelper.ModifierKeys = null;
+
     // -----------------------------------------------------------------------
     // 1. Downtime imminent + SoulVoice >= 80 + normal threshold not met -> fires
     // -----------------------------------------------------------------------

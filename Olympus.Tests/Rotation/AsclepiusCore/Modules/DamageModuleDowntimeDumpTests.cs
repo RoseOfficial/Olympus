@@ -8,6 +8,7 @@ using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.AsclepiusCore;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Timeline;
+using Olympus.Rotation.Common.Helpers;
 using Xunit;
 
 namespace Olympus.Tests.Rotation.AsclepiusCore.Modules;
@@ -17,8 +18,12 @@ namespace Olympus.Tests.Rotation.AsclepiusCore.Modules;
 /// with 1 charge when a boss untargetable phase is imminent, bypassing both the
 /// burst-alignment hold and charge conservation (B2 interplay rule).
 /// </summary>
-public class DamageModuleDowntimeDumpTests
+public sealed class DamageModuleDowntimeDumpTests : IDisposable
 {
+    public DamageModuleDowntimeDumpTests() => BurstHoldHelper.ModifierKeys = null;
+
+    public void Dispose() => BurstHoldHelper.ModifierKeys = null;
+
     // -----------------------------------------------------------------------
     // 1. Downtime imminent + 1 charge + burst imminent -> fires (dump wins)
     // -----------------------------------------------------------------------

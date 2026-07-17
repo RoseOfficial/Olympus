@@ -9,6 +9,7 @@ using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.AthenaCore;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Timeline;
+using Olympus.Rotation.Common.Helpers;
 using Xunit;
 
 namespace Olympus.Tests.Rotation.AthenaCore.Modules;
@@ -18,8 +19,12 @@ namespace Olympus.Tests.Rotation.AthenaCore.Modules;
 /// before a boss untargetable phase regardless of AetherflowStrategy, bypassing
 /// the conservative (HealingPriority) gate.
 /// </summary>
-public class DamageModuleDowntimeDumpTests
+public sealed class DamageModuleDowntimeDumpTests : IDisposable
 {
+    public DamageModuleDowntimeDumpTests() => BurstHoldHelper.ModifierKeys = null;
+
+    public void Dispose() => BurstHoldHelper.ModifierKeys = null;
+
     // -----------------------------------------------------------------------
     // 1. Downtime imminent + HealingPriority strategy + 1 stack -> fires
     // -----------------------------------------------------------------------
