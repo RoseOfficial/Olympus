@@ -47,6 +47,10 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
     protected override List<INikeModule> Modules => _modules;
     protected override RotationScheduler Scheduler => _scheduler;
 
+    // SAM fires Meikyo Shisui pre-combat (oGCD opener preparation).
+    // AllowPreCombatOgcdDispatch lifts the inCombat gate on the oGCD dispatch pass.
+    protected override bool AllowPreCombatOgcdDispatch => true;
+
     /// <summary>
     /// Gets the Nike-specific debug state. Used for Samurai-specific debug display.
     /// </summary>

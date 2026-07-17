@@ -70,6 +70,7 @@ public static class KratosAbilities
 
     // --- Downtime ---
     public static readonly AbilityBehavior Meditation = new() { Action = MNKActions.Meditation };
+    public static readonly AbilityBehavior FormShift = new() { Action = MNKActions.FormShift, Toggle = cfg => cfg.Monk.EnablePreCombatFormShift };
 
     // --- Role ---
     public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.MeleeShared.EnableSecondWind };

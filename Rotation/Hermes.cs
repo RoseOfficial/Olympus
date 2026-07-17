@@ -46,6 +46,10 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
     protected override List<IHermesModule> Modules => _modules;
     protected override RotationScheduler Scheduler => _scheduler;
 
+    // NIN mudra inputs bypass the scheduler (direct ActionManager calls in NinjutsuModule),
+    // so this override is inert for mudra dispatch. Added for consistency and future oGCD needs.
+    protected override bool AllowPreCombatOgcdDispatch => true;
+
     /// <summary>
     /// Gets the Hermes-specific debug state. Used for Ninja-specific debug display.
     /// </summary>

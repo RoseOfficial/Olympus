@@ -18,6 +18,8 @@ namespace Olympus.Rotation.HermesCore.Modules;
 /// </summary>
 public sealed class NinjutsuModule : IHermesModule
 {
+    private const float PrePullSuitonCountdown = 6f;
+
     public int Priority => 10;
     public string Name => "Ninjutsu";
 
@@ -29,7 +31,32 @@ public sealed class NinjutsuModule : IHermesModule
     {
         if (!context.InCombat)
         {
-            context.Debug.NinjutsuState = "Not in combat";
+            var preConfig = context.Configuration.PrePull;
+            if (preConfig.EnablePrePullActions
+                && context.Configuration.Ninja.EnableNinjutsu
+                && context.CountdownRemaining is float cd && cd <= PrePullSuitonCountdown
+                && context.Player.Level >= NINActions.Suiton.MinLevel
+                && !context.HasSuiton)
+            {
+                if (context.MudraHelper.IsSequenceActive)
+                {
+                    if (!context.MudraHelper.IsReadyToExecute)
+                        InputNextMudra(context);
+                    context.Debug.NinjutsuState = context.MudraHelper.IsReadyToExecute
+                        ? "Pre-pull: Suiton ready, awaiting combat"
+                        : "Pre-pull: Inputting mudra";
+                }
+                else
+                {
+                    context.MudraHelper.StartSequence(NINActions.NinjutsuType.Suiton);
+                    InputNextMudra(context);
+                    context.Debug.NinjutsuState = "Pre-pull: Starting Suiton sequence";
+                }
+            }
+            else
+            {
+                context.Debug.NinjutsuState = "Not in combat";
+            }
             return;
         }
 

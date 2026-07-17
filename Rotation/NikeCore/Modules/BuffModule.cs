@@ -32,6 +32,7 @@ public sealed class BuffModule : INikeModule
     private const int KenkiThresholdForIkishoten = 50;
     private const int MeditationMaxStacks = 3;
     private const float BuffRefreshThreshold = 5f;
+    private const float PrePullMeikyoCountdown = 9f;
 
     public bool TryExecute(INikeContext context, bool isMoving) => false;
 
@@ -41,7 +42,24 @@ public sealed class BuffModule : INikeModule
     {
         if (!context.InCombat)
         {
-            context.Debug.BuffState = "Not in combat";
+            if (context.Configuration.PrePull.EnablePrePullActions
+                && context.Configuration.Samurai.EnableMeikyoShisui
+                && context.CountdownRemaining is float cd && cd <= PrePullMeikyoCountdown
+                && context.Player.Level >= SAMActions.MeikyoShisui.MinLevel
+                && !context.HasMeikyoShisui
+                && context.ActionService.IsActionReady(SAMActions.MeikyoShisui.ActionId))
+            {
+                context.Debug.BuffState = "Pre-pull: Meikyo Shisui";
+                scheduler.PushOgcd(NikeAbilities.MeikyoShisui, context.Player.GameObjectId, priority: 3,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = SAMActions.MeikyoShisui.Name;
+                    });
+            }
+            else
+            {
+                context.Debug.BuffState = "Not in combat";
+            }
             return;
         }
 

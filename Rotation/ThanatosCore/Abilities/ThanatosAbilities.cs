@@ -52,6 +52,7 @@ public static class ThanatosAbilities
     public static readonly AbilityBehavior Enshroud = new() { Action = RPRActions.Enshroud, Toggle = cfg => cfg.Reaper.EnableEnshroud };
     public static readonly AbilityBehavior PlentifulHarvest = new() { Action = RPRActions.PlentifulHarvest, Toggle = cfg => cfg.Reaper.EnablePlentifulHarvest };
     public static readonly AbilityBehavior HarvestMoon = new() { Action = RPRActions.HarvestMoon, Toggle = cfg => cfg.Reaper.EnableHarvestMoon };
+    public static readonly AbilityBehavior Soulsow = new() { Action = RPRActions.Soulsow, Toggle = cfg => cfg.Reaper.EnableHarvestMoon };
 
     // --- Soul builder ---
     public static readonly AbilityBehavior SoulSlice = new() { Action = RPRActions.SoulSlice };

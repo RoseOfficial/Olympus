@@ -19,6 +19,8 @@ namespace Olympus.Rotation.ThanatosCore.Modules;
 /// </summary>
 public sealed class DamageModule : IThanatosModule
 {
+    private const float PrePullSoulsowCountdown = 7f;
+
     public int Priority => 30;
     public string Name => "Damage";
 
@@ -42,7 +44,24 @@ public sealed class DamageModule : IThanatosModule
     {
         if (!context.InCombat)
         {
-            context.Debug.DamageState = "Not in combat";
+            if (context.Configuration.PrePull.EnablePrePullActions
+                && context.Configuration.Reaper.EnableHarvestMoon
+                && context.CountdownRemaining is float cd && cd <= PrePullSoulsowCountdown
+                && context.Player.Level >= RPRActions.Soulsow.MinLevel
+                && !context.HasSoulsow
+                && context.ActionService.IsActionReady(RPRActions.Soulsow.ActionId))
+            {
+                context.Debug.DamageState = "Pre-pull: Soulsow (countdown)";
+                scheduler.PushGcd(ThanatosAbilities.Soulsow, context.Player.GameObjectId, priority: 5,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = RPRActions.Soulsow.Name;
+                    });
+            }
+            else
+            {
+                context.Debug.DamageState = "Not in combat";
+            }
             return;
         }
         if (context.TargetingService.IsDamageTargetingPaused())

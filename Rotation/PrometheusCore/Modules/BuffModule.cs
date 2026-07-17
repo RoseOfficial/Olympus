@@ -28,6 +28,8 @@ public sealed class BuffModule : IPrometheusModule
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
         BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
+    private const float PrePullReassembleCountdown = 5f;
+
     public int Priority => 20;
     public string Name => "Buff";
 
@@ -41,7 +43,26 @@ public sealed class BuffModule : IPrometheusModule
         {
             RoleActionPushers.TryPushPeloton(context, scheduler, PrometheusAbilities.Peloton, isMoving, priority: 10,
                 onDispatched: _ => context.Debug.BuffState = "Peloton (pre-combat)");
-            context.Debug.BuffState = "Not in combat";
+
+            if (context.Configuration.PrePull.EnablePrePullActions
+                && context.Configuration.Machinist.EnableReassemble
+                && context.CountdownRemaining is float cd && cd <= PrePullReassembleCountdown
+                && context.Player.Level >= MCHActions.Reassemble.MinLevel
+                && !context.HasReassemble
+                && context.ReassembleCharges > 0
+                && context.ActionService.IsActionReady(MCHActions.Reassemble.ActionId))
+            {
+                context.Debug.BuffState = "Pre-pull: Reassemble";
+                scheduler.PushOgcd(PrometheusAbilities.Reassemble, context.Player.GameObjectId, priority: 3,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = MCHActions.Reassemble.Name;
+                    });
+            }
+            else
+            {
+                context.Debug.BuffState = "Not in combat";
+            }
             return;
         }
 

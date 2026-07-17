@@ -70,6 +70,13 @@ public sealed class MonkConfig
     public bool EnableWindsReply { get; set; } = true;
 
     /// <summary>
+    /// Whether to use Form Shift during the pre-pull countdown to enter Formless Fist
+    /// before combat starts. Fires when countdown is 8 seconds or fewer remaining.
+    /// Only fires when no countdown is active -- never fires while idling out of combat.
+    /// </summary>
+    public bool EnablePreCombatFormShift { get; set; } = true;
+
+    /// <summary>
     /// Whether to use Feint for enemy damage reduction.
     /// </summary>
     public bool EnableFeint { get; set; } = true;

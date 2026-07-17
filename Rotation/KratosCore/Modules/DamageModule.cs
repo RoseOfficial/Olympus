@@ -21,6 +21,8 @@ namespace Olympus.Rotation.KratosCore.Modules;
 /// </summary>
 public sealed class DamageModule : IKratosModule
 {
+    private const float PrePullFormShiftCountdown = 8f;
+
     public int Priority => 30;
     public string Name => "Damage";
 
@@ -45,10 +47,24 @@ public sealed class DamageModule : IKratosModule
         var player = context.Player;
         var level = player.Level;
 
-        // Pre-combat: Meditation if Chakra below 5 (downtime build-up).
+        // Pre-combat: Form Shift for opener (countdown-gated) then Meditation for Chakra build.
         if (!context.InCombat)
         {
-            if (level >= MNKActions.Meditation.MinLevel && context.Chakra < 5)
+            if (context.Configuration.PrePull.EnablePrePullActions
+                && context.Configuration.Monk.EnablePreCombatFormShift
+                && context.CountdownRemaining is float cdFs && cdFs <= PrePullFormShiftCountdown
+                && level >= MNKActions.FormShift.MinLevel
+                && !context.HasFormlessFist
+                && context.ActionService.IsActionReady(MNKActions.FormShift.ActionId))
+            {
+                context.Debug.DamageState = "Pre-pull: Form Shift (countdown)";
+                scheduler.PushGcd(KratosAbilities.FormShift, player.GameObjectId, priority: 5,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = MNKActions.FormShift.Name;
+                    });
+            }
+            else if (level >= MNKActions.Meditation.MinLevel && context.Chakra < 5)
             {
                 scheduler.PushGcd(KratosAbilities.Meditation, player.GameObjectId, priority: 10,
                     onDispatched: _ =>

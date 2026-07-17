@@ -45,6 +45,10 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
     protected override List<IPrometheusModule> Modules => _modules;
     protected override RotationScheduler Scheduler => _scheduler;
 
+    // MCH fires Reassemble pre-combat (oGCD opener preparation).
+    // AllowPreCombatOgcdDispatch lifts the inCombat gate on the oGCD dispatch pass.
+    protected override bool AllowPreCombatOgcdDispatch => true;
+
     /// <summary>
     /// Gets the Prometheus-specific debug state. Used for Machinist-specific debug display.
     /// </summary>
