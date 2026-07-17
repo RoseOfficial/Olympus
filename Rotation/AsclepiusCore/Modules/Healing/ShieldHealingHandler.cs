@@ -3,6 +3,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AsclepiusCore.Abilities;
 using Olympus.Rotation.AsclepiusCore.Context;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AsclepiusCore.Helpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
@@ -29,17 +30,21 @@ public sealed class ShieldHealingHandler : IHealingHandler
 
         if (player.Level < SGEActions.Eukrasia.MinLevel) return;
 
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
+
         if (context.HasEukrasia)
         {
-            TryPushEukrasianHealSpell(context, scheduler);
+            TryPushEukrasianHealSpell(context, scheduler, raidwideImminent);
             return;
         }
 
         var (avgHp, lowestHp, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
         var shouldActivateForAoE = config.EnableEukrasianPrognosis &&
-                                   injuredCount >= config.AoEHealMinTargets &&
-                                   avgHp < config.AoEHealThreshold;
+                                   (raidwideImminent ||
+                                    (injuredCount >= config.AoEHealMinTargets &&
+                                     avgHp < config.AoEHealThreshold));
         var shouldActivateForSt = config.EnableEukrasianDiagnosis &&
                                   lowestHp < config.EukrasianDiagnosisThreshold;
 
@@ -56,15 +61,15 @@ public sealed class ShieldHealingHandler : IHealingHandler
         }
     }
 
-    private void TryPushEukrasianHealSpell(IAsclepiusContext context, RotationScheduler scheduler)
+    private void TryPushEukrasianHealSpell(IAsclepiusContext context, RotationScheduler scheduler, bool raidwideImminent)
     {
         var config = context.Configuration.Sage;
         var player = context.Player;
 
         var (avgHp, lowestHp, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
-        // Prefer AoE if multiple injured
-        if (config.EnableEukrasianPrognosis && injuredCount >= config.AoEHealMinTargets)
+        // Prefer AoE if multiple injured or raidwide is imminent (proactive shields before the hit)
+        if (config.EnableEukrasianPrognosis && (raidwideImminent || injuredCount >= config.AoEHealMinTargets))
         {
             var aoeAction = player.Level >= SGEActions.EukrasianPrognosisII.MinLevel
                 ? SGEActions.EukrasianPrognosisII
@@ -83,6 +88,7 @@ public sealed class ShieldHealingHandler : IHealingHandler
             var capturedAvgHp = avgHp;
             var capturedInjuredCount = injuredCount;
             var capturedAction = aoeAction;
+            var capturedRaidwide = raidwideImminent;
 
             scheduler.PushGcd(aoeBehavior, player.GameObjectId, priority: Priority,
                 onDispatched: _ =>
@@ -100,8 +106,12 @@ public sealed class ShieldHealingHandler : IHealingHandler
                             ActionName = capturedAction.Name,
                             Category = "Healing",
                             TargetName = "Party",
-                            ShortReason = $"E.Prognosis - {capturedInjuredCount} need shields at {capturedAvgHp:P0}",
-                            DetailedReason = $"Eukrasian Prognosis placed shields on party. {capturedInjuredCount} members injured at {capturedAvgHp:P0} average HP. Provides instant shield that protects against incoming damage. The Eukrasia → E.Prognosis combo is instant cast!",
+                            ShortReason = capturedRaidwide
+                                ? $"E.Prognosis - raidwide imminent, shielding at {capturedAvgHp:P0}"
+                                : $"E.Prognosis - {capturedInjuredCount} need shields at {capturedAvgHp:P0}",
+                            DetailedReason = capturedRaidwide
+                                ? $"Eukrasian Prognosis placed proactively before raidwide. Party at {capturedAvgHp:P0} HP. Shields land before the hit for full absorption. The Eukrasia -> E.Prognosis combo is instant cast!"
+                                : $"Eukrasian Prognosis placed shields on party. {capturedInjuredCount} members injured at {capturedAvgHp:P0} average HP. Provides instant shield that protects against incoming damage. The Eukrasia -> E.Prognosis combo is instant cast!",
                             Factors = new[]
                             {
                                 $"Party avg HP: {capturedAvgHp:P0}",

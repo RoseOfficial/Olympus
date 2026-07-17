@@ -57,6 +57,7 @@ public static class AsclepiusTestContext
         bool canSwapKardia = true,
         bool hasSoteria = false,
         bool hasPhilosophia = false,
+        Mock<IBossMechanicDetector>? bossMechanicDetector = null,
         AsclepiusDebugState? debugState = null)
     {
         config ??= CreateDefaultSageConfiguration();
@@ -144,6 +145,7 @@ public static class AsclepiusTestContext
             eukrasiaService.Object,
             statusHelper,
             partyHelper.Object,
+            bossMechanicDetector: bossMechanicDetector?.Object,
             debugState: debugState ?? new AsclepiusDebugState());
     }
 
