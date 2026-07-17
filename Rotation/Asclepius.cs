@@ -74,6 +74,9 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
     // Timeline integration
     private readonly ITimelineService? _timelineService;
 
+    // Burst window tracking
+    private readonly IBurstWindowService? _burstWindowService;
+
     // Training mode
     private readonly ITrainingService? _trainingService;
 
@@ -105,6 +108,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
+        IBurstWindowService? burstWindowService = null,
         Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
         Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
@@ -135,6 +139,9 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
         // Store training service
         _trainingService = trainingService;
 
+        // Store burst window service
+        _burstWindowService = burstWindowService;
+
         // Initialize scheduler
         _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
 
@@ -155,7 +162,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             new ResurrectionModule(),   // Priority 5 - Raise dead party members
             new HealingModule(),        // Priority 10 - Addersgall heals, oGCDs, GCD heals
             new DefensiveModule(),      // Priority 20 - Kerachole, Taurochole, Holos, Panhaima
-            new DamageModule(),         // Priority 50 - DoT, Dosis, Phlegma, Psyche
+            new DamageModule(_burstWindowService),  // Priority 50 - DoT, Dosis, Phlegma, Psyche
         };
 
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
@@ -190,6 +197,9 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
     {
         // Call base healer service updates
         base.UpdateJobSpecificServices(player, inCombat);
+
+        // Update burst window tracking (pass current target for raid debuff detection)
+        _burstWindowService?.Update(player, TargetingService.GetUserEnemyTarget());
 
         // Update Kardia target tracking
         _kardiaManager.UpdateKardiaTarget(player);

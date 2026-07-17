@@ -8,6 +8,7 @@ using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.Common.Scheduling;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
@@ -35,6 +36,16 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
     protected override void SetPlannedAction(IAsclepiusContext context, string action) => context.Debug.PlannedAction = action;
     protected override bool BlocksOnExecution => false;
     protected override bool CanSingleTarget(IAsclepiusContext context, bool isMoving) => !isMoving;
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public DamageModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     public override bool TryExecute(IAsclepiusContext context, bool isMoving) => false;
 
@@ -97,6 +108,12 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
         if (!config.EnablePsyche) return;
         if (player.Level < SGEActions.Psyche.MinLevel) return;
         if (!context.ActionService.IsActionReady(SGEActions.Psyche.ActionId)) { context.Debug.PsycheState = "On CD"; return; }
+
+        if (context.Configuration.HealerShared.EnableBurstPooling && ShouldHoldForBurst())
+        {
+            context.Debug.PsycheState = "Psyche held — burst imminent";
+            return;
+        }
 
         var enemy = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy, SGEActions.Psyche.Range, player);
@@ -190,8 +207,28 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
 
         var maxCharges = 2u;
         var rechargingTime = context.ActionService.GetCooldownRemaining(phlegmaAction.ActionId);
-        var shouldUse = charges >= maxCharges || (charges == maxCharges - 1 && rechargingTime < 5f);
-        if (!shouldUse && charges < maxCharges) { context.Debug.PhlegmaState = $"Saving ({charges}/{maxCharges})"; return; }
+
+        if (charges < maxCharges)
+        {
+            // Single charge: apply burst-aware pooling before the overcap path
+            if (BurstHoldHelper.IsInBurst(_burstWindowService))
+            {
+                // In the burst window — fire Phlegma for buffed potency; fall through to push
+            }
+            else if (context.Configuration.HealerShared.EnableBurstPooling && ShouldHoldForBurst())
+            {
+                context.Debug.PhlegmaState = "Phlegma held — burst imminent";
+                return;
+            }
+            else if (rechargingTime >= 5f)
+            {
+                // Not about to cap and no burst window — save the charge
+                context.Debug.PhlegmaState = $"Saving ({charges}/{maxCharges})";
+                return;
+            }
+            // rechargingTime < 5f: about to cap — fire to prevent overcap
+        }
+        // charges >= maxCharges: at cap, always fire immediately
 
         var enemy = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy, phlegmaAction.Range, player);
