@@ -73,6 +73,7 @@ public sealed class ConfigWindow : Window
     private readonly TimelineSection timelineSection;
     private readonly PartyCoordinationSection partyCoordinationSection;
     private readonly ConsumablesSection consumablesSection;
+    private readonly PrePullSection prePullSection;
     private readonly MovementSection movementSection;
     private readonly DebugDisplaySection debugDisplaySection;
 
@@ -120,6 +121,7 @@ public sealed class ConfigWindow : Window
         timelineSection = new TimelineSection(configuration, saveConfiguration);
         partyCoordinationSection = new PartyCoordinationSection(configuration, saveConfiguration);
         consumablesSection = new ConsumablesSection(configuration, saveConfiguration);
+        prePullSection = new PrePullSection(configuration, saveConfiguration);
         movementSection = new MovementSection(configuration, saveConfiguration, hookService);
         debugDisplaySection = new DebugDisplaySection(configuration, saveConfiguration);
 
@@ -288,6 +290,10 @@ public sealed class ConfigWindow : Window
 
             case ConfigSection.Consumables:
                 consumablesSection.Draw();
+                break;
+
+            case ConfigSection.PrePull:
+                prePullSection.Draw();
                 break;
 
             case ConfigSection.Movement:

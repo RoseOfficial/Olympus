@@ -107,6 +107,9 @@ public sealed class Configuration : IPluginConfiguration
     // Consumable automation (combat tinctures)
     public ConsumablesConfig Consumables { get; set; } = new();
 
+    // Pre-pull automation (countdown-keyed ability preparation)
+    public PrePullConfig PrePull { get; set; } = new();
+
     // Movement subsystem (AoE avoidance, auto-interact)
     public MovementConfig Movement { get; set; } = new();
 
@@ -222,6 +225,7 @@ public sealed class Configuration : IPluginConfiguration
         Tank = new TankConfig();
         PartyCoordination = new PartyCoordinationConfig();
         Consumables = new ConsumablesConfig();
+        PrePull = new PrePullConfig();
         Movement = new MovementConfig();
         Input = new InputConfig();
 

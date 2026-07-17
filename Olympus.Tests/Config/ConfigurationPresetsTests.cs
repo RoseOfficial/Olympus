@@ -229,6 +229,48 @@ public class ConfigurationPresetsTests
         Assert.False(config.HealerShared.EnableBurstPooling);
     }
 
+    // ──────────────────────────────────────────────────────────────
+    // Pre-pull master toggle: Conservative disables it; all others leave it alone
+    // ──────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Conservative_DisablesPrePullActions()
+    {
+        var config = new Configuration();
+        // Default must be true so Conservative has something to override.
+        Assert.True(config.PrePull.EnablePrePullActions,
+            "PrePullConfig.EnablePrePullActions default must be true");
+
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Conservative);
+
+        Assert.False(config.PrePull.EnablePrePullActions,
+            "Conservative preset must disable pre-pull automation");
+    }
+
+    [Theory]
+    [InlineData(ConfigurationPreset.Raid)]
+    [InlineData(ConfigurationPreset.Dungeon)]
+    [InlineData(ConfigurationPreset.Casual)]
+    [InlineData(ConfigurationPreset.Balanced)]
+    [InlineData(ConfigurationPreset.Aggressive)]
+    [InlineData(ConfigurationPreset.Proactive)]
+    public void NonConservativePreset_DoesNotWritePrePullActions(ConfigurationPreset preset)
+    {
+        // Discrimination standard: first apply Conservative to force false,
+        // then apply the preset under test. None of these presets write
+        // PrePull.EnablePrePullActions, so Conservative's false persists.
+        // The test asserts FALSE precisely to verify the non-Conservative
+        // presets do NOT touch the field -- discriminating from Conservative
+        // which explicitly sets it to false.
+        var config = new Configuration();
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Conservative);
+        Assert.False(config.PrePull.EnablePrePullActions); // precondition
+
+        ConfigurationPresets.ApplyPreset(config, preset);
+        Assert.False(config.PrePull.EnablePrePullActions,
+            $"{preset} must not write PrePull.EnablePrePullActions (field is not in its scope)");
+    }
+
     [Theory]
     [InlineData(ConfigurationPreset.Balanced)]
     [InlineData(ConfigurationPreset.Aggressive)]

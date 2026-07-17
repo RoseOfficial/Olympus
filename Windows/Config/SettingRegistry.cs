@@ -124,6 +124,7 @@ public sealed class SettingRegistry
             ConfigSection.Pictomancer => Loc.T(LocalizedStrings.Sidebar.Pictomancer, "Pictomancer"),
             ConfigSection.Timeline => Loc.T(LocalizedStrings.Sidebar.Timeline, "Timeline"),
             ConfigSection.Movement => Loc.T(LocalizedStrings.Movement.MovementHeader, "Movement"),
+            ConfigSection.PrePull => "Pre-Pull Actions",
             _ => section.ToString()
         };
     }
@@ -177,6 +178,13 @@ public sealed class SettingRegistry
             new("Interact range", "Distance in yalms to approach interactable objects"),
             new("Interact cooldown", "Seconds between interact attempts per object"),
             new("Allow in combat", "Permit auto-interact while in combat")
+        };
+
+        // Pre-Pull section
+        this.sectionSettings[ConfigSection.PrePull] = new List<SettingInfo>
+        {
+            new("Enable pre-pull ability automation",
+                "Countdown-keyed ability preparation: pre-cast GCDs, oGCD preps, sequence starters")
         };
 
         // White Mage section

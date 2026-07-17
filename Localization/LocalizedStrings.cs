@@ -243,6 +243,15 @@ public static class LocalizedStrings
         public const string WarnOnEmptyInventoryDesc = "Config.Consumables.WarnOnEmptyInventory.Desc";
     }
 
+    /// <summary>Keys for pre-pull config section.</summary>
+    public static class PrePull
+    {
+        public const string PrePullNav = "Config.PrePull.Nav";
+        public const string PrePullHeader = "Config.PrePull.Header";
+        public const string EnablePrePullActions = "Config.PrePull.EnablePrePullActions";
+        public const string EnablePrePullActionsDesc = "Config.PrePull.EnablePrePullActions.Desc";
+    }
+
     /// <summary>Keys for movement config section (AoE avoidance and auto-interact).</summary>
     public static class Movement
     {

@@ -307,6 +307,9 @@ public static class ConfigurationPresets
         // All roles - conservative movement tolerance
         config.MovementTolerance = 0.15f;
 
+        // All roles - disable pre-pull automation in conservative mode
+        config.PrePull.EnablePrePullActions = false;
+
         // Healers
         if (role is null or JobRole.Healer)
         {
