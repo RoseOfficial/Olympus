@@ -4,6 +4,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.NyxCore.Abilities;
 using Olympus.Rotation.NyxCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.NyxCore.Modules;
@@ -15,6 +16,16 @@ public sealed class DamageModule : INyxModule
 {
     public int Priority => 30;
     public string Name => "Damage";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public DamageModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     public bool TryExecute(INyxContext context, bool isMoving) => false;
     public void UpdateDebugState(INyxContext context) { }
@@ -131,6 +142,15 @@ public sealed class DamageModule : INyxModule
         var player = context.Player;
         if (player.Level < DRKActions.Shadowbringer.MinLevel) return;
         if (!context.ActionService.IsActionReady(DRKActions.Shadowbringer.ActionId)) return;
+
+        // Bank both charges for the 2-minute burst window.
+        // Escape: fire immediately when both charges are at maximum to avoid overcapping.
+        var charges = context.ActionService.GetCurrentCharges(DRKActions.Shadowbringer.ActionId);
+        if (charges < 2u && ShouldHoldForBurst(8f))
+        {
+            context.Debug.DamageState = "Shadowbringer held -- burst imminent";
+            return;
+        }
 
         scheduler.PushOgcd(NyxAbilities.Shadowbringer, targetId, priority: 2,
             onDispatched: _ =>

@@ -94,7 +94,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             new EnmityModule(),
             new MitigationModule(),
             new BuffModule(_burstWindowService),
-            new DamageModule(),
+            new DamageModule(_burstWindowService),
         };
 
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
