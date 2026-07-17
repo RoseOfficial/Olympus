@@ -18,6 +18,8 @@ public sealed class PullIntentService : IPullIntentService
     private const double ActiveDurationSeconds = 2.0;
     private const double QueueConfirmationMs = 100.0;
 
+    private readonly ICountdownProbe? _countdownProbe;
+
     private PullIntent _current = PullIntent.None;
     private DateTime? _imminentSince;
     private DateTime? _activeSince;
@@ -26,7 +28,19 @@ public sealed class PullIntentService : IPullIntentService
     private bool _hasExitedActivePhase;
     private bool _wasInCombat;
 
+    /// <param name="countdownProbe">
+    /// Optional probe for the party countdown timer. When null the service
+    /// behaves as before; <see cref="CountdownRemaining"/> always returns null.
+    /// </param>
+    public PullIntentService(ICountdownProbe? countdownProbe = null)
+    {
+        _countdownProbe = countdownProbe;
+    }
+
     public PullIntent Current => _current;
+
+    /// <inheritdoc />
+    public float? CountdownRemaining { get; private set; }
 
     public void Update(
         bool isPlayerCasting,
@@ -36,6 +50,10 @@ public sealed class PullIntentService : IPullIntentService
         bool isInCombat,
         DateTime utcNow)
     {
+        // Refresh countdown signal from native probe first so every frame
+        // sees the latest value regardless of plugin enable state.
+        CountdownRemaining = _countdownProbe?.GetCountdownRemaining();
+
         // Reset latch on fresh combat entry.
         if (isInCombat && !_wasInCombat)
             _hasExitedActivePhase = false;

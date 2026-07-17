@@ -13,6 +13,13 @@ public interface IPullIntentService
     PullIntent Current { get; }
 
     /// <summary>
+    /// Seconds remaining on the party countdown, or null when no countdown
+    /// is active. Refreshed at the top of <see cref="Update"/> from the
+    /// injected <see cref="ICountdownProbe"/>. Null when no probe was provided.
+    /// </summary>
+    float? CountdownRemaining { get; }
+
+    /// <summary>
     /// Drives state transitions. Call once per frame from <c>Plugin.Update</c>
     /// before rotation execution.
     /// </summary>

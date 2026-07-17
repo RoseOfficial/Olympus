@@ -140,6 +140,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly UpdateCheckerService updateCheckerService;
 
     // Pull-intent state machine + consumable services (tincture automation)
+    private readonly Olympus.Services.Pull.DalamudCountdownProbe countdownProbe;
     private readonly Olympus.Services.Pull.PullIntentService pullIntentService;
     private readonly Olympus.Services.Content.HighEndContentService highEndContentService;
     private readonly Olympus.Services.Consumables.DalamudInventoryProbe inventoryProbe;
@@ -379,7 +380,9 @@ public sealed class Plugin : IDalamudPlugin
 
         // Pull-intent state machine. Driven each frame by Plugin.Update from
         // LocalPlayer.IsCasting + ActionManager.QueuedActionId + InCombat.
-        this.pullIntentService = new Olympus.Services.Pull.PullIntentService();
+        // DalamudCountdownProbe reads the party countdown agent (unsafe, fails open).
+        this.countdownProbe = new Olympus.Services.Pull.DalamudCountdownProbe();
+        this.pullIntentService = new Olympus.Services.Pull.PullIntentService(this.countdownProbe);
 
         // Inventory and tincture-cooldown probes (production-side wrappers).
         this.inventoryProbe = new Olympus.Services.Consumables.DalamudInventoryProbe(errorMetricsService);
