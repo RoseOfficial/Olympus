@@ -59,7 +59,8 @@ public sealed class MarkerPromotionTests
         Configuration config,
         Mock<IMarkerProbe> probeMock,
         IEnumerable<IBattleNpc> enemies,
-        IGameObject? currentTarget = null)
+        IGameObject? currentTarget = null,
+        IGameObject? focusTarget = null)
     {
         var objectTableMock = new Mock<IObjectTable>();
         var enemyList = new List<IGameObject>();
@@ -76,7 +77,7 @@ public sealed class MarkerPromotionTests
 
         var targetManagerMock = new Mock<ITargetManager>();
         targetManagerMock.Setup(x => x.Target).Returns(currentTarget);
-        targetManagerMock.Setup(x => x.FocusTarget).Returns((IGameObject?)null);
+        targetManagerMock.Setup(x => x.FocusTarget).Returns(focusTarget);
 
         var gapCloserMock = new Mock<IGapCloserSafetyService>();
 
@@ -308,5 +309,57 @@ public sealed class MarkerPromotionTests
         var result = svc.FindEnemy(EnemyTargetingStrategy.LowestHp, 25f, MakePlayer());
         Assert.NotNull(result);
         Assert.Equal(1ul, result!.GameObjectId); // LowestHp wins, no crash
+    }
+
+    [Fact]
+    public void FocusTarget_IgnoresAttackMarkers()
+    {
+        // FocusTarget strategy must return the player's focus target,
+        // even when another enemy has an Attack1 mark.
+        var attackMarkedEnemy = MakeEnemy(id: 7, hp: 5_000);
+        var focusTargetEnemy = MakeEnemy(id: 8, hp: 9_000);
+
+        var probe = EmptyProbe();
+        probe.Setup(x => x.GetAttackMarkTargets())
+             .Returns(new ulong[] { 7, 0, 0, 0, 0, 0, 0, 0 }); // enemy 7 is Attack1
+
+        var config = new Configuration();
+        config.Targeting.UseAttackMarkers = true;
+
+        // Pass focusTargetEnemy as the ITargetManager.FocusTarget
+        var svc = BuildService(config, probe,
+            [attackMarkedEnemy.Object, focusTargetEnemy.Object],
+            focusTarget: focusTargetEnemy.Object);
+
+        var player = MakePlayer();
+        var result = svc.FindEnemy(EnemyTargetingStrategy.FocusTarget, 25f, player);
+
+        Assert.NotNull(result);
+        Assert.Equal(8ul, result!.GameObjectId); // focus target, not the attack-marked one
+    }
+
+    [Fact]
+    public void AttackMarkedEnemy_Promoted_UnderHighestHpStrategy()
+    {
+        // Under HighestHp the unmarked enemy (9000 HP) would win normally.
+        // With UseAttackMarkers=true the Attack1-marked enemy (500 HP) must win instead.
+        var unmarkedHighHpEnemy = MakeEnemy(id: 11, hp: 9_000);
+        var markedLowHpEnemy = MakeEnemy(id: 12, hp: 500);
+
+        var probe = EmptyProbe();
+        probe.Setup(x => x.GetAttackMarkTargets())
+             .Returns(new ulong[] { 12, 0, 0, 0, 0, 0, 0, 0 }); // Attack1 = markedLowHpEnemy
+
+        var config = new Configuration();
+        config.Targeting.UseAttackMarkers = true;
+        config.Targeting.EnemyStrategy = EnemyTargetingStrategy.HighestHp;
+
+        var svc = BuildService(config, probe, [unmarkedHighHpEnemy.Object, markedLowHpEnemy.Object]);
+        var player = MakePlayer();
+
+        var result = svc.FindEnemy(EnemyTargetingStrategy.HighestHp, 25f, player);
+
+        Assert.NotNull(result);
+        Assert.Equal(12ul, result!.GameObjectId); // Attack1-marked enemy wins over higher-HP unmarked
     }
 }

@@ -107,7 +107,7 @@ public sealed class TargetingConfig
     /// When true, aggregate auto-targeting promotes enemies that a party leader
     /// has assigned an attack marker (Attack1..Attack8) to the top of the priority
     /// queue, in marker-number order, ahead of the configured HP/distance strategy.
-    /// CurrentTarget and FocusTarget strategies are never affected — they always
+    /// CurrentTarget and FocusTarget strategies are never affected; they always
     /// follow the player's explicit selection.
     /// </summary>
     public bool UseAttackMarkers { get; set; } = true;
