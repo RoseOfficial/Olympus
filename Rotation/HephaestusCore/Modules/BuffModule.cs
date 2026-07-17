@@ -95,6 +95,12 @@ public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephae
         if (!context.ActionService.IsActionReady(GNBActions.NoMercy.ActionId))
             return;
 
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        {
+            context.Debug.BuffState = "Holding No Mercy (phase soon)";
+            return;
+        }
+
         if (ShouldHoldForBurst(8f))
         {
             context.Debug.BuffState = "Holding No Mercy for burst";
@@ -151,6 +157,12 @@ public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephae
 
         if (!context.ActionService.IsActionReady(GNBActions.Bloodfest.ActionId))
             return;
+
+        if (!context.HasNoMercy && BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        {
+            context.Debug.BuffState = "Holding Bloodfest (phase soon)";
+            return;
+        }
 
         if (!context.HasNoMercy && ShouldHoldForBurst(8f))
         {

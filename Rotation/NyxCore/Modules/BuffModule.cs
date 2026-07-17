@@ -72,6 +72,7 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
             return;
         }
         if (!context.ActionService.IsActionReady(DRKActions.BloodWeapon.ActionId)) return;
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService)) { context.Debug.BuffState = "Holding Blood Weapon (phase soon)"; return; }
         if (ShouldHoldForBurst(8f)) { context.Debug.BuffState = "Holding Blood Weapon for burst"; return; }
 
         scheduler.PushOgcd(NyxAbilities.BloodWeapon, player.GameObjectId, priority: 2,
@@ -96,6 +97,7 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
         if (!context.HasDarkside) return;
         if (level < 96 && context.BloodGauge < 30) return;
         if (!context.ActionService.IsActionReady(DRKActions.Delirium.ActionId)) return;
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService)) { context.Debug.BuffState = "Holding Delirium (phase soon)"; return; }
         if (ShouldHoldForBurst(8f)) { context.Debug.BuffState = "Holding Delirium for burst"; return; }
 
         var darksideRem = context.DarksideRemaining;
@@ -130,6 +132,7 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
         if (!context.HasDarkside) return;
         if (context.HasDelirium && level < 96 && context.DeliriumStacks > 1) return;
         if (!context.ActionService.IsActionReady(DRKActions.LivingShadow.ActionId)) return;
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService)) { context.Debug.BuffState = "Holding Living Shadow (phase soon)"; return; }
         if (ShouldHoldForBurst(8f)) { context.Debug.BuffState = "Holding Living Shadow for burst"; return; }
 
         var gauge = context.BloodGauge;

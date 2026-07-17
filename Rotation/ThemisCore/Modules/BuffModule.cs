@@ -123,6 +123,12 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
             return;
         }
 
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        {
+            context.Debug.BuffState = "Holding Fight or Flight (phase soon)";
+            return;
+        }
+
         if (ShouldHoldForBurst(8f))
         {
             context.Debug.BuffState = "Holding Fight or Flight for burst";
@@ -187,6 +193,12 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
         var fofOnCooldown = !context.ActionService.IsActionReady(PLDActions.FightOrFlight.ActionId);
         var fofAlmostOver = context.HasFightOrFlight && context.FightOrFlightRemaining < 5f;
         var comboReady = context.ComboStep <= 1;
+
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        {
+            context.Debug.BuffState = "Holding Requiescat (phase soon)";
+            return;
+        }
 
         if (ShouldHoldForBurst(8f))
         {

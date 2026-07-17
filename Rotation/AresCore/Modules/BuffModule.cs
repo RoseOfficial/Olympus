@@ -106,6 +106,12 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
             return;
         }
 
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        {
+            context.Debug.BuffState = "Holding Inner Release (phase soon)";
+            return;
+        }
+
         if (ShouldHoldForBurst(8f))
         {
             context.Debug.BuffState = "Holding Inner Release for burst";
