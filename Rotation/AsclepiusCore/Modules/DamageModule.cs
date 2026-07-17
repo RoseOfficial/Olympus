@@ -39,7 +39,9 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
 
     private readonly IBurstWindowService? _burstWindowService;
 
-    public DamageModule(IBurstWindowService? burstWindowService = null)
+    public DamageModule() { }
+
+    public DamageModule(IBurstWindowService? burstWindowService)
     {
         _burstWindowService = burstWindowService;
     }
@@ -111,7 +113,7 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
 
         if (context.Configuration.HealerShared.EnableBurstPooling && ShouldHoldForBurst())
         {
-            context.Debug.PsycheState = "Psyche held — burst imminent";
+            context.Debug.PsycheState = "Psyche held: burst imminent";
             return;
         }
 
@@ -217,12 +219,12 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
             }
             else if (context.Configuration.HealerShared.EnableBurstPooling && ShouldHoldForBurst())
             {
-                context.Debug.PhlegmaState = "Phlegma held — burst imminent";
+                context.Debug.PhlegmaState = "Phlegma held: burst imminent";
                 return;
             }
-            else if (rechargingTime >= 5f)
+            else if (context.Configuration.HealerShared.EnableBurstPooling && rechargingTime >= 5f)
             {
-                // Not about to cap and no burst window — save the charge
+                // Pooling enabled and not about to cap — save the charge for burst
                 context.Debug.PhlegmaState = $"Saving ({charges}/{maxCharges})";
                 return;
             }

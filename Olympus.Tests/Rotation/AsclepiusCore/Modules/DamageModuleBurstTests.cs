@@ -50,7 +50,7 @@ public class DamageModuleBurstTests
 
         var gcdQueue = scheduler.InspectGcdQueue();
         Assert.DoesNotContain(gcdQueue, c => c.Behavior.Action.ActionId == SGEActions.PhlegmaIII.ActionId);
-        Assert.Equal("Phlegma held — burst imminent", context.Debug.PhlegmaState);
+        Assert.Equal("Phlegma held: burst imminent", context.Debug.PhlegmaState);
     }
 
     [Fact]
@@ -168,7 +168,7 @@ public class DamageModuleBurstTests
 
         var ogcdQueue = scheduler.InspectOgcdQueue();
         Assert.DoesNotContain(ogcdQueue, c => c.Behavior.Action.ActionId == SGEActions.Psyche.ActionId);
-        Assert.Equal("Psyche held — burst imminent", context.Debug.PsycheState);
+        Assert.Equal("Psyche held: burst imminent", context.Debug.PsycheState);
     }
 
     [Fact]
@@ -182,6 +182,95 @@ public class DamageModuleBurstTests
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.EnablePsyche = true;
         config.HealerShared.EnableBurstPooling = true;
+
+        var enemy = new Mock<IBattleNpc>();
+        enemy.Setup(x => x.GameObjectId).Returns(42ul);
+
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(x => x.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(SGEActions.Psyche.ActionId)).Returns(true);
+
+        var context = AsclepiusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targetingService,
+            level: 100,
+            inCombat: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcdQueue = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcdQueue, c => c.Behavior.Action.ActionId == SGEActions.Psyche.ActionId);
+    }
+
+    // -----------------------------------------------------------------------
+    // Toggle-off companion tests (discrimination locks)
+    // These verify that disabling EnableBurstPooling bypasses all pooling guards.
+    // -----------------------------------------------------------------------
+
+    [Fact]
+    public void Phlegma_FiresWhenPoolingDisabledEvenIfBurstImminent()
+    {
+        // Identical setup to Phlegma_HeldWhenBurstImminentAndOneCharge, but with
+        // EnableBurstPooling = false. The hold must be the single discriminating variable.
+        var burstSvc = new Mock<IBurstWindowService>();
+        burstSvc.Setup(x => x.IsInBurstWindow).Returns(false);
+        burstSvc.Setup(x => x.IsBurstImminent(It.IsAny<float>())).Returns(true);
+
+        var module = new DamageModule(burstSvc.Object);
+        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
+        config.Sage.EnablePhlegma = true;
+        config.HealerShared.EnableBurstPooling = false;
+
+        var enemy = new Mock<IBattleNpc>();
+        enemy.Setup(x => x.GameObjectId).Returns(42ul);
+
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(x => x.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.GetCurrentCharges(It.IsAny<uint>())).Returns(1u);
+        actionService.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(30f);
+
+        var context = AsclepiusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targetingService,
+            level: 100,
+            inCombat: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcdQueue = scheduler.InspectGcdQueue();
+        Assert.Contains(gcdQueue, c => c.Behavior.Action.ActionId == SGEActions.PhlegmaIII.ActionId);
+    }
+
+    [Fact]
+    public void Psyche_FiresWhenPoolingDisabledEvenIfBurstImminent()
+    {
+        // Identical setup to Psyche_HeldWhenBurstImminentAndPoolingEnabled, but with
+        // EnableBurstPooling = false. The hold must be the single discriminating variable.
+        var burstSvc = new Mock<IBurstWindowService>();
+        burstSvc.Setup(x => x.IsInBurstWindow).Returns(false);
+        burstSvc.Setup(x => x.IsBurstImminent(It.IsAny<float>())).Returns(true);
+
+        var module = new DamageModule(burstSvc.Object);
+        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
+        config.Sage.EnablePsyche = true;
+        config.HealerShared.EnableBurstPooling = false;
 
         var enemy = new Mock<IBattleNpc>();
         enemy.Setup(x => x.GameObjectId).Returns(42ul);
