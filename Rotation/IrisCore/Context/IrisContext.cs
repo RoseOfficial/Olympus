@@ -54,6 +54,7 @@ public sealed class IrisContext : IIrisContext
     public IPluginLog? Log { get; }
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
+    public float? CountdownRemaining { get; }
 
     #endregion
 
@@ -183,6 +184,7 @@ public sealed class IrisContext : IIrisContext
         uint comboAction,
         float comboTimer,
         ITimelineService? timelineService = null,
+        float? countdownRemaining = null,
         IPluginLog? log = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null)
@@ -208,6 +210,7 @@ public sealed class IrisContext : IIrisContext
         TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
+        CountdownRemaining = countdownRemaining;
         Log = log;
 
         StatusHelper = statusHelper;

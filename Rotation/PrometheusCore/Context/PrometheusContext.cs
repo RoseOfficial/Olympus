@@ -51,6 +51,7 @@ public sealed class PrometheusContext : IPrometheusContext
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
     public bool HasSwiftcast => false; // Ranged physical DPS don't use Swiftcast
+    public float? CountdownRemaining { get; }
 
     #endregion
 
@@ -138,6 +139,7 @@ public sealed class PrometheusContext : IPrometheusContext
         uint lastComboAction,
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
+        float? countdownRemaining = null,
         IPluginLog? log = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null)
@@ -161,6 +163,7 @@ public sealed class PrometheusContext : IPrometheusContext
         TimelineService = timelineService;
         ObjectTable = objectTable;
         PartyList = partyList;
+        CountdownRemaining = countdownRemaining;
         Log = log;
         PartyCoordinationService = partyCoordinationService;
         TrainingService = trainingService;

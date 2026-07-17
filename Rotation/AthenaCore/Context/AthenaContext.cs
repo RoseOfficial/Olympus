@@ -91,6 +91,7 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
+        float? countdownRemaining = null,
         AthenaDebugState? debugState = null,
         IPluginLog? log = null)
         : base(player, inCombat, isMoving, canExecuteGcd, canExecuteOgcd,
@@ -99,7 +100,8 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
-               partyCoordinationService, timelineService, trainingService, log)
+               partyCoordinationService, timelineService, trainingService,
+               countdownRemaining: countdownRemaining, log: log)
     {
         AetherflowService = aetherflowService;
         FairyGaugeService = fairyGaugeService;

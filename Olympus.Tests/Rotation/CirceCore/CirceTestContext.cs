@@ -90,7 +90,8 @@ public static class CirceTestContext
         int accelerationCharges = 0,
         bool swiftcastReady = false,
         bool lucidDreamingReady = false,
-        CirceDebugState? debugState = null)
+        CirceDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultRdmConfiguration();
 
@@ -195,6 +196,7 @@ public static class CirceTestContext
 
         // Coordination / party
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
 

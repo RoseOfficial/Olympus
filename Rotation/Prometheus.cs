@@ -234,6 +234,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
             timelineService: _timelineService,
             log: Log,
             partyCoordinationService: _partyCoordinationService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             trainingService: _trainingService);
     }
 

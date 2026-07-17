@@ -74,7 +74,8 @@ public static class HecateTestContext
         bool manafontReady = false,
         bool amplifierReady = false,
         bool leyLinesReady = false,
-        HecateDebugState? debugState = null)
+        HecateDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultBlmConfiguration();
 
@@ -161,6 +162,7 @@ public static class HecateTestContext
         mock.Setup(x => x.AmplifierReady).Returns(amplifierReady);
         mock.Setup(x => x.LeyLinesReady).Returns(leyLinesReady);
 
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
         mock.Setup(x => x.Debug).Returns(debug);
 
         return mock.Object;

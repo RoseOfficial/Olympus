@@ -63,7 +63,8 @@ public static class KratosTestContext
         bool hasWindsRumination = false,
         bool hasDemolishOnTarget = false,
         float demolishRemaining = 0f,
-        KratosDebugState? debugState = null)
+        KratosDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultMonkConfiguration();
 
@@ -94,6 +95,7 @@ public static class KratosTestContext
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
         mock.Setup(x => x.TimelineService).Returns((ITimelineService?)null);
         mock.Setup(x => x.StatusHelper).Returns(statusHelper);
         mock.Setup(x => x.PartyHelper).Returns(partyHelper);

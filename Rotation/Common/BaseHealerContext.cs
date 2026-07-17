@@ -31,6 +31,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
     public bool IsMoving { get; }
     public bool CanExecuteGcd { get; }
     public bool CanExecuteOgcd { get; }
+    public float? CountdownRemaining { get; }
 
     #endregion
 
@@ -156,6 +157,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
+        float? countdownRemaining = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -184,6 +186,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
         TrainingService = trainingService;
+        CountdownRemaining = countdownRemaining;
         Log = log;
         HealingCoordination = new HealingCoordinationState();
     }

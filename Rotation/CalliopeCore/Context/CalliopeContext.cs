@@ -51,6 +51,7 @@ public sealed class CalliopeContext : ICalliopeContext
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
     public bool HasSwiftcast => false; // Ranged physical DPS don't use Swiftcast
+    public float? CountdownRemaining { get; }
 
     #endregion
 
@@ -145,6 +146,7 @@ public sealed class CalliopeContext : ICalliopeContext
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        float? countdownRemaining = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -168,6 +170,7 @@ public sealed class CalliopeContext : ICalliopeContext
         TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
+        CountdownRemaining = countdownRemaining;
         Log = log;
 
         StatusHelper = statusHelper;

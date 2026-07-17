@@ -298,6 +298,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

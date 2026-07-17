@@ -52,6 +52,7 @@ public sealed class NyxContext : INyxContext
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
     public bool HasSwiftcast => false; // Tanks don't use Swiftcast
+    public float? CountdownRemaining { get; }
 
     #endregion
 
@@ -148,6 +149,7 @@ public sealed class NyxContext : INyxContext
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        float? countdownRemaining = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -169,6 +171,7 @@ public sealed class NyxContext : INyxContext
         TimelineService = timelineService;
         ObjectTable = objectTable;
         PartyList = partyList;
+        CountdownRemaining = countdownRemaining;
         Log = log;
 
         EnmityService = enmityService;

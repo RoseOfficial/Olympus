@@ -313,6 +313,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

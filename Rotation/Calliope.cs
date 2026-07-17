@@ -223,6 +223,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

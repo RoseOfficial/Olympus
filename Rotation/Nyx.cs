@@ -158,6 +158,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

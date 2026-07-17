@@ -233,6 +233,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
             timelineService: _timelineService,
             log: Log,
             partyCoordinationService: _partyCoordinationService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             trainingService: _trainingService);
     }
 

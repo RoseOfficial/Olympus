@@ -42,7 +42,8 @@ public static class ApolloTestContext
         bool inCombat = true,
         bool isMoving = false,
         bool canExecuteGcd = true,
-        bool canExecuteOgcd = false)
+        bool canExecuteOgcd = false,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultWhiteMageConfiguration();
 
@@ -102,6 +103,7 @@ public static class ApolloTestContext
             bossMechanicDetector: null,
             shieldTrackingService: null,
             timelineService: timelineService,
+            countdownRemaining: countdownRemaining,
             debugState: debugState);
     }
 

@@ -1,4 +1,5 @@
 using System;
+using Moq;
 using Olympus.Services.Pull;
 using Xunit;
 
@@ -164,5 +165,33 @@ public class PullIntentServiceTests
         // Fresh pull
         sut.Update(false, false, null, false, isInCombat: true, utcNow: T0.AddSeconds(15));
         Assert.Equal(PullIntent.Active, sut.Current);
+    }
+
+    // ── CountdownRemaining ──────────────────────────────────────────────────────
+
+    [Fact]
+    public void CountdownRemaining_is_null_when_no_probe_injected()
+    {
+        var sut = new PullIntentService();
+        Assert.Null(sut.CountdownRemaining);
+    }
+
+    [Fact]
+    public void CountdownRemaining_is_null_when_probe_returns_null()
+    {
+        var probe = new Mock<ICountdownProbe>();
+        probe.Setup(p => p.GetCountdownRemaining()).Returns((float?)null);
+        var sut = new PullIntentService(probe.Object);
+        Assert.Null(sut.CountdownRemaining);
+    }
+
+    [Fact]
+    public void CountdownRemaining_forwards_probe_value_after_Update()
+    {
+        var probe = new Mock<ICountdownProbe>();
+        probe.Setup(p => p.GetCountdownRemaining()).Returns(7.5f);
+        var sut = new PullIntentService(probe.Object);
+        sut.Update(false, false, null, false, false, T0);
+        Assert.Equal(7.5f, sut.CountdownRemaining);
     }
 }

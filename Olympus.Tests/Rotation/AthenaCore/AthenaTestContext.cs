@@ -47,7 +47,8 @@ public static class AthenaTestContext
         bool canExecuteOgcd = false,
         int aetherflowStacks = 3,
         int fairyGauge = 50,
-        AthenaDebugState? debugState = null)
+        AthenaDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultScholarConfiguration();
 
@@ -133,6 +134,7 @@ public static class AthenaTestContext
             cooldownPlanner.Object,
             healingSpellSelector.Object,
             timelineService: timelineService?.Object,
+            countdownRemaining: countdownRemaining,
             debugState: debugState ?? new AthenaDebugState());
     }
 

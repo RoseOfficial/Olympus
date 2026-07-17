@@ -148,6 +148,7 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
             partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             debugState: _debugState,
             log: Log);
     }

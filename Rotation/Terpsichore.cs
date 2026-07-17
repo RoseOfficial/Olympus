@@ -243,6 +243,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

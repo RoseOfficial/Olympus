@@ -52,6 +52,7 @@ public sealed class ThanatosContext : IThanatosContext
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
     public bool HasSwiftcast => false; // Melee DPS don't use Swiftcast
+    public float? CountdownRemaining { get; }
 
     #endregion
 
@@ -154,6 +155,7 @@ public sealed class ThanatosContext : IThanatosContext
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        float? countdownRemaining = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -177,6 +179,7 @@ public sealed class ThanatosContext : IThanatosContext
         TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
+        CountdownRemaining = countdownRemaining;
         Log = log;
 
         StatusHelper = statusHelper;

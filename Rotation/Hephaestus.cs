@@ -248,6 +248,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

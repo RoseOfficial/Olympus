@@ -113,6 +113,7 @@ public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
+        float? countdownRemaining = null,
         AsclepiusDebugState? debugState = null,
         IPluginLog? log = null)
         : base(player, inCombat, isMoving, canExecuteGcd, canExecuteOgcd,
@@ -121,7 +122,8 @@ public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
-               partyCoordinationService, timelineService, trainingService, log)
+               partyCoordinationService, timelineService, trainingService,
+               countdownRemaining: countdownRemaining, log: log)
     {
         AddersgallService = addersgallService;
         AdderstingService = adderstingService;

@@ -86,7 +86,8 @@ public static class PersephoneTestContext
         bool hasUsedEnkindleThisPhase = false,
         bool hasUsedAstralFlowThisPhase = false,
         bool hasPetSummoned = false,
-        PersephoneDebugState? debugState = null)
+        PersephoneDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultSmnConfiguration();
 
@@ -188,6 +189,7 @@ public static class PersephoneTestContext
 
         // Coordination / party
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
 

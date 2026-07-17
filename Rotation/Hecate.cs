@@ -212,6 +212,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
             timelineService: _timelineService,
             trainingService: _trainingService,
             partyCoordinationService: _partyCoordinationService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

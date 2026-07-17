@@ -49,6 +49,13 @@ public interface IRotationContext
     /// </summary>
     bool CanExecuteOgcd { get; }
 
+    /// <summary>
+    /// Seconds remaining on the party countdown timer, or null when no countdown is active.
+    /// Sourced from <c>IPullIntentService.CountdownRemaining</c> and refreshed each frame.
+    /// Null during combat and when no countdown is running.
+    /// </summary>
+    float? CountdownRemaining { get; }
+
     #endregion
 
     #region Core Services

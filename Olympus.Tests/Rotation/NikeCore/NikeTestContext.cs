@@ -53,7 +53,8 @@ public static class NikeTestContext
         bool hasZanshinReady = false,
         bool hasHiganbanaOnTarget = false,
         float higanbanaRemaining = 0f,
-        NikeDebugState? debugState = null)
+        NikeDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultSamuraiConfiguration();
 
@@ -84,6 +85,7 @@ public static class NikeTestContext
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
         mock.Setup(x => x.TimelineService).Returns((ITimelineService?)null);
         mock.Setup(x => x.StatusHelper).Returns(statusHelper);
         mock.Setup(x => x.PartyHelper).Returns(partyHelper);

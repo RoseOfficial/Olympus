@@ -39,7 +39,8 @@ public static class ThemisTestContext
         int comboStep = 0,
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
-        ThemisDebugState? debugState = null)
+        ThemisDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultPaladinConfiguration();
 
@@ -109,7 +110,8 @@ public static class ThemisTestContext
             oathGauge,
             comboStep,
             lastComboAction,
-            comboTimeRemaining);
+            comboTimeRemaining,
+            countdownRemaining: countdownRemaining);
     }
 
     /// <summary>

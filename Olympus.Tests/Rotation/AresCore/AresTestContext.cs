@@ -43,7 +43,8 @@ public static class AresTestContext
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
         bool hasDefiance = false,
-        AresDebugState? debugState = null)
+        AresDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultWarriorConfiguration();
 
@@ -113,7 +114,8 @@ public static class AresTestContext
             beastGauge,
             comboStep,
             lastComboAction,
-            comboTimeRemaining);
+            comboTimeRemaining,
+            countdownRemaining: countdownRemaining);
     }
 
     /// <summary>

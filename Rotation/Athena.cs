@@ -249,6 +249,7 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             debugState: _debugState,
             log: Log);
     }

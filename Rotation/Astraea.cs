@@ -245,6 +245,7 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
             partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             debugState: _debugState,
             log: Log);
     }

@@ -41,7 +41,8 @@ public static class HephaestusTestContext
         int comboStep = 0,
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
-        HephaestusDebugState? debugState = null)
+        HephaestusDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultGunbreakerConfiguration();
 
@@ -113,7 +114,8 @@ public static class HephaestusTestContext
             reignComboStep,
             comboStep,
             lastComboAction,
-            comboTimeRemaining);
+            comboTimeRemaining,
+            countdownRemaining: countdownRemaining);
     }
 
     /// <summary>

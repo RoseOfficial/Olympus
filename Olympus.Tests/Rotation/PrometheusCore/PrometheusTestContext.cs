@@ -60,7 +60,8 @@ public static class PrometheusTestContext
         int comboStep = 0,
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
-        PrometheusDebugState? debugState = null)
+        PrometheusDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultMachinistConfiguration();
 
@@ -91,6 +92,7 @@ public static class PrometheusTestContext
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
         mock.Setup(x => x.TimelineService).Returns(timelineService);
         mock.Setup(x => x.StatusHelper).Returns(statusHelper);
         mock.Setup(x => x.PartyHelper).Returns(partyHelper);

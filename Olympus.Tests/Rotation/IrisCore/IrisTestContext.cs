@@ -102,7 +102,8 @@ public static class IrisTestContext
         (float avgHpPercent, float lowestHpPercent, int injuredCount) partyHealthMetrics = default,
         uint currentHp = 50000,
         uint maxHp = 50000,
-        IrisDebugState? debugState = null)
+        IrisDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultPctConfiguration();
 
@@ -225,6 +226,7 @@ public static class IrisTestContext
 
         // Coordination / party
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
 

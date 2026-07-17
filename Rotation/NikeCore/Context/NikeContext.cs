@@ -52,6 +52,7 @@ public sealed class NikeContext : INikeContext
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
     public bool HasSwiftcast => false; // Melee DPS don't use Swiftcast
+    public float? CountdownRemaining { get; }
 
     #endregion
 
@@ -148,6 +149,7 @@ public sealed class NikeContext : INikeContext
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        float? countdownRemaining = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -171,6 +173,7 @@ public sealed class NikeContext : INikeContext
         TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
+        CountdownRemaining = countdownRemaining;
         Log = log;
 
         StatusHelper = statusHelper;

@@ -85,6 +85,12 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     protected readonly Olympus.Services.Consumables.ITinctureDispatcher? TinctureDispatcher;
     protected readonly Olympus.Rotation.Common.Modules.PrePullModule? PrePullModule;
 
+    /// <summary>
+    /// Pull-intent service stored for <c>CreateContext</c> implementations to read
+    /// <c>CountdownRemaining</c> each frame. Null when the service is not registered.
+    /// </summary>
+    protected readonly Olympus.Services.Pull.IPullIntentService? PullIntentService;
+
     #endregion
 
     #region Private Fields
@@ -151,6 +157,8 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
         ErrorMetrics = errorMetrics;
         BurstWindowService = burstWindowService;
         TinctureDispatcher = tinctureDispatcher;
+
+        PullIntentService = pullIntentService;
 
         // Construct PrePullModule with TinctureCandidate when both deps are available.
         // Future per-job pre-pull weaves register additional candidates in concrete rotations.

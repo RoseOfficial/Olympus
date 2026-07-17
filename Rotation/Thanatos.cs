@@ -261,6 +261,7 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

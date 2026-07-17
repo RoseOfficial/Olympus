@@ -49,7 +49,8 @@ public static class AstraeaTestContext
         bool hasCard = false,
         int sealCount = 0,
         int uniqueSealCount = 0,
-        AstraeaDebugState? debugState = null)
+        AstraeaDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultAstrologianConfiguration();
 
@@ -136,6 +137,7 @@ public static class AstraeaTestContext
             cooldownPlanner.Object,
             healingSpellSelector.Object,
             bossMechanicDetector: bossMechanicDetector?.Object,
+            countdownRemaining: countdownRemaining,
             debugState: debugState ?? new AstraeaDebugState());
     }
 

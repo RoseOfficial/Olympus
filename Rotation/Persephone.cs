@@ -293,6 +293,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

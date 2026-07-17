@@ -64,7 +64,8 @@ public static class HermesTestContext
         float kunaisBaneRemaining = 0f,
         bool hasDokumoriOnTarget = false,
         float dokumoriRemaining = 0f,
-        HermesDebugState? debugState = null)
+        HermesDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultNinjaConfiguration();
 
@@ -96,6 +97,7 @@ public static class HermesTestContext
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+        mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
         mock.Setup(x => x.TimelineService).Returns((ITimelineService?)null);
         mock.Setup(x => x.StatusHelper).Returns(statusHelper);
         mock.Setup(x => x.PartyHelper).Returns(partyHelper);

@@ -40,7 +40,8 @@ public static class NyxTestContext
         int comboStep = 0,
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
-        NyxDebugState? debugState = null)
+        NyxDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultDarkKnightConfiguration();
 
@@ -111,7 +112,8 @@ public static class NyxTestContext
             darksideTimer,
             comboStep,
             lastComboAction,
-            comboTimeRemaining);
+            comboTimeRemaining,
+            countdownRemaining: countdownRemaining);
     }
 
     /// <summary>

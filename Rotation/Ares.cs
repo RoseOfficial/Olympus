@@ -154,6 +154,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

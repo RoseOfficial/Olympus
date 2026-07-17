@@ -204,6 +204,7 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             log: Log);
     }
 

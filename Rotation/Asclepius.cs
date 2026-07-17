@@ -257,6 +257,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
             trainingService: _trainingService,
+            countdownRemaining: PullIntentService?.CountdownRemaining,
             debugState: _debugState,
             log: Log);
     }

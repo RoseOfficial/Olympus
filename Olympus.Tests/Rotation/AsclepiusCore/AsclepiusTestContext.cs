@@ -58,7 +58,8 @@ public static class AsclepiusTestContext
         bool hasSoteria = false,
         bool hasPhilosophia = false,
         Mock<IBossMechanicDetector>? bossMechanicDetector = null,
-        AsclepiusDebugState? debugState = null)
+        AsclepiusDebugState? debugState = null,
+        float? countdownRemaining = null)
     {
         config ??= CreateDefaultSageConfiguration();
 
@@ -146,6 +147,7 @@ public static class AsclepiusTestContext
             statusHelper,
             partyHelper.Object,
             bossMechanicDetector: bossMechanicDetector?.Object,
+            countdownRemaining: countdownRemaining,
             debugState: debugState ?? new AsclepiusDebugState());
     }
 
