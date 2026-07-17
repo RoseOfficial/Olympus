@@ -222,9 +222,11 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                 context.Debug.PhlegmaState = "Phlegma held: burst imminent";
                 return;
             }
-            else if (context.Configuration.HealerShared.EnableBurstPooling && rechargingTime >= 5f)
+            else if (rechargingTime >= 5f)
             {
-                // Pooling enabled and not about to cap — save the charge for burst
+                // Charge conservation: keep the last charge for movement/AoE flexibility.
+                // This is independent of the burst pooling toggle — always save unless
+                // overcap is imminent (rechargingTime < 5f).
                 context.Debug.PhlegmaState = $"Saving ({charges}/{maxCharges})";
                 return;
             }

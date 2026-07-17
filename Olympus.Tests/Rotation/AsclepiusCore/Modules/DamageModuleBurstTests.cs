@@ -217,10 +217,12 @@ public class DamageModuleBurstTests
     // -----------------------------------------------------------------------
 
     [Fact]
-    public void Phlegma_FiresWhenPoolingDisabledEvenIfBurstImminent()
+    public void Phlegma_SavesViaChargeConservation_WhenPoolingDisabled()
     {
-        // Identical setup to Phlegma_HeldWhenBurstImminentAndOneCharge, but with
-        // EnableBurstPooling = false. The hold must be the single discriminating variable.
+        // Charge conservation (rechargingTime >= 5f → save last charge) is independent of
+        // EnableBurstPooling. With pooling OFF and 1 charge recharging slowly, the save path
+        // must still fire — the "Saving (1/2)" debug string discriminates it from the burst-
+        // hold path ("Phlegma held: burst imminent").
         var burstSvc = new Mock<IBurstWindowService>();
         burstSvc.Setup(x => x.IsInBurstWindow).Returns(false);
         burstSvc.Setup(x => x.IsBurstImminent(It.IsAny<float>())).Returns(true);
@@ -230,16 +232,6 @@ public class DamageModuleBurstTests
         config.Sage.EnablePhlegma = true;
         config.HealerShared.EnableBurstPooling = false;
 
-        var enemy = new Mock<IBattleNpc>();
-        enemy.Setup(x => x.GameObjectId).Returns(42ul);
-
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemy(
-                It.IsAny<EnemyTargetingStrategy>(),
-                It.IsAny<float>(),
-                It.IsAny<IPlayerCharacter>()))
-            .Returns(enemy.Object);
-
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
         actionService.Setup(x => x.GetCurrentCharges(It.IsAny<uint>())).Returns(1u);
         actionService.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(30f);
@@ -247,7 +239,6 @@ public class DamageModuleBurstTests
         var context = AsclepiusTestContext.Create(
             config: config,
             actionService: actionService,
-            targetingService: targetingService,
             level: 100,
             inCombat: true);
 
@@ -255,7 +246,8 @@ public class DamageModuleBurstTests
         module.CollectCandidates(context, scheduler, isMoving: false);
 
         var gcdQueue = scheduler.InspectGcdQueue();
-        Assert.Contains(gcdQueue, c => c.Behavior.Action.ActionId == SGEActions.PhlegmaIII.ActionId);
+        Assert.DoesNotContain(gcdQueue, c => c.Behavior.Action.ActionId == SGEActions.PhlegmaIII.ActionId);
+        Assert.Equal("Saving (1/2)", context.Debug.PhlegmaState);
     }
 
     [Fact]
