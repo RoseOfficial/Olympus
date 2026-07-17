@@ -97,6 +97,68 @@ public class ShieldHealingHandlerSchedulerTests
     }
 
     /// <summary>
+    /// Raidwide imminent + party at full HP -> guard calls FindLowestHpPartyMember to
+    /// check for existing E.Prognosis shields before arming Eukrasia. With a null member
+    /// (default mock, no shield), Eukrasia dispatches normally.
+    ///
+    /// RED before fix: FindLowestHpPartyMember was never called in the arm path.
+    /// GREEN after fix: FindLowestHpPartyMember is called once (shield guard wired).
+    ///
+    /// Note: the "already shielded -> no dispatch" case is not unit-testable.
+    /// HasEukrasianPrognosisShield reads StatusList (Dalamud native type); returning live
+    /// status entries from a mock is not possible -- StatusList cannot be constructed in
+    /// tests. The guard is verified by code inspection + this call-presence assertion.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_RaidwideImminent_InvokesShieldCheckBeforeArming()
+    {
+        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
+        config.Sage.EnableEukrasianPrognosis = true;
+        config.Sage.AoEHealMinTargets = 2;
+        config.Sage.AoEHealThreshold = 0.80f;
+        config.Healing.EnableMechanicAwareness = true;
+
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        // Full health, nobody injured; reactive path would not fire on its own.
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(
+                It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns((avgHpPercent: 1.0f, lowestHpPercent: 1.0f, injuredCount: 0));
+        // FindLowestHpPartyMember returns null (default mock) -> null guard skips,
+        // HasEukrasianPrognosisShield is never reached -> shouldActivateForAoE stays true.
+
+        var bossMechanicDetector = new Mock<IBossMechanicDetector>();
+        bossMechanicDetector.Setup(x => x.IsRaidwideImminent).Returns(true);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Eukrasia.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = AsclepiusTestContext.Create(
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            level: 100,
+            canExecuteGcd: true,
+            hasEukrasia: false,
+            bossMechanicDetector: bossMechanicDetector);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _handler.CollectCandidates(context, scheduler, isMoving: false);
+
+        // Shield guard is wired: FindLowestHpPartyMember must have been called once.
+        partyHelper.Verify(p => p.FindLowestHpPartyMember(
+            It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>(),
+            It.IsAny<int>()), Times.Once);
+        // Null member returned -> no shield found -> Eukrasia still dispatches.
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Eukrasia.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    /// <summary>
     /// Raidwide imminent + party at full HP -> Eukrasia is direct-dispatched proactively
     /// so E.Prognosis shields land before the hit. Nobody is injured yet, so this is
     /// purely a proactive trigger (the reactive injuredCount path would not fire).

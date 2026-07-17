@@ -45,6 +45,16 @@ public sealed class ShieldHealingHandler : IHealingHandler
                                    (raidwideImminent ||
                                     (injuredCount >= config.AoEHealMinTargets &&
                                      avgHp < config.AoEHealThreshold));
+
+        // Don't re-arm Eukrasia for AoE when E.Prognosis shields are already up.
+        // Symmetrical with the guard in TryPushEukrasianHealSpell; both sides agree.
+        if (shouldActivateForAoE)
+        {
+            var shieldCheckTarget = context.PartyHelper.FindLowestHpPartyMember(player);
+            if (shieldCheckTarget != null && AsclepiusStatusHelper.HasEukrasianPrognosisShield(shieldCheckTarget))
+                shouldActivateForAoE = false;
+        }
+
         var shouldActivateForSt = config.EnableEukrasianDiagnosis &&
                                   lowestHp < config.EukrasianDiagnosisThreshold;
 
@@ -71,6 +81,15 @@ public sealed class ShieldHealingHandler : IHealingHandler
         // Prefer AoE if multiple injured or raidwide is imminent (proactive shields before the hit)
         if (config.EnableEukrasianPrognosis && (raidwideImminent || injuredCount >= config.AoEHealMinTargets))
         {
+            // Skip if party already has E.Prognosis shields -- avoids wasting a GCD and 1000 MP
+            // re-casting identical shields mid-raidwide phase.
+            var lowestHpMember = context.PartyHelper.FindLowestHpPartyMember(player);
+            if (lowestHpMember != null && AsclepiusStatusHelper.HasEukrasianPrognosisShield(lowestHpMember))
+            {
+                context.Debug.EukrasianPrognosisState = "Already shielded";
+                return;
+            }
+
             var aoeAction = player.Level >= SGEActions.EukrasianPrognosisII.MinLevel
                 ? SGEActions.EukrasianPrognosisII
                 : SGEActions.EukrasianPrognosis;
