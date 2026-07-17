@@ -461,7 +461,20 @@ public sealed class BuffModule : ITerpsichoreModule
 
         bool inBurst = context.HasDevilment || context.HasTechnicalFinish;
         bool shouldUse = context.Feathers >= featherConfig.FeatherOvercapThreshold || inBurst;
-        if (!shouldUse && featherConfig.SaveFeathersForBurst) return;
+        if (!shouldUse)
+        {
+            // Downtime dump: convert feathers before boss becomes untargetable.
+            // Requires >= 3 feathers so the dump is meaningful.
+            if (context.Feathers >= 3
+                && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f))
+            {
+                // Bypass save-for-burst; fall through to push
+            }
+            else if (featherConfig.SaveFeathersForBurst)
+            {
+                return;
+            }
+        }
 
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
         context.Debug.NearbyEnemies = enemyCount;

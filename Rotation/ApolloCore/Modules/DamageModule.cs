@@ -172,10 +172,13 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         //   isMoving       — Misery is instant; always use it during forced movement.
         //   lilyCount >= 3 — white lilies are full; a 4th auto-tick would cap and waste a
         //                    blood-lily point. Clear Misery now to stay clean.
+        // B2 interplay rule: dump check added as additional escape so downtime overrides burst hold.
+        // Misery is instant and its blood-lily resource is lost during untargetable phases.
         if (context.Configuration.HealerShared.EnableBurstPooling &&
             ShouldHoldForBurst() &&
             !isMoving &&
-            context.LilyCount < 3)
+            context.LilyCount < 3 &&
+            !BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f))
         {
             context.Debug.MiseryState = $"Holding for burst ({_burstWindowService?.SecondsUntilNextBurst:F1}s)";
             return;

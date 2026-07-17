@@ -451,8 +451,13 @@ public sealed class DamageModule : IIrisModule
         if (!context.Configuration.Pictomancer.EnableHolyInWhite) return;
         if (context.Player.Level < PCTActions.HolyInWhite.MinLevel) return;
         if (!context.HasWhitePaint) return;
-        if (!isMoving && context.WhitePaint < 4 && !context.IsInBurstWindow) return;
-        if (!isMoving && context.PaletteGauge < context.Configuration.Pictomancer.HolyMinPalette && !context.IsInBurstWindow) return;
+        // Downtime dump: fire Holy in White at 4 paint before boss goes untargetable.
+        // Paint is lost during untargetable phases; dump beats PaletteGauge threshold gating.
+        var dumpForDowntime = context.WhitePaint >= 4
+            && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f);
+        if (!isMoving && context.WhitePaint < 4 && !context.IsInBurstWindow && !dumpForDowntime) return;
+        if (!isMoving && context.PaletteGauge < context.Configuration.Pictomancer.HolyMinPalette
+            && !context.IsInBurstWindow && !dumpForDowntime) return;
 
         scheduler.PushGcd(IrisAbilities.HolyInWhite, target.GameObjectId, priority: 6,
             onDispatched: _ =>

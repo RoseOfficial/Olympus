@@ -374,7 +374,29 @@ public sealed class DamageModule : IHecateModule
         // Respect minimum stack threshold before spending non-cap stacks
         if (context.PolyglotStacks < cfg.PolyglotMinStacks) return;
 
-        if (cfg.EnableBurstPooling && ShouldHoldForBurst(8f) && context.PolyglotStacks < 2) return;
+        // B2 interplay rule: dump check added to the hold condition so downtime overrides burst hold.
+        // Polyglot stacks are lost during untargetable phases; spending beats alignment.
+        if (cfg.EnableBurstPooling && ShouldHoldForBurst(8f) && context.PolyglotStacks < 2
+            && !BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f)) return;
+
+        // Stationary downtime dump: fire Xenoglossy before boss goes untargetable.
+        // Reached when (a) burst hold was escaped via downtime dump, or (b) hold is disabled.
+        // Without downtime, stationary Polyglot is reserved for burst windows and handled by
+        // Fire/Ice phase GCDs; only push here when actively spending before downtime.
+        if (!isMoving && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f))
+        {
+            var (dumpAction, dumpAbility) = SelectPolyglotAction(context, level, useAoe);
+            if (dumpAction != null && dumpAbility != null && level >= dumpAction.MinLevel)
+            {
+                scheduler.PushGcd(dumpAbility, target.GameObjectId, priority: 3,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = dumpAction.Name;
+                        context.Debug.DamageState = $"{dumpAction.Name} (downtime dump)";
+                    });
+                return;
+            }
+        }
 
         if (isMoving && !context.HasInstantCast)
         {

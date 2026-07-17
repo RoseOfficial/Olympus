@@ -221,6 +221,11 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
             {
                 // In the burst window — fire Phlegma for buffed potency; fall through to push
             }
+            else if (BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f))
+            {
+                // B2 interplay rule: downtime dump check ABOVE burst hold.
+                // Convert charge before boss goes untargetable; fall through to push
+            }
             else if (context.Configuration.HealerShared.EnableBurstPooling && ShouldHoldForBurst())
             {
                 context.Debug.PhlegmaState = "Phlegma held: burst imminent";

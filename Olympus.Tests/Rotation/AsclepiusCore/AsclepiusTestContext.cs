@@ -18,6 +18,7 @@ using Olympus.Services.Sage;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
 
 namespace Olympus.Tests.Rotation.AsclepiusCore;
 
@@ -58,6 +59,7 @@ public static class AsclepiusTestContext
         bool hasSoteria = false,
         bool hasPhilosophia = false,
         Mock<IBossMechanicDetector>? bossMechanicDetector = null,
+        Mock<ITimelineService>? timelineService = null,
         AsclepiusDebugState? debugState = null,
         float? countdownRemaining = null,
         float combatDuration = 0f)
@@ -149,6 +151,7 @@ public static class AsclepiusTestContext
             statusHelper,
             partyHelper.Object,
             bossMechanicDetector: bossMechanicDetector?.Object,
+            timelineService: timelineService?.Object,
             countdownRemaining: countdownRemaining,
             debugState: debugState ?? new AsclepiusDebugState());
     }

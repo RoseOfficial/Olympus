@@ -381,6 +381,13 @@ public sealed class DamageModule : IPersephoneModule
     {
         var player = context.Player;
         if (player.Level < SMNActions.Aethercharge.MinLevel) return;
+
+        // Long-commit guard: do not start a demi-summon when an untargetable phase is within 18 s.
+        // The full demi cycle (summon + all GCDs) takes ~18 s; beginning it now would waste most or
+        // all summon ticks during the boss-untargetable window.
+        // Gems (Ruby/Topaz/Emerald) persist across downtime, so they are recovered after.
+        if (BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 18f)) return;
+
         // If player opted out of demi during burst and we're in a burst window, defer
         if (!context.Configuration.Summoner.UseDemiDuringBurst && context.HasSearingLight) return;
 

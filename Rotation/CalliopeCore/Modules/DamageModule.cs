@@ -321,6 +321,13 @@ public sealed class DamageModule : ICalliopeModule
                          || (context.SoulVoice >= apexThreshold &&
                              (IsInBurst || context.HasRagingStrikes
                               || !context.ActionService.IsActionReady(BRDActions.RagingStrikes.ActionId)));
+
+        // Downtime dump: fire Apex Arrow at 80+ Soul Voice before boss goes untargetable.
+        // Soul Voice is lost during untargetable phases; spending now beats burst alignment.
+        if (!shouldUse && context.SoulVoice >= 80
+            && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f))
+            shouldUse = true;
+
         if (!shouldUse)
         {
             context.Debug.DamageState = $"Apex Arrow: {context.SoulVoice}/{normalThreshold}";

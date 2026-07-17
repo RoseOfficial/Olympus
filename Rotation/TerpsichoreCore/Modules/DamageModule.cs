@@ -249,6 +249,13 @@ public sealed class DamageModule : ITerpsichoreModule
             ? espritConfig.SaberDanceMinGauge
             : espritConfig.EspritOvercapThreshold;
         bool shouldUse = context.Esprit >= espritThreshold;
+
+        // Downtime dump: fire Saber Dance at minimum viable Esprit before boss goes untargetable.
+        // Esprit is lost during untargetable phases; dump at 50 to clear as much gauge as possible.
+        if (!shouldUse && context.Esprit >= 50
+            && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f))
+            shouldUse = true;
+
         if (!shouldUse) return;
         if (!context.ActionService.IsActionReady(DNCActions.SaberDance.ActionId)) return;
         var castTime = context.HasSwiftcast ? 0f : DNCActions.SaberDance.CastTime;
