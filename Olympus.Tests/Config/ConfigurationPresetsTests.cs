@@ -1,4 +1,5 @@
 using Olympus.Config;
+using Olympus.Config.DPS;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Tests.Config;
@@ -491,5 +492,17 @@ public class ConfigurationPresetsTests
         ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Raid);
 
         Assert.Equal(EnemyTargetingStrategy.TankAssist, config.Targeting.EnemyStrategy);
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // BLM Ley Lines strategy: Raid preset sets OpenerOnly
+    // ──────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Raid_SetsBLMLeylinesStrategy_OpenerOnly()
+    {
+        var config = new Configuration();
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Raid);
+        Assert.Equal(LeylinesStrategy.OpenerOnly, config.BlackMage.LeylinesStrategy);
     }
 }

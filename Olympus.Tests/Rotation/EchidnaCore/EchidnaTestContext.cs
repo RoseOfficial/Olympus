@@ -66,7 +66,8 @@ public static class EchidnaTestContext
         bool hasNoxiousGnash = false,
         float noxiousGnashRemaining = 0f,
         EchidnaDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultViperConfiguration();
 
@@ -148,6 +149,7 @@ public static class EchidnaTestContext
         mock.Setup(x => x.NoxiousGnashRemaining).Returns(noxiousGnashRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

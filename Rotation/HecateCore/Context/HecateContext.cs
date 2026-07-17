@@ -31,6 +31,7 @@ public sealed class HecateContext : IHecateContext
     public bool IsMoving { get; }
     public bool CanExecuteGcd { get; }
     public bool CanExecuteOgcd { get; }
+    public float CombatDuration => CombatEventService.GetCombatDurationSeconds();
 
     public IActionService ActionService { get; }
     public IActionTracker ActionTracker { get; }

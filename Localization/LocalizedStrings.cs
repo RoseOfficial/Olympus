@@ -1888,6 +1888,10 @@ public static class LocalizedStrings
         public const string UseThunderheadImmediatelyDesc = "config.job.blm.use_thunderhead_immediately_desc";
         public const string RoleActionsSection = "config.job.blm.role_actions_section";
         public const string EnableAddle = "config.job.blm.enable_addle";
+        public const string LeylinesStrategy = "config.job.blm.leylinesStrategy";
+        public const string LeylinesStrategyOnCooldown = "config.job.blm.leylinesStrategy_on_cooldown";
+        public const string LeylinesStrategyOpenerOnly = "config.job.blm.leylinesStrategy_opener_only";
+        public const string LeylinesStrategyManual = "config.job.blm.leylinesStrategy_manual";
     }
 
     /// <summary>Keys for Summoner specific settings.</summary>

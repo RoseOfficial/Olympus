@@ -146,6 +146,11 @@ public sealed class BlackMageConfig
     #region Ley Lines Settings
 
     /// <summary>
+    /// Controls when Ley Lines is placed automatically.
+    /// </summary>
+    public LeylinesStrategy LeylinesStrategy { get; set; } = LeylinesStrategy.OnCooldown;
+
+    /// <summary>
     /// Use Ley Lines during burst windows.
     /// </summary>
     public bool UseLeyLinesDuringBurst { get; set; } = true;
@@ -220,5 +225,26 @@ public sealed class BlackMageConfig
 
     #endregion
 
+}
+
+/// <summary>
+/// Controls when Ley Lines is placed automatically.
+/// </summary>
+public enum LeylinesStrategy
+{
+    /// <summary>
+    /// Use Ley Lines on cooldown (existing behavior).
+    /// </summary>
+    OnCooldown,
+
+    /// <summary>
+    /// Place Ley Lines only during the opener window (first 25 seconds of combat).
+    /// </summary>
+    OpenerOnly,
+
+    /// <summary>
+    /// Never place Ley Lines automatically. Manual use only.
+    /// </summary>
+    Manual
 }
 

@@ -40,7 +40,8 @@ public static class ThemisTestContext
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
         ThemisDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultPaladinConfiguration();
 
@@ -59,6 +60,7 @@ public static class ThemisTestContext
         targetingService ??= MockBuilders.CreateMockTargetingService();
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        combatEventService.Setup(x => x.GetCombatDurationSeconds()).Returns(combatDuration);
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();

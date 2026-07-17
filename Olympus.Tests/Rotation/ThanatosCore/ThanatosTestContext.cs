@@ -66,7 +66,8 @@ public static class ThanatosTestContext
         bool hasDeathsDesign = false,
         float deathsDesignRemaining = 0f,
         ThanatosDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultReaperConfiguration();
 
@@ -148,6 +149,7 @@ public static class ThanatosTestContext
         mock.Setup(x => x.DeathsDesignRemaining).Returns(deathsDesignRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

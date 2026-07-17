@@ -1,4 +1,5 @@
 using Olympus.Config;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.RoleActionHelpers;
@@ -100,6 +101,15 @@ public sealed class BuffModule : IHecateModule
         if (!context.LeyLinesReady) return;
         if (isMoving) return;
         if (context.HasLeyLines) return;
+
+        var strategy = context.Configuration.BlackMage.LeylinesStrategy;
+
+        if (strategy == LeylinesStrategy.Manual)
+        {
+            context.Debug.BuffState = "Ley Lines: manual mode";
+            return;
+        }
+
         if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Ley Lines (phase soon)";
@@ -110,8 +120,22 @@ public sealed class BuffModule : IHecateModule
             context.Debug.BuffState = "Holding Ley Lines (movement soon)";
             return;
         }
-        if (context.Configuration.BlackMage.UseLeyLinesDuringBurst
-            && ShouldHoldForBurst(context.Configuration.BlackMage.LeyLinesHoldTime)) return;
+
+        if (strategy == LeylinesStrategy.OpenerOnly)
+        {
+            if (context.CombatDuration >= 25f)
+            {
+                context.Debug.BuffState = "Holding Ley Lines (opener window closed)";
+                return;
+            }
+            // Opener window: skip burst-hold so Ley Lines fires in the first Astral Fire.
+        }
+        else // OnCooldown
+        {
+            if (context.Configuration.BlackMage.UseLeyLinesDuringBurst
+                && ShouldHoldForBurst(context.Configuration.BlackMage.LeyLinesHoldTime)) return;
+        }
+
         if (!context.InAstralFire && context.InCombat)
         {
             context.Debug.BuffState = "Not in Fire, hold Ley Lines";

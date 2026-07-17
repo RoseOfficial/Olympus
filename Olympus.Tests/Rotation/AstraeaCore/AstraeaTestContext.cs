@@ -51,7 +51,8 @@ public static class AstraeaTestContext
         int sealCount = 0,
         int uniqueSealCount = 0,
         AstraeaDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultAstrologianConfiguration();
 
@@ -77,6 +78,7 @@ public static class AstraeaTestContext
         earthlyStarService ??= CreateMockEarthlyStarService(isStarPlaced: isStarPlaced);
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        combatEventService.Setup(x => x.GetCombatDurationSeconds()).Returns(combatDuration);
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();

@@ -43,7 +43,8 @@ public static class ApolloTestContext
         bool isMoving = false,
         bool canExecuteGcd = true,
         bool canExecuteOgcd = false,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultWhiteMageConfiguration();
 
@@ -62,6 +63,7 @@ public static class ApolloTestContext
         targetingService ??= MockBuilders.CreateMockTargetingService();
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        combatEventService.Setup(x => x.GetCombatDurationSeconds()).Returns(combatDuration);
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();

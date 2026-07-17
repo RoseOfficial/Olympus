@@ -48,7 +48,8 @@ public static class AthenaTestContext
         int aetherflowStacks = 3,
         int fairyGauge = 50,
         AthenaDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultScholarConfiguration();
 
@@ -72,6 +73,7 @@ public static class AthenaTestContext
         fairyStateManager ??= CreateMockFairyStateManager();
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        combatEventService.Setup(x => x.GetCombatDurationSeconds()).Returns(combatDuration);
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();

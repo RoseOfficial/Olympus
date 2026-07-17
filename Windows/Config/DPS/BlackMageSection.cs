@@ -118,6 +118,25 @@ public sealed class BlackMageSection
                 v => config.BlackMage.EnableLeyLines = v,
                 null, save, actionId: BLMActions.LeyLines.ActionId);
 
+            ConfigUIHelpers.BeginDisabledGroup(!config.BlackMage.EnableLeyLines);
+            var strategyNames = Enum.GetNames<LeylinesStrategy>();
+            var currentStrategy = (int)config.BlackMage.LeylinesStrategy;
+            ImGui.SetNextItemWidth(150);
+            if (ImGui.Combo(Loc.T(LocalizedStrings.BlackMage.LeylinesStrategy, "Strategy"), ref currentStrategy, strategyNames, strategyNames.Length))
+            {
+                config.BlackMage.LeylinesStrategy = (LeylinesStrategy)currentStrategy;
+                save();
+            }
+            var strategyDesc = config.BlackMage.LeylinesStrategy switch
+            {
+                LeylinesStrategy.OnCooldown => Loc.T(LocalizedStrings.BlackMage.LeylinesStrategyOnCooldown, "Use on cooldown"),
+                LeylinesStrategy.OpenerOnly => Loc.T(LocalizedStrings.BlackMage.LeylinesStrategyOpenerOnly, "Place only in the opener (first 25s)"),
+                LeylinesStrategy.Manual => Loc.T(LocalizedStrings.BlackMage.LeylinesStrategyManual, "Never place automatically"),
+                _ => ""
+            };
+            ImGui.TextDisabled(strategyDesc);
+            ConfigUIHelpers.EndDisabledGroup();
+
             ConfigUIHelpers.EndIndent();
         }
     }

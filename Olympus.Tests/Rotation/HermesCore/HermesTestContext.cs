@@ -65,7 +65,8 @@ public static class HermesTestContext
         bool hasDokumoriOnTarget = false,
         float dokumoriRemaining = 0f,
         HermesDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultNinjaConfiguration();
 
@@ -147,6 +148,7 @@ public static class HermesTestContext
         mock.Setup(x => x.TargetHasPositionalImmunity).Returns(targetHasPositionalImmunity);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

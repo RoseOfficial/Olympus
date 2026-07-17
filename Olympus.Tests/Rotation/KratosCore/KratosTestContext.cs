@@ -64,7 +64,8 @@ public static class KratosTestContext
         bool hasDemolishOnTarget = false,
         float demolishRemaining = 0f,
         KratosDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultMonkConfiguration();
 
@@ -149,6 +150,7 @@ public static class KratosTestContext
         mock.Setup(x => x.DemolishRemaining).Returns(demolishRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

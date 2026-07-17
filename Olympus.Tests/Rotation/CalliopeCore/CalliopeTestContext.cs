@@ -65,7 +65,8 @@ public static class CalliopeTestContext
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
         CalliopeDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultBardConfiguration();
 
@@ -141,6 +142,7 @@ public static class CalliopeTestContext
         mock.Setup(x => x.ComboTimeRemaining).Returns(comboTimeRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

@@ -42,7 +42,8 @@ public static class HephaestusTestContext
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
         HephaestusDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultGunbreakerConfiguration();
 
@@ -61,6 +62,7 @@ public static class HephaestusTestContext
         targetingService ??= MockBuilders.CreateMockTargetingService();
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        combatEventService.Setup(x => x.GetCombatDurationSeconds()).Returns(combatDuration);
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();

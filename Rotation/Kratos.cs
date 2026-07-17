@@ -184,13 +184,19 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
     /// Solar only or no nadi: OpoOpo (3 same = Elixir Burst = Lunar; Lunar first by convention).
     /// </returns>
     internal static MonkForm ComputePerfectBalanceBuild(
-        bool hasLunar, bool hasSolar, bool hasOpo, bool hasRaptor, bool hasCoeurl)
+        bool hasLunar, bool hasSolar, bool hasOpo, bool hasRaptor, bool hasCoeurl,
+        bool isOpener = false)
     {
         // Both nadi: any 3 Beast Chakra fires Phantom Rush. Opo-opo is highest potency.
         if (hasLunar && hasSolar)
             return MonkForm.OpoOpo;
 
-        // Lunar only: need Solar. Build 3 DIFFERENT chakra (Opo, Raptor, Coeurl) for Rising Phoenix.
+        // Opener + Lunar only: community double-lunar opener keeps building Lunar (Opo x3)
+        // for the second Elixir Field instead of switching to the Solar build.
+        if (isOpener && hasLunar && !hasSolar)
+            return MonkForm.OpoOpo;
+
+        // Lunar only (non-opener): need Solar. Build 3 DIFFERENT chakra for Rising Phoenix.
         if (hasLunar)
         {
             if (!hasOpo) return MonkForm.OpoOpo;

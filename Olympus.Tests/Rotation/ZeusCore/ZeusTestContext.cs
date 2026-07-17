@@ -62,7 +62,8 @@ public static class ZeusTestContext
         bool hasDotOnTarget = false,
         float dotRemaining = 0f,
         ZeusDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultDragoonConfiguration();
 
@@ -143,6 +144,7 @@ public static class ZeusTestContext
         mock.Setup(x => x.DotRemaining).Returns(dotRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

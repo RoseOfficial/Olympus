@@ -54,7 +54,8 @@ public static class NikeTestContext
         bool hasHiganbanaOnTarget = false,
         float higanbanaRemaining = 0f,
         NikeDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultSamuraiConfiguration();
 
@@ -131,6 +132,7 @@ public static class NikeTestContext
         mock.Setup(x => x.TargetHasPositionalImmunity).Returns(targetHasPositionalImmunity);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

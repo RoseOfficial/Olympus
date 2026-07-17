@@ -103,4 +103,56 @@ public class KratosPerfectBalanceBuildTests
         Assert.Equal(MonkForm.OpoOpo,
             Kratos.ComputePerfectBalanceBuild(true, true, hasOpo: true, hasRaptor: false, hasCoeurl: false));
     }
+
+    // ---------------------------------------------------------------
+    // isOpener = true: Lunar-only stays all-same (Opo x3) for double-lunar
+    // ---------------------------------------------------------------
+
+    [Theory]
+    // isOpener + Lunar only: all Opo (keep building Lunar, NOT switching to Solar)
+    [InlineData(true, false, false, false, false, MonkForm.OpoOpo)] // empty: Opo
+    [InlineData(true, false, true,  false, false, MonkForm.OpoOpo)] // have Opo: still Opo (not Raptor!)
+    [InlineData(true, false, true,  true,  false, MonkForm.OpoOpo)] // have Opo+Raptor: still Opo
+    [InlineData(true, false, true,  true,  true,  MonkForm.OpoOpo)] // all filled: still Opo
+    // isOpener + Both nadi: Phantom Rush unchanged
+    [InlineData(true, true, false, false, false, MonkForm.OpoOpo)]
+    // isOpener + Solar only or no nadi: identical to non-opener (Opo x3)
+    [InlineData(false, true,  false, false, false, MonkForm.OpoOpo)]
+    [InlineData(false, false, false, false, false, MonkForm.OpoOpo)]
+    public void ComputePerfectBalanceBuild_IsOpener_ReturnsExpectedForm(
+        bool hasLunar, bool hasSolar,
+        bool hasOpo, bool hasRaptor, bool hasCoeurl,
+        MonkForm expected)
+    {
+        var result = Kratos.ComputePerfectBalanceBuild(
+            hasLunar, hasSolar, hasOpo, hasRaptor, hasCoeurl, isOpener: true);
+        Assert.Equal(expected, result);
+    }
+
+    /// <summary>Discrimination: non-opener Lunar-only DOES switch to Solar (Raptor/Coeurl).</summary>
+    [Theory]
+    [InlineData(true, false, true, false, false, MonkForm.Raptor)] // have Opo, isOpener false -> Raptor
+    [InlineData(true, false, true, true,  false, MonkForm.Coeurl)] // have Opo+Raptor, isOpener false -> Coeurl
+    public void ComputePerfectBalanceBuild_IsOpenerFalse_LunarOnly_SwitchesToSolar(
+        bool hasLunar, bool hasSolar,
+        bool hasOpo, bool hasRaptor, bool hasCoeurl,
+        MonkForm expected)
+    {
+        var result = Kratos.ComputePerfectBalanceBuild(
+            hasLunar, hasSolar, hasOpo, hasRaptor, hasCoeurl, isOpener: false);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void FullSequence_IsOpener_LunarOnly_ProducesOpoOpoOpo()
+    {
+        // During the opener with Lunar nadi, the second PB keeps building Lunar (Opo x3)
+        // rather than switching to Solar (Opo -> Raptor -> Coeurl).
+        Assert.Equal(MonkForm.OpoOpo,
+            Kratos.ComputePerfectBalanceBuild(true, false, hasOpo: false, hasRaptor: false, hasCoeurl: false, isOpener: true));
+        Assert.Equal(MonkForm.OpoOpo,
+            Kratos.ComputePerfectBalanceBuild(true, false, hasOpo: true, hasRaptor: false, hasCoeurl: false, isOpener: true));
+        Assert.Equal(MonkForm.OpoOpo,
+            Kratos.ComputePerfectBalanceBuild(true, false, hasOpo: true, hasRaptor: true, hasCoeurl: false, isOpener: true));
+    }
 }

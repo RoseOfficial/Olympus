@@ -103,7 +103,8 @@ public static class IrisTestContext
         uint currentHp = 50000,
         uint maxHp = 50000,
         IrisDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultPctConfiguration();
 
@@ -229,6 +230,7 @@ public static class IrisTestContext
         mock.Setup(x => x.CountdownRemaining).Returns(countdownRemaining);
 
         mock.Setup(x => x.Debug).Returns(debug);
+        mock.Setup(x => x.CombatDuration).Returns(combatDuration);
 
         return mock.Object;
     }

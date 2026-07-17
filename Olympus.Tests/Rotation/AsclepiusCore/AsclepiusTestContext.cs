@@ -59,7 +59,8 @@ public static class AsclepiusTestContext
         bool hasPhilosophia = false,
         Mock<IBossMechanicDetector>? bossMechanicDetector = null,
         AsclepiusDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultSageConfiguration();
 
@@ -87,6 +88,7 @@ public static class AsclepiusTestContext
         eukrasiaService ??= CreateMockEukrasiaService();
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        combatEventService.Setup(x => x.GetCombatDurationSeconds()).Returns(combatDuration);
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();

@@ -726,7 +726,8 @@ public sealed class DamageModule : IKratosModule
         var hasCoeurl = context.BeastChakra1 == 3 || context.BeastChakra2 == 3 || context.BeastChakra3 == 3;
 
         var form = Kratos.ComputePerfectBalanceBuild(
-            context.HasLunarNadi, context.HasSolarNadi, hasOpo, hasRaptor, hasCoeurl);
+            context.HasLunarNadi, context.HasSolarNadi, hasOpo, hasRaptor, hasCoeurl,
+            isOpener: context.CombatDuration < 30f);
 
         return form switch
         {

@@ -32,6 +32,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
     public bool CanExecuteGcd { get; }
     public bool CanExecuteOgcd { get; }
     public float? CountdownRemaining { get; }
+    public float CombatDuration => CombatEventService.GetCombatDurationSeconds();
 
     #endregion
 

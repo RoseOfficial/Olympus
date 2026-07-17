@@ -1,3 +1,4 @@
+using Olympus.Config.DPS;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Config;
@@ -183,6 +184,10 @@ public static class ConfigurationPresets
         config.CasterShared.LucidDreamingThreshold = 0.70f;
         config.HealerShared.LucidDreamingThreshold = 0.70f;
         config.HealerShared.EnableBurstPooling = true;
+
+        // BLM Ley Lines: restrict to opener only in high-end content where later placements
+        // conflict with forced movement mechanics.
+        config.BlackMage.LeylinesStrategy = LeylinesStrategy.OpenerOnly;
 
         // Targeting -- follow the main tank in 8-player content so co-healers and DPS
         // hit the same enemy. TankAssistFallback (default true) covers the brief window

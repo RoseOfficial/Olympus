@@ -44,7 +44,8 @@ public static class AresTestContext
         float comboTimeRemaining = 0f,
         bool hasDefiance = false,
         AresDebugState? debugState = null,
-        float? countdownRemaining = null)
+        float? countdownRemaining = null,
+        float combatDuration = 0f)
     {
         config ??= CreateDefaultWarriorConfiguration();
 
@@ -63,6 +64,7 @@ public static class AresTestContext
         targetingService ??= MockBuilders.CreateMockTargetingService();
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        combatEventService.Setup(x => x.GetCombatDurationSeconds()).Returns(combatDuration);
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var damageTrendService = MockBuilders.CreateMockDamageTrendService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();

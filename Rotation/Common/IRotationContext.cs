@@ -35,6 +35,11 @@ public interface IRotationContext
     bool InCombat { get; }
 
     /// <summary>
+    /// Seconds elapsed since combat began. Returns 0f when not in combat.
+    /// </summary>
+    float CombatDuration { get; }
+
+    /// <summary>
     /// Whether the player is currently moving.
     /// </summary>
     bool IsMoving { get; }
