@@ -163,6 +163,22 @@ public sealed class GeneralSection
                 "Auto-targeting ignores enemies with invulnerability effects (boss phase transitions, immune adds, invulnerable objects). Prevents wasting actions on targets that take no damage."),
             this.save);
 
+        ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.UseAttackMarkers, "Respect attack markers"),
+            () => this.config.Targeting.UseAttackMarkers,
+            v => this.config.Targeting.UseAttackMarkers = v,
+            Loc.T(LocalizedStrings.Targeting.UseAttackMarkersDesc,
+                "When party leaders assign Attack1-8 markers, auto-targeting focuses them in marker-number order ahead of the normal HP/distance strategy. Does not affect Current Target or Focus Target modes."),
+            this.save);
+
+        ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.FilterStopMarkers, "Skip stop-marked enemies"),
+            () => this.config.Targeting.FilterStopMarkers,
+            v => this.config.Targeting.FilterStopMarkers = v,
+            Loc.T(LocalizedStrings.Targeting.FilterStopMarkersDesc,
+                "Excludes enemies bearing Stop1 or Stop2 markers from auto-targeting. Prevents accidentally attacking enemies your group has decided to skip. Does not affect Current Target or Focus Target modes."),
+            this.save);
+
         ConfigUIHelpers.Spacing();
 
         // Movement tolerance

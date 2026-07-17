@@ -65,6 +65,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly CooldownPlanner cooldownPlanner;
     private readonly TargetingService targetingService;
     private readonly GapCloserSafetyService gapCloserSafetyService;
+    private readonly DalamudMarkerProbe markerProbe;
     private readonly ShieldTrackingService shieldTrackingService;
     private readonly HpPredictionService hpPredictionService;
     private readonly ActionService actionService;
@@ -221,7 +222,8 @@ public sealed class Plugin : IDalamudPlugin
         this.damageTrendService = new DamageTrendService(damageIntakeService, healingIntakeService);
         this.cooldownPlanner = new CooldownPlanner(damageIntakeService, damageTrendService, configuration);
         this.gapCloserSafetyService = new GapCloserSafetyService(configuration, targetManager);
-        this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration, gapCloserSafetyService);
+        this.markerProbe = new DalamudMarkerProbe();
+        this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration, gapCloserSafetyService, markerProbe);
         this.shieldTrackingService = new ShieldTrackingService(objectTable, partyList, log);
 
         // New action system services
@@ -556,6 +558,7 @@ public sealed class Plugin : IDalamudPlugin
         container.Register<IDamageTrendService, DamageTrendService>(damageTrendService);
         container.Register<ITargetingService, TargetingService>(targetingService);
         container.Register<IGapCloserSafetyService, GapCloserSafetyService>(gapCloserSafetyService);
+        container.Register<IMarkerProbe, DalamudMarkerProbe>(markerProbe);
         container.Register<IHpPredictionService, HpPredictionService>(hpPredictionService);
         container.Register<IPlayerStatsService, PlayerStatsService>(playerStatsService);
         container.Register<IDebuffDetectionService, DebuffDetectionService>(debuffDetectionService);

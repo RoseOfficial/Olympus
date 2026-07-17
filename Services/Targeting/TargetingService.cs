@@ -31,6 +31,12 @@ public sealed class TargetingService : ITargetingService
     // Reusable work list for AoE target methods (all called from game thread)
     private readonly List<IBattleNpc> _aoeWorkList = new();
 
+    // Optional marker probe — null when not available (existing tests, no prod registration)
+    private readonly IMarkerProbe? _markerProbe;
+
+    // Reusable set for stop-mark IDs; rebuilt each GetValidEnemies cache flush (no per-frame alloc)
+    private readonly HashSet<ulong> _stopMarkedIds = new(2);
+
     // Tank job IDs: PLD=19, WAR=21, DRK=32, GNB=37
     private static readonly HashSet<uint> TankJobIds = [19, 21, 32, 37];
 
@@ -41,13 +47,15 @@ public sealed class TargetingService : ITargetingService
         IPartyList partyList,
         ITargetManager targetManager,
         Configuration configuration,
-        IGapCloserSafetyService gapCloserSafety)
+        IGapCloserSafetyService gapCloserSafety,
+        IMarkerProbe? markerProbe = null)
     {
         _objectTable = objectTable;
         _partyList = partyList;
         _targetManager = targetManager;
         _configuration = configuration;
         GapCloserSafety = gapCloserSafety;
+        _markerProbe = markerProbe;
         _cacheTimer.Start();
     }
 
@@ -418,6 +426,16 @@ public sealed class TargetingService : ITargetingService
 
     private IBattleNpc? FindEnemyByStrategy(EnemyTargetingStrategy strategy, float maxRange, IPlayerCharacter player)
     {
+        // Attack-marker promotion: for aggregate strategies only (never CurrentTarget/FocusTarget —
+        // those respect the player's explicit selection). When attack marks are set, the marked
+        // enemy in the highest-priority slot wins ahead of the configured HP/distance strategy.
+        if (_markerProbe != null && _configuration.Targeting.UseAttackMarkers &&
+            strategy is not EnemyTargetingStrategy.CurrentTarget and not EnemyTargetingStrategy.FocusTarget)
+        {
+            var attackTarget = FindFirstAttackMarkedEnemy(maxRange, player);
+            if (attackTarget != null) return attackTarget;
+        }
+
         return strategy switch
         {
             EnemyTargetingStrategy.LowestHp => FindLowestHpEnemy(maxRange, player),
@@ -428,6 +446,37 @@ public sealed class TargetingService : ITargetingService
             EnemyTargetingStrategy.FocusTarget => FindFocusTarget(maxRange, player),
             _ => FindLowestHpEnemy(maxRange, player)
         };
+    }
+
+    /// <summary>
+    /// Iterates attack marker slots in Attack1..Attack8 priority order and returns the
+    /// first marked enemy that is present in the current valid-enemy set and in combat.
+    /// Returns null if no attack marks are set or none resolve to a valid in-range enemy.
+    /// Uses <see cref="_aoeWorkList"/> as a temporary scratch buffer (no per-call allocation).
+    /// </summary>
+    private IBattleNpc? FindFirstAttackMarkedEnemy(float maxRange, IPlayerCharacter player)
+    {
+        var attackIds = _markerProbe!.GetAttackMarkTargets();
+        var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
+
+        // Collect valid in-combat enemies into the reusable work list (cache hit = fast)
+        _aoeWorkList.Clear();
+        foreach (var e in GetValidEnemies(maxRange, player))
+        {
+            if ((e.StatusFlags & StatusFlags.InCombat) != 0 || e.GameObjectId == currentTargetId)
+                _aoeWorkList.Add(e);
+        }
+
+        if (_aoeWorkList.Count == 0) return null;
+
+        // Return the first marker slot (highest priority) whose ID matches a valid enemy
+        foreach (var markId in attackIds)
+        {
+            if (markId == 0) continue;
+            foreach (var e in _aoeWorkList)
+                if (e.GameObjectId == markId) return e;
+        }
+        return null;
     }
 
     private IBattleNpc? FindLowestHpEnemy(float maxRange, IPlayerCharacter player)
@@ -567,6 +616,14 @@ public sealed class TargetingService : ITargetingService
         _lastCacheRange = maxRange;
         _cacheTimer.Restart();
 
+        // Collect stop-mark IDs once per rebuild so we don't call the probe per enemy
+        _stopMarkedIds.Clear();
+        if (_configuration.Targeting.FilterStopMarkers && _markerProbe != null)
+        {
+            foreach (var id in _markerProbe.GetStopMarkTargets())
+                if (id != 0) _stopMarkedIds.Add(id);
+        }
+
         var playerPos = player.Position;
         var maxRangeYalms = (byte)Math.Ceiling(maxRange);
 
@@ -609,6 +666,11 @@ public sealed class TargetingService : ITargetingService
             // Only applied to auto-targeting; explicit CurrentTarget/FocusTarget bypass this.
             if (_configuration.Targeting.EnableInvulnerabilityFiltering &&
                 HasInvulnerabilityStatus(npc))
+                continue;
+
+            // Stop-marker exclusion — skip enemies a party leader has flagged with Stop1/Stop2.
+            // Explicit CurrentTarget/FocusTarget strategies bypass this (they don't call GetValidEnemies).
+            if (_stopMarkedIds.Count > 0 && _stopMarkedIds.Contains(npc.GameObjectId))
                 continue;
 
             _cachedEnemies.Add(npc);

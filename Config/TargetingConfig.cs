@@ -102,4 +102,23 @@ public sealed class TargetingConfig
     /// explicit CurrentTarget/FocusTarget selections are never filtered.
     /// </summary>
     public bool EnableInvulnerabilityFiltering { get; set; } = true;
+
+    /// <summary>
+    /// When true, aggregate auto-targeting promotes enemies that a party leader
+    /// has assigned an attack marker (Attack1..Attack8) to the top of the priority
+    /// queue, in marker-number order, ahead of the configured HP/distance strategy.
+    /// CurrentTarget and FocusTarget strategies are never affected — they always
+    /// follow the player's explicit selection.
+    /// </summary>
+    public bool UseAttackMarkers { get; set; } = true;
+
+    /// <summary>
+    /// When true, enemies bearing a Stop1 or Stop2 marker are excluded from all
+    /// aggregate auto-targeting (LowestHp, HighestHp, Nearest, TankAssist).
+    /// Prevents accidentally attacking enemies a party leader has flagged to skip.
+    /// CurrentTarget and FocusTarget strategies are never filtered.
+    /// Default OFF because stop markers are used sparingly and the exclusion can
+    /// surprise players who don't expect an attack target to disappear.
+    /// </summary>
+    public bool FilterStopMarkers { get; set; } = false;
 }

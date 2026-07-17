@@ -226,6 +226,10 @@ public static class LocalizedStrings
         public const string SafeGapCloserDesc = "config.targeting.safe_gap_closer_desc";
         public const string InvulnerabilityFiltering = "config.targeting.invulnerability_filtering";
         public const string InvulnerabilityFilteringDesc = "config.targeting.invulnerability_filtering_desc";
+        public const string UseAttackMarkers = "config.targeting.use_attack_markers";
+        public const string UseAttackMarkersDesc = "config.targeting.use_attack_markers_desc";
+        public const string FilterStopMarkers = "config.targeting.filter_stop_markers";
+        public const string FilterStopMarkersDesc = "config.targeting.filter_stop_markers_desc";
     }
 
     /// <summary>Keys for consumables config section.</summary>
