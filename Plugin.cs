@@ -381,7 +381,7 @@ public sealed class Plugin : IDalamudPlugin
         // Pull-intent state machine. Driven each frame by Plugin.Update from
         // LocalPlayer.IsCasting + ActionManager.QueuedActionId + InCombat.
         // DalamudCountdownProbe reads the party countdown agent (unsafe, fails open).
-        this.countdownProbe = new Olympus.Services.Pull.DalamudCountdownProbe();
+        this.countdownProbe = new Olympus.Services.Pull.DalamudCountdownProbe(log);
         this.pullIntentService = new Olympus.Services.Pull.PullIntentService(this.countdownProbe);
 
         // Inventory and tincture-cooldown probes (production-side wrappers).

@@ -1,3 +1,5 @@
+using System;
+using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace Olympus.Services.Pull;
@@ -32,6 +34,18 @@ public sealed unsafe class DalamudCountdownProbe : ICountdownProbe
     // instead of failing INERT.
     private const float MaxPlausibleCountdownSeconds = 30f;
 
+    // Throttle: at most one log per mode per 5s to avoid per-frame spam on patch day.
+    private const double LogThrottleSeconds = 5.0;
+    private DateTime _lastExceptionLogTime = DateTime.MinValue;
+    private DateTime _lastPlausibilityLogTime = DateTime.MinValue;
+
+    private readonly IPluginLog? _log;
+
+    public DalamudCountdownProbe(IPluginLog? log = null)
+    {
+        _log = log;
+    }
+
     /// <inheritdoc />
     public float? GetCountdownRemaining()
     {
@@ -49,12 +63,31 @@ public sealed unsafe class DalamudCountdownProbe : ICountdownProbe
 
             // Rejects tiny residuals lingering after a countdown ends, NaN (all
             // comparisons false), and implausible values from offset drift.
-            if (!(timer > 0f) || timer > MaxPlausibleCountdownSeconds) return null;
+            if (!(timer > 0f) || timer > MaxPlausibleCountdownSeconds)
+            {
+                var now = DateTime.UtcNow;
+                if ((now - _lastPlausibilityLogTime).TotalSeconds >= LogThrottleSeconds)
+                {
+                    _lastPlausibilityLogTime = now;
+                    _log?.Debug(
+                        "[CountdownProbe] countdown Active but timer out of plausible range ({0}); treating as no countdown (possible offset drift).",
+                        timer);
+                }
+                return null;
+            }
 
             return timer;
         }
-        catch
+        catch (Exception ex)
         {
+            var now = DateTime.UtcNow;
+            if ((now - _lastExceptionLogTime).TotalSeconds >= LogThrottleSeconds)
+            {
+                _lastExceptionLogTime = now;
+                _log?.Warning(
+                    "[CountdownProbe] exception reading countdown agent (offsets may have drifted on a game patch): {0}",
+                    ex.Message);
+            }
             return null;
         }
     }

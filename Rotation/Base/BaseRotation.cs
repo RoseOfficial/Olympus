@@ -359,7 +359,10 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     {
         var jobId = context.Player.ClassJob.RowId;
 
-        // Path 1: pre-pull (only fires when PullIntent != None inside PrePullModule).
+        // Path 1: pre-pull. PrePullModule.TryDispatch fires when EITHER:
+        //   (a) PullIntent != None (hostile cast detected / action queued, or combat just started), OR
+        //   (b) a countdown is within 2s of expiry AND the candidate has CanFireDuringCountdown = true
+        //       (tincture opts in so the pot lands just before the first GCD).
         // Deliberately NOT gated on CanExecuteOgcd: pre-pull there is no rolling GCD,
         // so the weave-window gate is always false there; the only physical constraints
         // are casting and animation lock.
