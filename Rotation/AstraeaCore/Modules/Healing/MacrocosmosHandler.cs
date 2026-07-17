@@ -3,6 +3,7 @@ using System.Numerics;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AstraeaCore.Abilities;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common.Scheduling;
@@ -45,7 +46,9 @@ public sealed class MacrocosmosHandler : IHealingHandler
         if (membersInRange < config.MacrocosmosMinTargets) return;
 
         var (avgHp, _, _) = context.PartyHealthMetrics;
-        if (avgHp > config.MacrocosmosThreshold) return;
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
+        if (avgHp > config.MacrocosmosThreshold && !raidwideImminent) return;
 
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;

@@ -13,6 +13,7 @@ using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Party;
+using Olympus.Services.Prediction;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 
@@ -35,6 +36,7 @@ public static class AstraeaTestContext
         Mock<ICardTrackingService>? cardService = null,
         Mock<IEarthlyStarService>? earthlyStarService = null,
         Mock<ITargetingService>? targetingService = null,
+        Mock<IBossMechanicDetector>? bossMechanicDetector = null,
         byte level = 90,
         uint currentHp = 50000,
         uint maxHp = 50000,
@@ -133,6 +135,7 @@ public static class AstraeaTestContext
             partyHelper,
             cooldownPlanner.Object,
             healingSpellSelector.Object,
+            bossMechanicDetector: bossMechanicDetector?.Object,
             debugState: debugState ?? new AstraeaDebugState());
     }
 
