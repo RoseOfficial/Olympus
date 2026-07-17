@@ -139,6 +139,38 @@ public sealed class TimelineService : ITimelineService, IDisposable
         return null;
     }
 
+    public float? SecondsUntilNextUntargetablePhase()
+    {
+        if (!IsActive || state == null || loadedTimeline == null)
+            return null;
+        return FindSecondsUntilNextUntargetablePhase(loadedTimeline, state.CurrentTime);
+    }
+
+    /// <summary>
+    /// Scans <paramref name="timeline"/> entries from <paramref name="currentTime"/> forward
+    /// for the first Phase entry whose name contains "untargetable" (case-insensitive).
+    /// Returns seconds until that entry, or null if no matching entry exists ahead of
+    /// <paramref name="currentTime"/>. Hidden entries are skipped (mirrors GetNextMechanic).
+    /// Internal to allow direct unit-test calls with a pre-parsed FightTimeline.
+    /// </summary>
+    internal static float? FindSecondsUntilNextUntargetablePhase(FightTimeline timeline, float currentTime)
+    {
+        var startIndex = timeline.FindFirstEntryAtOrAfter(currentTime);
+        for (var i = startIndex; i < timeline.Entries.Length; i++)
+        {
+            var entry = timeline.Entries[i];
+            if (entry.IsHidden)
+                continue;
+            if (entry.EntryType != TimelineEntryType.Phase)
+                continue;
+            // Use Contains("untargetable") -- NOT Contains("targetable") -- because
+            // "targetable" is a substring of "untargetable" and would match both markers.
+            if (entry.Name.Contains("untargetable", StringComparison.OrdinalIgnoreCase))
+                return entry.Timestamp - currentTime;
+        }
+        return null;
+    }
+
     public void LoadForZone(uint zoneId)
     {
         var zoneInfo = TimelineZoneMapping.GetZoneInfo(zoneId);

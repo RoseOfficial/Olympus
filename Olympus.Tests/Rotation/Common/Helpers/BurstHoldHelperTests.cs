@@ -3,6 +3,7 @@ using Moq;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 using Olympus.Services.Input;
+using Olympus.Timeline;
 using Xunit;
 
 namespace Olympus.Tests.Rotation.Common.Helpers;
@@ -152,5 +153,90 @@ public class BurstHoldHelperTests : IDisposable
     public void ShouldHoldForPhaseTransition_NoModifierAndNoTimeline_ReturnsFalse()
     {
         Assert.False(BurstHoldHelper.ShouldHoldForPhaseTransition(null));
+    }
+
+    // ---------------- ShouldDumpForDowntime ----------------
+    // Dumps are loss prevention, not aggression. Modifier keys must NOT affect the result.
+
+    private static Mock<ITimelineService> TimelineSvc(float confidence, float? secondsUntil)
+    {
+        var m = new Mock<ITimelineService>();
+        m.Setup(s => s.Confidence).Returns(confidence);
+        m.Setup(s => s.SecondsUntilNextUntargetablePhase()).Returns(secondsUntil);
+        return m;
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_NullService_ReturnsFalse()
+    {
+        Assert.False(BurstHoldHelper.ShouldDumpForDowntime(null, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_HighConfidenceWithinWindow_ReturnsTrue()
+    {
+        var svc = TimelineSvc(confidence: 1.0f, secondsUntil: 8f);
+        Assert.True(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_LowConfidence_ReturnsFalse()
+    {
+        // Discrimination: same setup as HighConfidenceWithinWindow except confidence is below 0.8.
+        var svc = TimelineSvc(confidence: 0.79f, secondsUntil: 8f);
+        Assert.False(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_ExactlyAtThreshold_ReturnsTrue()
+    {
+        // Confidence == 0.8 is high confidence (>= 0.8, not >0.8).
+        var svc = TimelineSvc(confidence: 0.8f, secondsUntil: 8f);
+        Assert.True(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_OutsideWindow_ReturnsFalse()
+    {
+        // Discrimination: same setup as HighConfidenceWithinWindow except seconds > window.
+        var svc = TimelineSvc(confidence: 1.0f, secondsUntil: 15f);
+        Assert.False(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_NoUntargetablePhase_ReturnsFalse()
+    {
+        // Discrimination: same confidence, same window, but no untargetable phase known.
+        var svc = TimelineSvc(confidence: 1.0f, secondsUntil: null);
+        Assert.False(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_BurstOverrideActive_DoesNotAffectResult()
+    {
+        // Proves modifier keys are NOT consulted. With burst override, dumps still fire
+        // (the override is about burst timing, not loss prevention).
+        var svc = TimelineSvc(confidence: 1.0f, secondsUntil: 8f);
+        BurstHoldHelper.ModifierKeys = Modifier(burst: true).Object;
+        Assert.True(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_ConservativeOverrideActive_DoesNotAffectResult()
+    {
+        // Proves modifier keys are NOT consulted. With conservative override, dumps still fire.
+        var svc = TimelineSvc(confidence: 1.0f, secondsUntil: 8f);
+        BurstHoldHelper.ModifierKeys = Modifier(conservative: true).Object;
+        Assert.True(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
+    }
+
+    [Fact]
+    public void ShouldDumpForDowntime_ConservativeOverride_DoesNotBlockWhenNoDump()
+    {
+        // Conservative override must NOT force a false positive (no "always dump" override exists).
+        // When there is no upcoming untargetable phase, the result is false regardless of modifiers.
+        var svc = TimelineSvc(confidence: 1.0f, secondsUntil: null);
+        BurstHoldHelper.ModifierKeys = Modifier(conservative: true).Object;
+        Assert.False(BurstHoldHelper.ShouldDumpForDowntime(svc.Object, 10f));
     }
 }

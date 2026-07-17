@@ -64,6 +64,16 @@ public interface ITimelineService
     MechanicPrediction? GetNextMechanic(TimelineEntryType type);
 
     /// <summary>
+    /// Returns seconds from the current timeline position to the next phase entry whose
+    /// name contains "untargetable" (case-insensitive). Covers both the standard
+    /// "--untargetable--" Cactbot marker and variants such as "--Boss untargetable--".
+    /// Returns null when no timeline is active, no untargetable phase is found ahead of
+    /// the current position, or the entry is hidden. Confidence checking is the caller's
+    /// responsibility (see <see cref="Confidence"/>).
+    /// </summary>
+    float? SecondsUntilNextUntargetablePhase();
+
+    /// <summary>
     /// Updates the timeline state. Called every frame.
     /// </summary>
     void Update();

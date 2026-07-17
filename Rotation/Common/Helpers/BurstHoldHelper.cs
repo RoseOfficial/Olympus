@@ -61,4 +61,30 @@ public static class BurstHoldHelper
             return false;
         return nextPhase.Value.SecondsUntil <= windowSeconds;
     }
+
+    /// <summary>
+    /// True when a high-confidence untargetable phase is within <paramref name="windowSeconds"/>.
+    /// Use to dump dumpable resources (gauge spenders, extra charges) before the boss
+    /// becomes untargetable and the window is wasted.
+    /// <para>
+    /// Deliberately does NOT consult <see cref="ModifierKeys"/>. Dumps are loss prevention
+    /// (spending a resource before a window disappears), not aggression. Modifier overrides
+    /// govern burst timing; they do not prevent converting a resource that would otherwise
+    /// be wasted during downtime. This is an intentional asymmetry with
+    /// <see cref="ShouldHoldForBurst"/> and <see cref="ShouldHoldForPhaseTransition"/>.
+    /// </para>
+    /// Fails closed: null service, no active timeline, or confidence below 0.8 all return
+    /// false, preserving today's behavior with no behavior change.
+    /// </summary>
+    public static bool ShouldDumpForDowntime(ITimelineService? timelineService, float windowSeconds)
+    {
+        if (timelineService is null)
+            return false;
+        // ITimelineService.Confidence returns 0.0 when no timeline is active, so the
+        // confidence gate also acts as the "no active timeline" fail-closed guard.
+        if (timelineService.Confidence < 0.8f)
+            return false;
+        var seconds = timelineService.SecondsUntilNextUntargetablePhase();
+        return seconds is not null && seconds.Value <= windowSeconds;
+    }
 }
