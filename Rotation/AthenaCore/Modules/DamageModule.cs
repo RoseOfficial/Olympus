@@ -6,6 +6,8 @@ using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
@@ -15,6 +17,20 @@ namespace Olympus.Rotation.AthenaCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public DamageModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    /// <summary>
+    /// Returns true when the burst hold logic says to defer pushing an offensive cooldown.
+    /// Wraps BurstHoldHelper so module code never touches the static directly.
+    /// </summary>
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
+
     protected override bool IsDamageEnabled(IAthenaContext context) => context.Configuration.Scholar.EnableSingleTargetDamage;
     protected override bool IsDoTEnabled(IAthenaContext context) => context.Configuration.Scholar.EnableDot;
     protected override bool IsAoEDamageEnabled(IAthenaContext context) => context.Configuration.Scholar.EnableAoEDamage;
@@ -66,6 +82,14 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
         if (!config.EnableChainStratagem) return;
         if (player.Level < SCHActions.ChainStratagem.MinLevel) return;
         if (!context.ActionService.IsActionReady(SCHActions.ChainStratagem.ActionId)) return;
+
+        // Hold for burst window — Chain Stratagem's 10% crit debuff should land
+        // inside the 2-minute party raid buff window for maximum party damage.
+        if (context.Configuration.HealerShared.EnableBurstPooling && ShouldHoldForBurst(15f))
+        {
+            SetDpsState(context, "Chain Stratagem held — burst imminent");
+            return;
+        }
 
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy, SCHActions.ChainStratagem.Range, player);
@@ -161,6 +185,19 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
         if (player.Level < SCHActions.Aetherflow.MinLevel) return;
         if (!context.ActionService.IsActionReady(SCHActions.Aetherflow.ActionId)) return;
         if (context.AetherflowService.CurrentStacks > 0) return;
+
+        // Raidwide banking overrides the burst hold: if a raidwide is imminent we need
+        // Aetherflow stacks available for emergency oGCD heals, so fire regardless of
+        // burst alignment.
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
+
+        if (context.Configuration.HealerShared.EnableBurstPooling && !raidwideImminent &&
+            ShouldHoldForBurst(8f))
+        {
+            SetDpsState(context, "Aetherflow held — burst imminent");
+            return;
+        }
 
         scheduler.PushOgcd(AthenaAbilities.Aetherflow, player.GameObjectId, priority: 295,
             onDispatched: _ =>

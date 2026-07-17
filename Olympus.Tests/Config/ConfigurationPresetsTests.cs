@@ -385,6 +385,37 @@ public class ConfigurationPresetsTests
     }
 
     // ──────────────────────────────────────────────────────────────
+    // Healer burst pooling: Conservative/Dungeon/Casual disable it,
+    // Balanced/Aggressive/Proactive/Raid enable it
+    // ──────────────────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData(ConfigurationPreset.Conservative)]
+    [InlineData(ConfigurationPreset.Dungeon)]
+    [InlineData(ConfigurationPreset.Casual)]
+    public void Preset_DisablesBurstPoolingForHealers(ConfigurationPreset preset)
+    {
+        var config = new Configuration();
+        ConfigurationPresets.ApplyPreset(config, preset);
+
+        Assert.False(config.HealerShared.EnableBurstPooling);
+    }
+
+    [Theory]
+    [InlineData(ConfigurationPreset.Balanced)]
+    [InlineData(ConfigurationPreset.Aggressive)]
+    [InlineData(ConfigurationPreset.Proactive)]
+    [InlineData(ConfigurationPreset.Raid)]
+    public void Preset_EnablesBurstPoolingForHealers(ConfigurationPreset preset)
+    {
+        var config = new Configuration();
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Conservative); // disable first
+        ConfigurationPresets.ApplyPreset(config, preset);
+
+        Assert.True(config.HealerShared.EnableBurstPooling);
+    }
+
+    // ──────────────────────────────────────────────────────────────
     // GetDescription: returns a non-empty string for every preset value
     // ──────────────────────────────────────────────────────────────
 

@@ -62,6 +62,10 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     private readonly FairyGaugeService _fairyGaugeService;
     private readonly FairyStateManager _fairyStateManager;
 
+    // Burst window service (stored here rather than in BaseHealerRotation to avoid a full
+    // 4-healer sweep; Update() is called in UpdateJobSpecificServices)
+    private readonly IBurstWindowService? _burstWindowService;
+
     // Debug state
     private readonly AthenaDebugState _debugState = new();
 
@@ -99,6 +103,7 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
         IJobGauges jobGauges,
+        IBurstWindowService? burstWindowService = null,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -127,6 +132,9 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             tinctureDispatcher,
             pullIntentService)
     {
+        // Store burst window service (Update() called each frame in UpdateJobSpecificServices)
+        _burstWindowService = burstWindowService;
+
         // Store timeline service
         _timelineService = timelineService;
 
@@ -153,7 +161,7 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             new HealingModule(),         // Priority 10 - Keep party alive
             new DefensiveModule(),       // Priority 20 - Mitigation
             new BuffModule(),            // Priority 30 - Buffs and utilities
-            new DamageModule(),          // Priority 50 - DPS when safe
+            new DamageModule(_burstWindowService),   // Priority 50 - DPS when safe
         };
 
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
@@ -188,6 +196,9 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     {
         // Call base healer service updates
         base.UpdateJobSpecificServices(player, inCombat);
+
+        // Update burst window service so Chain Stratagem and Aetherflow holds have current data
+        _burstWindowService?.Update(player, TargetingService.GetUserEnemyTarget());
 
         // Update Scholar-specific debug state
         _debugState.AetherflowStacks = _aetherflowService.CurrentStacks;

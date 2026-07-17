@@ -13,6 +13,7 @@ using Olympus.Services.Healing;
 using Olympus.Services.Scholar;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
 
 namespace Olympus.Tests.Rotation.AthenaCore;
 
@@ -34,6 +35,7 @@ public static class AthenaTestContext
         Mock<IFairyGaugeService>? fairyGaugeService = null,
         Mock<IFairyStateManager>? fairyStateManager = null,
         Mock<ITargetingService>? targetingService = null,
+        Mock<ITimelineService>? timelineService = null,
         byte level = 100,
         uint currentHp = 50000,
         uint maxHp = 50000,
@@ -130,6 +132,7 @@ public static class AthenaTestContext
             partyHelper,
             cooldownPlanner.Object,
             healingSpellSelector.Object,
+            timelineService: timelineService?.Object,
             debugState: debugState ?? new AthenaDebugState());
     }
 

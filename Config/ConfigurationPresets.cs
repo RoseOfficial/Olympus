@@ -176,6 +176,7 @@ public static class ConfigurationPresets
         config.MeleeShared.BloodbathHpThreshold = 0.85f;
         config.CasterShared.LucidDreamingThreshold = 0.70f;
         config.HealerShared.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableBurstPooling = true;
     }
 
     /// <summary>
@@ -229,6 +230,7 @@ public static class ConfigurationPresets
         config.MeleeShared.BloodbathHpThreshold = 0.75f;
         config.CasterShared.LucidDreamingThreshold = 0.60f;
         config.HealerShared.LucidDreamingThreshold = 0.60f;
+        config.HealerShared.EnableBurstPooling = false;
     }
 
     /// <summary>
@@ -282,6 +284,7 @@ public static class ConfigurationPresets
         config.MeleeShared.BloodbathHpThreshold = 0.90f;
         config.CasterShared.LucidDreamingThreshold = 0.80f;
         config.HealerShared.LucidDreamingThreshold = 0.80f;
+        config.HealerShared.EnableBurstPooling = false;
     }
 
     /// <summary>
