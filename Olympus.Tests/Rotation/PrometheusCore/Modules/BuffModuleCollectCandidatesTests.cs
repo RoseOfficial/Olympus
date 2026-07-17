@@ -10,6 +10,8 @@ using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.PrometheusCore.Modules;
 
@@ -557,6 +559,248 @@ public class BuffModuleCollectCandidatesTests
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.Peloton);
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Gauss Round: burst dump during raid buff windows
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GaussRound_Pushed_WhenInBurst_AndOneCharge_BurstPoolingEnabled()
+    {
+        // shouldUse = (IsOverheated=false || charges >= 2=false || (EnableBurstPooling=true && IsInBurst=true)) = true
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableGaussRicochet = true;
+        config.Machinist.EnableBurstPooling = true;
+
+        var burstService = new Mock<IBurstWindowService>();
+        burstService.Setup(x => x.IsInBurstWindow).Returns(true);
+        burstService.Setup(x => x.IsBurstImminent(It.IsAny<float>())).Returns(false);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            isOverheated: false,
+            gaussRoundCharges: 1,
+            inCombat: true);
+
+        new BuffModule(burstService.Object).CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.GaussRound && c.Priority == 6);
+    }
+
+    [Fact]
+    public void GaussRound_NotPushed_WhenInBurst_AndOneCharge_BurstPoolingDisabled()
+    {
+        // EnableBurstPooling=false disables the burst dump arm; shouldUse = (false || false || (false && true)) = false
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableGaussRicochet = true;
+        config.Machinist.EnableBurstPooling = false;
+
+        var burstService = new Mock<IBurstWindowService>();
+        burstService.Setup(x => x.IsInBurstWindow).Returns(true);
+        burstService.Setup(x => x.IsBurstImminent(It.IsAny<float>())).Returns(false);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            isOverheated: false,
+            gaussRoundCharges: 1,
+            inCombat: true);
+
+        new BuffModule(burstService.Object).CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.GaussRound);
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. Ricochet: burst dump during raid buff windows
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void Ricochet_Pushed_WhenInBurst_AndOneCharge_BurstPoolingEnabled()
+    {
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableGaussRicochet = true;
+        config.Machinist.EnableBurstPooling = true;
+
+        var burstService = new Mock<IBurstWindowService>();
+        burstService.Setup(x => x.IsInBurstWindow).Returns(true);
+        burstService.Setup(x => x.IsBurstImminent(It.IsAny<float>())).Returns(false);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            isOverheated: false,
+            ricochetCharges: 1,
+            inCombat: true);
+
+        new BuffModule(burstService.Object).CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.Ricochet && c.Priority == 6);
+    }
+
+    [Fact]
+    public void Ricochet_NotPushed_WhenInBurst_AndOneCharge_BurstPoolingDisabled()
+    {
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableGaussRicochet = true;
+        config.Machinist.EnableBurstPooling = false;
+
+        var burstService = new Mock<IBurstWindowService>();
+        burstService.Setup(x => x.IsInBurstWindow).Returns(true);
+        burstService.Setup(x => x.IsBurstImminent(It.IsAny<float>())).Returns(false);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            isOverheated: false,
+            ricochetCharges: 1,
+            inCombat: true);
+
+        new BuffModule(burstService.Object).CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.Ricochet);
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Hypercharge: phase-transition guard (including overcap heat path)
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void Hypercharge_NotPushed_WhenPhaseTransitionImminent_NormalHeat()
+    {
+        // heat=50: not overcapping. Phase guard fires before IsActionReady, blocking push.
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableHypercharge = true;
+        config.Machinist.EnableBurstPooling = false; // prevent burst-hold interference
+
+        var timelineService = new Mock<ITimelineService>();
+        var phasePrediction = new MechanicPrediction(5f, TimelineEntryType.Phase, "Phase2", 0.9f);
+        timelineService.Setup(x => x.GetNextMechanic(TimelineEntryType.Phase))
+            .Returns((MechanicPrediction?)phasePrediction);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(0f);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineService.Object,
+            heat: 50,
+            isOverheated: false,
+            inCombat: true);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.Hypercharge);
+    }
+
+    [Fact]
+    public void Hypercharge_NotPushed_WhenPhaseTransitionImminent_AtOvercapHeat()
+    {
+        // heat=90 >= HeatOvercapThreshold(90): the overcap bypass skips ShouldHoldForBurst,
+        // but ShouldHoldForPhaseTransition must still apply because heat does not decay
+        // during untargetable phases and overcapping in-phase is wasteful.
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableHypercharge = true;
+        config.Machinist.HeatOvercapThreshold = 90;
+
+        var timelineService = new Mock<ITimelineService>();
+        var phasePrediction = new MechanicPrediction(5f, TimelineEntryType.Phase, "Phase2", 0.9f);
+        timelineService.Setup(x => x.GetNextMechanic(TimelineEntryType.Phase))
+            .Returns((MechanicPrediction?)phasePrediction);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(0f);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineService.Object,
+            heat: 90,
+            isOverheated: false,
+            inCombat: true);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.Hypercharge);
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. Automaton Queen: phase-transition guard (including overcap battery path)
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void AutomatonQueen_NotPushed_WhenPhaseTransitionImminent_AtOvercapBattery()
+    {
+        // battery=90 >= BatteryOvercapThreshold(90): shouldSummon=true, but phase guard must
+        // still block because battery also does not help during an untargetable phase.
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableAutomatonQueen = true;
+        config.Machinist.BatteryOvercapThreshold = 90;
+
+        var timelineService = new Mock<ITimelineService>();
+        var phasePrediction = new MechanicPrediction(5f, TimelineEntryType.Phase, "Phase2", 0.9f);
+        timelineService.Setup(x => x.GetNextMechanic(TimelineEntryType.Phase))
+            .Returns((MechanicPrediction?)phasePrediction);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineService.Object,
+            battery: 90,
+            isQueenActive: false,
+            inCombat: true);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.AutomatonQueen);
     }
 
     // -------------------------------------------------------------------------

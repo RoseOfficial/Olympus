@@ -337,6 +337,11 @@ public sealed class BuffModule : IPrometheusModule
             context.Debug.BuffState = "Holding Hypercharge (tool coming off CD)";
             return;
         }
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        {
+            context.Debug.BuffState = $"Holding Hypercharge (phase soon, {context.Heat} Heat)";
+            return;
+        }
         if (!context.ActionService.IsActionReady(MCHActions.Hypercharge.ActionId)) return;
 
         scheduler.PushOgcd(PrometheusAbilities.Hypercharge, player.GameObjectId, priority: 4,
@@ -380,6 +385,11 @@ public sealed class BuffModule : IPrometheusModule
         if (!shouldSummon && context.Configuration.Machinist.SaveBatteryForBurst
             && ShouldHoldForBurst(8f) && context.Battery < batteryOvercap) return;
         if (!shouldSummon) return;
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        {
+            context.Debug.BuffState = "Holding Automaton Queen (phase soon)";
+            return;
+        }
         if (!context.ActionService.IsActionReady(petAction.ActionId)) return;
 
         scheduler.PushOgcd(PrometheusAbilities.AutomatonQueen, player.GameObjectId, priority: 5,
@@ -418,7 +428,8 @@ public sealed class BuffModule : IPrometheusModule
 
         if (level >= gaussAction.MinLevel && context.GaussRoundCharges > 0)
         {
-            bool shouldUse = context.IsOverheated || context.GaussRoundCharges >= 2;
+            bool shouldUse = context.IsOverheated || context.GaussRoundCharges >= 2 ||
+                             (context.Configuration.Machinist.EnableBurstPooling && IsInBurst);
             if (shouldUse && context.ActionService.IsActionReady(gaussAction.ActionId))
             {
                 scheduler.PushOgcd(PrometheusAbilities.GaussRound, target.GameObjectId, priority: 6,
@@ -447,7 +458,8 @@ public sealed class BuffModule : IPrometheusModule
 
         if (level >= ricochetAction.MinLevel && context.RicochetCharges > 0)
         {
-            bool shouldUse = context.IsOverheated || context.RicochetCharges >= 2;
+            bool shouldUse = context.IsOverheated || context.RicochetCharges >= 2 ||
+                             (context.Configuration.Machinist.EnableBurstPooling && IsInBurst);
             if (shouldUse && context.ActionService.IsActionReady(ricochetAction.ActionId))
             {
                 scheduler.PushOgcd(PrometheusAbilities.Ricochet, target.GameObjectId, priority: 6,
