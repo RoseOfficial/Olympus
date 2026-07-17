@@ -53,7 +53,11 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
 
     public void CollectCandidates(IAsclepiusContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (!context.InCombat) return;
+        if (!context.InCombat)
+        {
+            TryPushPrePullHardcast(context, scheduler);
+            return;
+        }
         if (context.TargetingService.IsDamageTargetingPaused()) { SetDpsState(context, "Paused (no target)"); return; }
         if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
             && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
@@ -370,5 +374,21 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                 return status.RemainingTime;
         }
         return 0f;
+    }
+
+    private void TryPushPrePullHardcast(IAsclepiusContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        var countdown = context.CountdownRemaining;
+        if (countdown == null) return;
+        var target = context.TargetingService.GetUserEnemyTarget();
+        if (target == null) return;
+        var action = GetSingleTargetAction(context, false);
+        if (countdown <= action.CastTime + PrePullHelper.SlidecastBuffer)
+        {
+            var behavior = new AbilityBehavior { Action = action };
+            scheduler.PushGcd(behavior, target.GameObjectId, priority: 5,
+                onDispatched: _ => SetDpsState(context, action.Name));
+        }
     }
 }

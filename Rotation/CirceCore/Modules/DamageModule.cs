@@ -44,6 +44,7 @@ public sealed class DamageModule : ICirceModule
     {
         if (!context.InCombat)
         {
+            TryPushPrePullHardcast(context, scheduler);
             context.Debug.DamageState = "Not in combat";
             return;
         }
@@ -620,4 +621,16 @@ public sealed class DamageModule : ICirceModule
     }
 
     #endregion
+
+    private static void TryPushPrePullHardcast(ICirceContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        var countdown = context.CountdownRemaining;
+        if (countdown == null) return;
+        var target = context.TargetingService.GetUserEnemyTarget();
+        if (target == null) return;
+        if (countdown <= RDMActions.Verthunder3.CastTime + PrePullHelper.SlidecastBuffer)
+            scheduler.PushGcd(CirceAbilities.Verthunder3, target.GameObjectId, priority: 5,
+                onDispatched: _ => context.Debug.DamageState = RDMActions.Verthunder3.Name);
+    }
 }

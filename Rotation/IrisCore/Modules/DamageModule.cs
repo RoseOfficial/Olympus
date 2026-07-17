@@ -42,6 +42,7 @@ public sealed class DamageModule : IIrisModule
         // Pre-pull motif painting (out-of-combat)
         if (!context.InCombat)
         {
+            TryPushPrePullHardcast(context, scheduler);
             TryPushPrepaintMotif(context, scheduler);
             return;
         }
@@ -522,4 +523,16 @@ public sealed class DamageModule : IIrisModule
     }
 
     #endregion
+
+    private static void TryPushPrePullHardcast(IIrisContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        var countdown = context.CountdownRemaining;
+        if (countdown == null) return;
+        var target = context.TargetingService.GetUserEnemyTarget();
+        if (target == null) return;
+        if (countdown <= PCTActions.RainbowDrip.CastTime + PrePullHelper.SlidecastBuffer)
+            scheduler.PushGcd(IrisAbilities.RainbowDrip, target.GameObjectId, priority: 5,
+                onDispatched: _ => context.Debug.DamageState = PCTActions.RainbowDrip.Name);
+    }
 }

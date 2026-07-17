@@ -50,7 +50,11 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
 
     public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (!context.InCombat) return;
+        if (!context.InCombat)
+        {
+            TryPushPrePullHardcast(context, scheduler);
+            return;
+        }
         if (context.TargetingService.IsDamageTargetingPaused()) { SetDpsState(context, "Paused (no target)"); return; }
         if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
             && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
@@ -361,5 +365,21 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
         var aetherflowCd = context.AetherflowService.GetCooldownRemaining();
         if (aetherflowCd <= config.AetherflowDumpWindow && stacks == 3) return true;
         return false;
+    }
+
+    private void TryPushPrePullHardcast(IAthenaContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        var countdown = context.CountdownRemaining;
+        if (countdown == null) return;
+        var target = context.TargetingService.GetUserEnemyTarget();
+        if (target == null) return;
+        var action = GetSingleTargetAction(context, false);
+        if (countdown <= action.CastTime + PrePullHelper.SlidecastBuffer)
+        {
+            var behavior = new AbilityBehavior { Action = action };
+            scheduler.PushGcd(behavior, target.GameObjectId, priority: 5,
+                onDispatched: _ => SetDpsState(context, action.Name));
+        }
     }
 }

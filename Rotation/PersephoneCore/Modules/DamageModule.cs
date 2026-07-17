@@ -42,6 +42,7 @@ public sealed class DamageModule : IPersephoneModule
     {
         if (!context.InCombat)
         {
+            TryPushPrePullHardcast(context, scheduler);
             context.Debug.DamageState = "Not in combat";
             return;
         }
@@ -474,5 +475,17 @@ public sealed class DamageModule : IPersephoneModule
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.DamageState = action.Name;
             });
+    }
+
+    private static void TryPushPrePullHardcast(IPersephoneContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        var countdown = context.CountdownRemaining;
+        if (countdown == null) return;
+        var target = context.TargetingService.GetUserEnemyTarget();
+        if (target == null) return;
+        if (countdown <= SMNActions.Ruin3.CastTime + PrePullHelper.SlidecastBuffer)
+            scheduler.PushGcd(PersephoneAbilities.Ruin3, target.GameObjectId, priority: 5,
+                onDispatched: _ => context.Debug.DamageState = SMNActions.Ruin3.Name);
     }
 }
