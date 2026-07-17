@@ -34,6 +34,7 @@ public sealed class DefensiveModule : IApolloModule
 
     public void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
+        TryPrePullDivineBenison(context, scheduler);   // NEW — runs before the InCombat gate
         if (!context.InCombat) return;
 
         var (avgHpPercent, _, injuredCount) = context.PartyHealthMetrics;
@@ -501,6 +502,34 @@ public sealed class DefensiveModule : IApolloModule
                         Priority = capturedShouldApplyForTankBuster ? ExplanationPriority.High : ExplanationPriority.Normal,
                     });
                 }
+            });
+    }
+
+    private static void TryPrePullDivineBenison(IApolloContext context, RotationScheduler scheduler)
+    {
+        var countdown = context.CountdownRemaining;
+        if (countdown == null || countdown > 5f) return;
+        if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        if (!context.Configuration.EnableHealing || !context.Configuration.Defensive.EnableDivineBenison) return;
+
+        var player = context.Player;
+        if (player.Level < WHMActions.DivineBenison.MinLevel) return;
+        if (!context.ActionService.IsActionReady(WHMActions.DivineBenison.ActionId)) return;
+
+        var tank = context.PartyHelper.FindTankInParty(player);
+        if (tank == null) return;
+        // StatusHelper.HasStatus null-guards StatusList; always false in tests (benign in production too —
+        // if already active, wasting the push is harmless).
+        if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.DivineBenison)) return;
+
+        var capturedTank = tank;
+        scheduler.PushOgcd(ApolloAbilities.DivineBenison, tank.GameObjectId,
+            priority: 110,  // matches in-combat TryPushDivineBenison priority
+            onDispatched: _ =>
+            {
+                var name = capturedTank.Name?.TextValue ?? "tank";
+                context.Debug.PlannedAction = WHMActions.DivineBenison.Name;
+                context.Debug.DefensiveState = $"Pre-pull DivineBenison on {name}";
             });
     }
 

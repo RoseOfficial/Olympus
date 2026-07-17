@@ -39,6 +39,10 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
     protected override HealerPartyHelper HealerParty => _partyHelper;
     protected override RotationScheduler Scheduler => _scheduler;
 
+    // WHM fires oGCDs pre-combat (DivineBenison on MT before pull).
+    // AllowPreCombatOgcdDispatch lifts the inCombat gate on the oGCD pass.
+    protected override bool AllowPreCombatOgcdDispatch => true;
+
     private readonly DebugState _debugState = new();
     private readonly StatusHelper _statusHelper;
     private readonly PartyHelper _partyHelper;

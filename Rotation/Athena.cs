@@ -52,6 +52,10 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     /// <inheritdoc />
     protected override RotationScheduler Scheduler => _scheduler;
 
+    // SCH fires oGCDs pre-combat (Recitation before pull).
+    // AllowPreCombatOgcdDispatch lifts the inCombat gate on the oGCD pass.
+    protected override bool AllowPreCombatOgcdDispatch => true;
+
     /// <summary>
     /// Gets the Athena-specific debug state.
     /// </summary>

@@ -35,6 +35,7 @@ public static class AstraeaTestContext
         Mock<IDebuffDetectionService>? debuffDetectionService = null,
         Mock<ICardTrackingService>? cardService = null,
         Mock<IEarthlyStarService>? earthlyStarService = null,
+        bool isStarPlaced = false,
         Mock<ITargetingService>? targetingService = null,
         Mock<IBossMechanicDetector>? bossMechanicDetector = null,
         byte level = 90,
@@ -73,7 +74,7 @@ public static class AstraeaTestContext
             hasCard: hasCard,
             sealCount: sealCount,
             uniqueSealCount: uniqueSealCount);
-        earthlyStarService ??= CreateMockEarthlyStarService();
+        earthlyStarService ??= CreateMockEarthlyStarService(isStarPlaced: isStarPlaced);
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();

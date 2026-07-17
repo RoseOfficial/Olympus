@@ -52,6 +52,10 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
     /// <inheritdoc />
     protected override RotationScheduler Scheduler => _scheduler;
 
+    // AST fires oGCDs pre-combat (card draw and Earthly Star before pull).
+    // AllowPreCombatOgcdDispatch lifts the inCombat gate on the oGCD pass.
+    protected override bool AllowPreCombatOgcdDispatch => true;
+
     /// <summary>
     /// Gets the Astraea-specific debug state.
     /// </summary>

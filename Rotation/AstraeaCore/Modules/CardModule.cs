@@ -155,7 +155,11 @@ public sealed class CardModule : IAstraeaModule
     {
         var player = context.Player;
         if (player.Level < ASTActions.AstralDraw.MinLevel) return;
-        if (!context.InCombat) return;
+        var isPrepull = !context.InCombat &&
+                        context.CountdownRemaining is float cd && cd <= 5f &&
+                        context.Configuration.PrePull.EnablePrePullActions &&
+                        !context.HasCard;
+        if (!context.InCombat && !isPrepull) return;
 
         // Push both Astral and Umbral draws — only one will succeed based on game's ActiveDraw state.
         scheduler.PushOgcd(AstraeaAbilities.AstralDraw, player.GameObjectId, priority: 8,
