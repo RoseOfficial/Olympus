@@ -69,7 +69,8 @@ public sealed class BuffModule : IIrisModule
         // Hold unless (a) the buff is currently active with more than one animation lock
         // remaining, or (b) Starry Muse CD > 30s (lost-use escape - the portrait recast
         // is also 30s, so holding any longer does not save the portrait for the next window).
-        if (context.Configuration.Pictomancer.EnableBurstPooling)
+        if (context.Configuration.Pictomancer.EnableBurstPooling
+            && context.Player.Level >= PCTActions.StarryMuse.MinLevel)
         {
             var inStarryWindow = context.StarryMuseRemaining > FFXIVTimings.AnimationLockBase;
             var starryMuseCD = context.ActionService.GetCooldownRemaining(PCTActions.StarryMuse.ActionId);

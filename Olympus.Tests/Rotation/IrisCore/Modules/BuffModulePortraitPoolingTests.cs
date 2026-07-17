@@ -32,6 +32,41 @@ public class BuffModulePortraitPoolingTests
     }
 
     [Fact]
+    public void Portrait_Pushed_WhenBelowStarryMuseLevel()
+    {
+        // Player is level 69 — Starry Muse is not yet learned (MinLevel 70).
+        // Pooling gate must be skipped entirely so portraits fire unconditionally.
+        var config = IrisTestContext.CreateDefaultPctConfiguration();
+        config.Pictomancer.EnablePortraits = true;
+        config.Pictomancer.EnableBurstPooling = true;
+
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        // GetCooldownRemaining defaults to 0f — lostUseEscape = false, inStarryWindow = false.
+        // Without the level guard this permanently holds Mog for sub-70 characters.
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = IrisTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            level: 69,
+            mogReady: true,
+            hasStarryMuse: false,
+            starryMuseRemaining: 0f);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == IrisAbilities.MogOfTheAges);
+    }
+
+    [Fact]
     public void Portrait_Pushed_WhenInsideStarryMuseWindow()
     {
         // Starry Muse buff is active with > 0.6s remaining -> portraits fire immediately.
@@ -87,6 +122,7 @@ public class BuffModulePortraitPoolingTests
             actionService: actionService,
             targetingService: targeting,
             mogReady: true,
+            madeenReady: true,          // non-default so the Madeen assertion is non-vacuous
             hasStarryMuse: false,
             starryMuseRemaining: 0f);   // not in window
 
