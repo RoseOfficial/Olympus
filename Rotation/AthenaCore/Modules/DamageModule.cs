@@ -370,6 +370,7 @@ public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModu
     private void TryPushPrePullHardcast(IAthenaContext context, RotationScheduler scheduler)
     {
         if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        if (!IsDamageEnabled(context)) return;
         var countdown = context.CountdownRemaining;
         if (countdown == null) return;
         var target = context.TargetingService.GetUserEnemyTarget();

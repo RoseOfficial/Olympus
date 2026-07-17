@@ -38,7 +38,7 @@ public class DamageModulePrePullTests
     }
 
     [Fact]
-    public void PrePullHardcast_TooLate_DoesNotPushVerthunder3()
+    public void PrePullHardcast_AboveThreshold_DoesNotPushVerthunder3()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();

@@ -377,6 +377,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
     private void TryPushPrePullHardcast(IApolloContext context, RotationScheduler scheduler)
     {
         if (!context.Configuration.PrePull.EnablePrePullActions) return;
+        if (!IsDamageEnabled(context)) return;
         var countdown = context.CountdownRemaining;
         if (countdown == null) return;
         var target = context.TargetingService.GetUserEnemyTarget();

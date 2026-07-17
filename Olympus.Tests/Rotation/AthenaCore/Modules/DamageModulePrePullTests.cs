@@ -41,7 +41,7 @@ public class DamageModulePrePullTests
     }
 
     [Fact]
-    public void PrePullHardcast_TooLate_DoesNotPushBroilIV()
+    public void PrePullHardcast_AboveThreshold_DoesNotPushBroilIV()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
@@ -84,6 +84,30 @@ public class DamageModulePrePullTests
 
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
         config.PrePull.EnablePrePullActions = false;
+
+        var context = AthenaTestContext.Create(
+            config: config,
+            level: 100,
+            inCombat: false,
+            countdownRemaining: 1.9f,
+            targetingService: targeting);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.DoesNotContain(gcd, c => c.Behavior.Action.ActionId == SCHActions.BroilIV.ActionId);
+    }
+
+    [Fact]
+    public void PrePullHardcast_DoesNotPush_WhenDamageDisabled()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.GetUserEnemyTarget()).Returns(enemy.Object);
+
+        var config = AthenaTestContext.CreateDefaultScholarConfiguration();
+        config.Scholar.EnableSingleTargetDamage = false;
 
         var context = AthenaTestContext.Create(
             config: config,

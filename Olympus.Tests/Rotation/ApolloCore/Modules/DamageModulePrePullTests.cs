@@ -41,7 +41,7 @@ public class DamageModulePrePullTests
     }
 
     [Fact]
-    public void PrePullHardcast_TooLate_DoesNotPushGlareIII()
+    public void PrePullHardcast_AboveThreshold_DoesNotPushGlareIII()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
@@ -84,6 +84,30 @@ public class DamageModulePrePullTests
 
         var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
         config.PrePull.EnablePrePullActions = false;
+
+        var context = ApolloTestContext.Create(
+            config: config,
+            level: 90,
+            inCombat: false,
+            countdownRemaining: 1.9f,
+            targetingService: targeting);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.DoesNotContain(gcd, c => c.Behavior.Action.ActionId == WHMActions.GlareIII.ActionId);
+    }
+
+    [Fact]
+    public void PrePullHardcast_DoesNotPush_WhenDamageDisabled()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.GetUserEnemyTarget()).Returns(enemy.Object);
+
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableDamage = false;
 
         var context = ApolloTestContext.Create(
             config: config,

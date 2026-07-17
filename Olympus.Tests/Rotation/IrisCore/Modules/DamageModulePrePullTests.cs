@@ -40,7 +40,7 @@ public class DamageModulePrePullTests
     }
 
     [Fact]
-    public void PrePullHardcast_TooLate_DoesNotPushRainbowDrip()
+    public void PrePullHardcast_AboveThreshold_DoesNotPushRainbowDrip()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
@@ -93,6 +93,41 @@ public class DamageModulePrePullTests
 
         var gcd = scheduler.InspectGcdQueue();
         Assert.DoesNotContain(gcd, c => c.Behavior == IrisAbilities.RainbowDrip);
+    }
+
+    /// <summary>
+    /// When all motifs are already painted, TryPushPrepaintMotif pushes nothing and Rainbow Drip
+    /// fires as the sole GCD candidate. Verifies the motif-first priority ordering resolves
+    /// correctly once the pre-pull painting sequence completes.
+    /// </summary>
+    [Fact]
+    public void PrePullHardcast_AllMotifsPainted_PushesRainbowDrip()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.GetUserEnemyTarget()).Returns(enemy.Object);
+
+        var config = IrisTestContext.CreateDefaultPctConfiguration();
+        config.Pictomancer.PrepaintMotifs = true;
+        config.Pictomancer.EnableCreatureMotif = true;
+        config.Pictomancer.EnableWeaponMotif = true;
+        config.Pictomancer.EnableLandscapeMotif = true;
+
+        // All motifs already painted: NeedsCreatureMotif/NeedsWeaponMotif/NeedsLandscapeMotif all false
+        var context = IrisTestContext.Create(
+            config: config,
+            inCombat: false,
+            countdownRemaining: 4.4f,
+            needsCreatureMotif: false,
+            needsWeaponMotif: false,
+            needsLandscapeMotif: false,
+            targetingService: targeting);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.Contains(gcd, c => c.Behavior == IrisAbilities.RainbowDrip && c.Priority == 5);
     }
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)

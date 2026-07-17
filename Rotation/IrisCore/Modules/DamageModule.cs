@@ -40,6 +40,10 @@ public sealed class DamageModule : IIrisModule
     public void CollectCandidates(IIrisContext context, RotationScheduler scheduler, bool isMoving)
     {
         // Pre-pull motif painting (out-of-combat)
+        // Priority ordering is intentional: motifs (priority 1) beat Rainbow Drip (priority 5).
+        // While motifs are still needed they win and get painted; once all motifs are complete
+        // TryPushPrepaintMotif pushes nothing, leaving Rainbow Drip as the sole candidate so it
+        // fires as the final pre-pull hardcast. Matches BossMod's motif-then-RainbowDrip sequence.
         if (!context.InCombat)
         {
             TryPushPrePullHardcast(context, scheduler);

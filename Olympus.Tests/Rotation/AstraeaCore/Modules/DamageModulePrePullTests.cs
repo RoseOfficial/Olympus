@@ -41,7 +41,7 @@ public class DamageModulePrePullTests
     }
 
     [Fact]
-    public void PrePullHardcast_TooLate_DoesNotPushFallMalefic()
+    public void PrePullHardcast_AboveThreshold_DoesNotPushFallMalefic()
     {
         var enemy = CreateMockEnemy();
         var targeting = MockBuilders.CreateMockTargetingService();
@@ -84,6 +84,30 @@ public class DamageModulePrePullTests
 
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.PrePull.EnablePrePullActions = false;
+
+        var context = AstraeaTestContext.Create(
+            config: config,
+            level: 90,
+            inCombat: false,
+            countdownRemaining: 1.9f,
+            targetingService: targeting);
+
+        var scheduler = SchedulerFactory.CreateForTest();
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.DoesNotContain(gcd, c => c.Behavior.Action.ActionId == ASTActions.FallMalefic.ActionId);
+    }
+
+    [Fact]
+    public void PrePullHardcast_DoesNotPush_WhenDamageDisabled()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.GetUserEnemyTarget()).Returns(enemy.Object);
+
+        var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+        config.Astrologian.EnableSingleTargetDamage = false;
 
         var context = AstraeaTestContext.Create(
             config: config,
