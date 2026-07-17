@@ -190,7 +190,8 @@ public sealed class DamageModule : IKratosModule
         var player = context.Player;
         var level = player.Level;
         if (context.Chakra < context.Configuration.Monk.ChakraMinGauge) return;
-        if (context.Configuration.Monk.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Chakra < 45) return;
+        var dumpForDowntime = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f);
+        if (!dumpForDowntime && context.Configuration.Monk.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Chakra < 45) return;
 
         if (useAoE && level >= MNKActions.HowlingFist.MinLevel)
         {

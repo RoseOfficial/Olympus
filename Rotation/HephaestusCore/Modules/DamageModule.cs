@@ -618,7 +618,7 @@ public sealed class DamageModule : IHephaestusModule
                           context.HasNoMercy ||
                           aboutToOvercapSt ||
                           aboutToOvercapAoe;
-        if (!shouldSpend) return;
+        if (!shouldSpend && !BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f)) return;
 
         var aoe = context.Configuration.Tank.EnableAoEDamage
                   && enemyCount >= context.Configuration.Tank.AoEMinTargets

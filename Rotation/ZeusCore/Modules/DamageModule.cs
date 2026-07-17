@@ -342,7 +342,8 @@ public sealed class DamageModule : IZeusModule
         if (!context.Configuration.Dragoon.EnableGeirskogul) return;
         if (context.Player.Level < DRGActions.Geirskogul.MinLevel) return;
         if (context.IsLifeOfDragonActive) return;
-        if (context.Configuration.Dragoon.EnableBurstPooling && ShouldHoldForBurst(8f) && context.EyeCount >= context.Configuration.Dragoon.GeirskogulMinEyes) return;
+        var dumpForDowntime = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f);
+        if (!dumpForDowntime && context.Configuration.Dragoon.EnableBurstPooling && ShouldHoldForBurst(8f) && context.EyeCount >= context.Configuration.Dragoon.GeirskogulMinEyes) return;
         if (!context.ActionService.IsActionReady(DRGActions.Geirskogul.ActionId)) return;
 
         scheduler.PushOgcd(ZeusAbilities.Geirskogul, targetId, priority: 3,

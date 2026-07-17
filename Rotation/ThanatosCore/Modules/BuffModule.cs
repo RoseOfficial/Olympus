@@ -138,6 +138,14 @@ public sealed class BuffModule : IThanatosModule
             return;
         }
 
+        // Block Enshroud entry within 15s of downtime to avoid wasting a full 11+ GCD commit.
+        // Escape: Shroud >= 90 prevents overcap regardless.
+        if (context.Shroud < 90 && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 15f))
+        {
+            context.Debug.BuffState = "Blocking Enshroud -- downtime within 15s";
+            return;
+        }
+
         bool shouldEnshroud = (context.Configuration.Reaper.UseEnshroudDuringArcaneCircle && context.HasArcaneCircle)
                               || context.Shroud >= 90
                               || (context.HasDeathsDesign && context.DeathsDesignRemaining > 15f);

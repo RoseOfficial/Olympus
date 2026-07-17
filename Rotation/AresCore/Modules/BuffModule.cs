@@ -164,7 +164,8 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
         var charges = (int)context.ActionService.GetCurrentCharges(WARActions.Infuriate.ActionId);
         if (charges < 1) return;
 
-        if (charges < 2 && ShouldHoldForBurst(8f))
+        var dumpForDowntime = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 15f);
+        if (!dumpForDowntime && charges < 2 && ShouldHoldForBurst(8f))
         {
             context.Debug.BuffState = "Holding Infuriate for burst";
             return;

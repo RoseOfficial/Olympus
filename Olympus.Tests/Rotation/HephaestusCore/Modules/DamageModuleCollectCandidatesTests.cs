@@ -13,6 +13,7 @@ using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
+using Olympus.Timeline;
 
 namespace Olympus.Tests.Rotation.HephaestusCore.Modules;
 
@@ -405,6 +406,57 @@ public class DamageModuleCollectCandidatesTests
         return targeting;
     }
 
+    // -----------------------------------------------------------------------
+    // Cartridge spender downtime dump tests
+    // -----------------------------------------------------------------------
+
+    [Fact]
+    public void CartridgeSpender_Held_WhenNotShouldSpendAndNoTimeline()
+    {
+        // shouldSpend=false (no max cartridges, no NoMercy, not about to overcap)
+        // null timeline → dumpForDowntime=false → !false&&!false=true → return → BurstStrike NOT pushed
+        var enemy = CreateMockEnemy(12345UL);
+        var targeting = BuildTargetingWithMeleeEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CreateContext(targeting: targeting, actionService: actionService,
+            cartridges: 1, hasMaxCartridges: false, hasNoMercy: false, comboStep: 0,
+            level: 100, timelineService: null);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectGcdQueue(),
+            c => c.Behavior == GnbAbilities.BurstStrike && c.Priority == 6);
+    }
+
+    [Fact]
+    public void CartridgeSpender_Pushed_WhenDowntimeImminent()
+    {
+        // Same state but 5s downtime → dumpForDowntime=true → !false&&!true=false → BurstStrike pushed at priority 6
+        var enemy = CreateMockEnemy(12345UL);
+        var targeting = BuildTargetingWithMeleeEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var timeline = new Mock<ITimelineService>();
+        timeline.Setup(x => x.Confidence).Returns(1.0f);
+        timeline.Setup(x => x.SecondsUntilNextUntargetablePhase()).Returns((float?)5f);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CreateContext(targeting: targeting, actionService: actionService,
+            cartridges: 1, hasMaxCartridges: false, hasNoMercy: false, comboStep: 0,
+            level: 100, timelineService: timeline);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectGcdQueue(),
+            c => c.Behavior == GnbAbilities.BurstStrike && c.Priority == 6);
+    }
+
     private static IHephaestusContext CreateContext(
         bool inCombat = true,
         byte level = 100,
@@ -416,7 +468,8 @@ public class DamageModuleCollectCandidatesTests
         uint lastComboAction = 0,
         Configuration? config = null,
         Mock<IActionService>? actionService = null,
-        Mock<ITargetingService>? targeting = null)
+        Mock<ITargetingService>? targeting = null,
+        Mock<ITimelineService>? timelineService = null)
     {
         config ??= HephaestusTestContext.CreateDefaultGunbreakerConfiguration();
         actionService ??= MockBuilders.CreateMockActionService();
@@ -435,6 +488,7 @@ public class DamageModuleCollectCandidatesTests
         mock.Setup(x => x.ActionService).Returns(actionService.Object);
         mock.Setup(x => x.TargetingService).Returns(targeting.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
+        mock.Setup(x => x.TimelineService).Returns(timelineService?.Object);
 
         // GNB gauge/combo state
         mock.Setup(x => x.Cartridges).Returns(cartridges);

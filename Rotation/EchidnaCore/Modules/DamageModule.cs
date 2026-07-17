@@ -332,6 +332,13 @@ public sealed class DamageModule : IEchidnaModule
         if (context.SerpentOffering < context.Configuration.Viper.AnguineMinStacks && !context.HasReadyToReawaken) return;
         if (!context.Configuration.Viper.UseReawakenDuringBurst && _burstWindowService?.IsInBurstWindow == true && !context.HasReadyToReawaken) return;
         if (context.Configuration.Viper.EnableBurstPooling && context.Configuration.Viper.SaveAnguineForBurst && ShouldHoldForBurst(8f) && !context.HasReadyToReawaken) return;
+        // Block Reawaken commitment if downtime within 15s (5+ GCDs consumed mid-sequence).
+        // Escape: HasReadyToReawaken proc overrides -- the game gave us a forced window.
+        if (!context.HasReadyToReawaken && BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 15f))
+        {
+            context.Debug.DamageState = "Blocking Reawaken -- downtime within 15s";
+            return;
+        }
         if (!context.HasHuntersInstinct || context.HuntersInstinctRemaining < 10f) return;
         if (!context.HasSwiftscaled || context.SwiftscaledRemaining < 10f) return;
         if (!context.HasNoxiousGnash || context.NoxiousGnashRemaining < 10f) return;
@@ -631,12 +638,15 @@ public sealed class DamageModule : IEchidnaModule
         if (context.RattlingCoils <= 0) return;
         if (context.IsReawakened) return;
 
+        var dumpForDowntime = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f);
         var rattlingCoilMax = context.Configuration.Viper.RattlingCoilMinStacks;
         bool shouldUse = !DistanceHelper.IsActionInRange(VPRActions.SteelFangs.ActionId, player, target)
                          || context.RattlingCoils >= rattlingCoilMax
-                         || isMoving;
+                         || isMoving
+                         || (dumpForDowntime && context.RattlingCoils >= 1);
         if (!shouldUse) return;
-        if (context.Configuration.Viper.EnableBurstPooling && context.Configuration.Viper.SaveRattlingCoilForBurst
+        if (!dumpForDowntime && context.Configuration.Viper.EnableBurstPooling
+            && context.Configuration.Viper.SaveRattlingCoilForBurst
             && ShouldHoldForBurst(8f) && context.RattlingCoils < rattlingCoilMax) return;
         if (!context.ActionService.IsActionReady(VPRActions.UncoiledFury.ActionId)) return;
 

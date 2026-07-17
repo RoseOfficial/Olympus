@@ -144,9 +144,11 @@ public sealed class DamageModule : INyxModule
         if (!context.ActionService.IsActionReady(DRKActions.Shadowbringer.ActionId)) return;
 
         // Bank both charges for the 2-minute burst window.
-        // Escape: fire immediately when both charges are at maximum to avoid overcapping.
+        // Escape: fire immediately when both charges are at maximum to avoid overcapping,
+        // or when downtime is imminent (spec B2 interplay rule: dump beats hold).
         var charges = context.ActionService.GetCurrentCharges(DRKActions.Shadowbringer.ActionId);
-        if (charges < 2u && ShouldHoldForBurst(8f))
+        var dumpForDowntime = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f);
+        if (!dumpForDowntime && charges < 2u && ShouldHoldForBurst(8f))
         {
             context.Debug.DamageState = "Shadowbringer held -- burst imminent";
             return;
@@ -207,7 +209,8 @@ public sealed class DamageModule : INyxModule
 
         bool expiringSoon = context.HasDarkside && context.DarksideRemaining < 10f && context.DarksideRemaining > 0f;
         bool noDarkside = !context.HasDarkside;
-        bool mpDump = context.CurrentMp >= 9400;
+        var mpDumpThreshold = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f) ? 6000 : 9400;
+        bool mpDump = context.CurrentMp >= mpDumpThreshold;
         if (!expiringSoon && !noDarkside && !mpDump) return;
         if (!context.ActionService.IsActionReady(action.ActionId)) return;
 

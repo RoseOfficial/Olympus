@@ -155,7 +155,8 @@ public sealed class DamageModule : IHermesModule
         var ninkiOvercapThreshold = context.Configuration.Ninja.NinkiOvercapThreshold;
 
         if (context.Ninki < ninkiMinGauge) return;
-        if (context.Configuration.Ninja.EnableBurstPooling && context.Configuration.Ninja.SaveNinkiForBurst && ShouldHoldForBurst(8f) && context.Ninki < ninkiOvercapThreshold) return;
+        var dumpForDowntime = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 8f);
+        if (!dumpForDowntime && context.Configuration.Ninja.EnableBurstPooling && context.Configuration.Ninja.SaveNinkiForBurst && ShouldHoldForBurst(8f) && context.Ninki < ninkiOvercapThreshold) return;
 
         var aoeThreshold = context.Configuration.Ninja.AoEMinTargets;
 

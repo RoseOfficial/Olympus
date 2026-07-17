@@ -191,10 +191,11 @@ public sealed class DamageModule : INikeModule
         var player = context.Player;
         var level = player.Level;
         if (context.Kenki < context.Configuration.Samurai.KenkiMinGauge) return;
-        if (context.Configuration.Samurai.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Kenki < context.Configuration.Samurai.KenkiReserveForBurst) return;
+        var dumpForDowntime = BurstHoldHelper.ShouldDumpForDowntime(context.TimelineService, 10f);
+        if (!dumpForDowntime && context.Configuration.Samurai.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Kenki < context.Configuration.Samurai.KenkiReserveForBurst) return;
 
         var shouldSpend = context.Kenki >= context.Configuration.Samurai.KenkiOvercapThreshold || context.Kenki >= 50;
-        if (!shouldSpend) return;
+        if (!shouldSpend && !dumpForDowntime) return;
 
         if (useAoE && level >= SAMActions.Kyuten.MinLevel)
         {
