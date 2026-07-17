@@ -64,6 +64,23 @@ public sealed class BuffModule : IIrisModule
     {
         if (!context.Configuration.Pictomancer.EnablePortraits) return;
         if (target == null) return;
+
+        // Burst pooling: portraits land most value inside the Starry Muse buff window.
+        // Hold unless (a) the buff is currently active with more than one animation lock
+        // remaining, or (b) Starry Muse CD > 30s (lost-use escape - the portrait recast
+        // is also 30s, so holding any longer does not save the portrait for the next window).
+        if (context.Configuration.Pictomancer.EnableBurstPooling)
+        {
+            var inStarryWindow = context.StarryMuseRemaining > FFXIVTimings.AnimationLockBase;
+            var starryMuseCD = context.ActionService.GetCooldownRemaining(PCTActions.StarryMuse.ActionId);
+            var lostUseEscape = starryMuseCD > 30f;
+            if (!inStarryWindow && !lostUseEscape)
+            {
+                context.Debug.BuffState = "Portrait held - waiting for Starry Muse";
+                return;
+            }
+        }
+
         var level = context.Player.Level;
 
         if (context.MadeenReady && level >= PCTActions.RetributionOfTheMadeen.MinLevel)
