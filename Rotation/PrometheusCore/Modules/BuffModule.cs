@@ -71,8 +71,12 @@ public sealed class BuffModule : IPrometheusModule
         if (player.Level < MCHActions.Wildfire.MinLevel) return;
         if (context.HasWildfire) return;
 
+        // Uses the default 8f window to mirror TryPushHypercharge's phase guard exactly --
+        // Wildfire must not commit when Hypercharge would be suppressed by the same guard.
         var shouldUse = context.IsOverheated
-                        || (context.Heat >= 50 && context.ActionService.IsActionReady(MCHActions.Hypercharge.ActionId));
+                        || (context.Heat >= 50
+                            && context.ActionService.IsActionReady(MCHActions.Hypercharge.ActionId)
+                            && !BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService));
         if (!shouldUse)
         {
             context.Debug.BuffState = "Waiting for Hypercharge alignment";
@@ -438,7 +442,9 @@ public sealed class BuffModule : IPrometheusModule
                         context.Debug.PlannedAction = gaussAction.Name;
                         context.Debug.BuffState = $"{gaussAction.Name} (charges: {context.GaussRoundCharges})";
 
-                        var gaussReason = context.IsOverheated ? "Weaving during Overheated" : "Preventing charge overcap";
+                        var gaussReason = context.IsOverheated ? "Weaving during Overheated"
+                            : context.GaussRoundCharges >= 2 ? "Preventing charge overcap"
+                            : "Dumping charges during burst window";
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(gaussAction.ActionId, gaussAction.Name)
                             .AsRangedDamage()
@@ -468,7 +474,9 @@ public sealed class BuffModule : IPrometheusModule
                         context.Debug.PlannedAction = ricochetAction.Name;
                         context.Debug.BuffState = $"{ricochetAction.Name} (charges: {context.RicochetCharges})";
 
-                        var ricochetReason = context.IsOverheated ? "Weaving during Overheated" : "Preventing charge overcap";
+                        var ricochetReason = context.IsOverheated ? "Weaving during Overheated"
+                            : context.RicochetCharges >= 2 ? "Preventing charge overcap"
+                            : "Dumping charges during burst window";
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(ricochetAction.ActionId, ricochetAction.Name)
                             .AsRangedDamage()

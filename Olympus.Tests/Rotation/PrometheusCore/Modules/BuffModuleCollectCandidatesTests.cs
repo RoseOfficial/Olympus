@@ -804,6 +804,81 @@ public class BuffModuleCollectCandidatesTests
     }
 
     // -------------------------------------------------------------------------
+    // 10. Wildfire: phase-transition guard (sync with Hypercharge phase guard)
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void Wildfire_NotPushed_WhenPhaseTransitionImminent_NotOverheated_HeatReady()
+    {
+        // WildfireHoldTime defaults to 3.0f; phase at 5s sits inside the Hypercharge
+        // phase guard window (8f) but outside Wildfire's own hold window (3f).
+        // Without the fix, Wildfire fires while Hypercharge is suppressed, producing
+        // a zero-Heat-Blast Wildfire and wasting the 120s cooldown.
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableWildfire = true;
+        // WildfireHoldTime stays at its default 3.0f to reproduce the band.
+
+        var timelineService = new Mock<ITimelineService>();
+        var phasePrediction = new MechanicPrediction(5f, TimelineEntryType.Phase, "Phase2", 0.9f);
+        timelineService.Setup(x => x.GetNextMechanic(TimelineEntryType.Phase))
+            .Returns((MechanicPrediction?)phasePrediction);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineService.Object,
+            heat: 50,
+            isOverheated: false,
+            hasWildfire: false,
+            inCombat: true);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.Wildfire);
+    }
+
+    [Fact]
+    public void Wildfire_Pushed_WhenPhaseTransitionImminent_WhenOverheated()
+    {
+        // The IsOverheated arm of shouldUse stays unconditional -- Hypercharge already
+        // fired before this point, so there is no suppression risk.
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableWildfire = true;
+
+        var timelineService = new Mock<ITimelineService>();
+        var phasePrediction = new MechanicPrediction(5f, TimelineEntryType.Phase, "Phase2", 0.9f);
+        timelineService.Setup(x => x.GetNextMechanic(TimelineEntryType.Phase))
+            .Returns((MechanicPrediction?)phasePrediction);
+
+        var target = CreateTarget();
+        var targeting = BuildTargeting(target);
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService, config: config);
+        var context = PrometheusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineService.Object,
+            heat: 80,
+            isOverheated: true,
+            hasWildfire: false,
+            inCombat: true);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(), c => c.Behavior == PrometheusAbilities.Wildfire && c.Priority == 1);
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 
