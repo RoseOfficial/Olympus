@@ -37,8 +37,10 @@ public interface IBurstWindowService
     bool IsBurstImminent(float thresholdSeconds = 5f);
 
     /// <summary>
-    /// Seconds until the next burst window.
-    /// Returns 0 if currently active, -1 if unknown.
+    /// Seconds until the next burst window. Returns 0 while a burst window is active.
+    /// Pre-combat (not yet in combat): returns ~7.8s (synthetic first-burst offset) so
+    /// consumers can predict the opener window. Returns -1 only when the timer-based cycle
+    /// has elapsed beyond BurstCycleGapSeconds and no new real burst window has been observed.
     /// </summary>
     float SecondsUntilNextBurst { get; }
 

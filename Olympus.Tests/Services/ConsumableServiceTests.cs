@@ -174,4 +174,75 @@ public class ConsumableServiceTests
 
         Assert.False(sut.ShouldUseTinctureNow(burst.Object, inCombat: true, prePullPhase: false));
     }
+
+    // -------------------------------------------------------------------------
+    // Pre-pull threshold: 10f for prePullPhase, 5f for in-combat
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void ShouldUseTinctureNow_PrePull_UsesWidenedBurstThreshold()
+    {
+        // Discriminating variable: prePullPhase=true uses 10f threshold;
+        // prePullPhase=false uses 5f. IsBurstImminent(5f)=false, IsBurstImminent(10f)=true.
+        var (sut, burst, intent, _, highEnd, _, cd) = Make();
+        highEnd.Setup(h => h.IsHighEndZone).Returns(true);
+        burst.Setup(b => b.IsInBurstWindow).Returns(false);
+        burst.Setup(b => b.IsBurstImminent(5f)).Returns(false);   // in-combat threshold → miss
+        burst.Setup(b => b.IsBurstImminent(10f)).Returns(true);   // pre-pull threshold → hit
+        intent.Setup(i => i.Current).Returns(PullIntent.Imminent);
+
+        // In-combat (5f threshold): false
+        Assert.False(sut.ShouldUseTinctureNow(burst.Object, inCombat: true, prePullPhase: false));
+
+        // Pre-pull (10f threshold): true
+        Assert.True(sut.ShouldUseTinctureNow(burst.Object, inCombat: false, prePullPhase: true));
+    }
+
+    // -------------------------------------------------------------------------
+    // Countdown bypass: CountdownRemaining <= 2s supplements PullIntent gate
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void ShouldUseTinctureNow_PrePull_Countdown_Bypasses_PullIntentNone()
+    {
+        // Positive: countdown=1.9s, PullIntent=None → should fire (countdown is the pull signal)
+        var (sut, burst, intent, _, highEnd, _, cd) = Make();
+        highEnd.Setup(h => h.IsHighEndZone).Returns(true);
+        burst.Setup(b => b.IsInBurstWindow).Returns(false);
+        burst.Setup(b => b.IsBurstImminent(It.IsAny<float>())).Returns(true);
+        intent.Setup(i => i.Current).Returns(PullIntent.None);
+        intent.Setup(i => i.CountdownRemaining).Returns(1.9f);
+
+        Assert.True(sut.ShouldUseTinctureNow(burst.Object, inCombat: false, prePullPhase: true));
+    }
+
+    [Fact]
+    public void ShouldUseTinctureNow_PrePull_Countdown_TooFar_StillBlocked()
+    {
+        // Negative (discriminating: countdown=5.0f > 2s, same setup otherwise):
+        // countdown outside the 2s window + PullIntent=None → should not fire.
+        var (sut, burst, intent, _, highEnd, _, cd) = Make();
+        highEnd.Setup(h => h.IsHighEndZone).Returns(true);
+        burst.Setup(b => b.IsInBurstWindow).Returns(false);
+        burst.Setup(b => b.IsBurstImminent(It.IsAny<float>())).Returns(true);
+        intent.Setup(i => i.Current).Returns(PullIntent.None);
+        intent.Setup(i => i.CountdownRemaining).Returns(5.0f);   // ← only difference vs positive
+
+        Assert.False(sut.ShouldUseTinctureNow(burst.Object, inCombat: false, prePullPhase: true));
+    }
+
+    [Fact]
+    public void ShouldUseTinctureNow_PrePull_Countdown_Toggle_Off_Blocks()
+    {
+        // Toggle-off companion: same as the bypass positive but EnableAutoTincture=false.
+        var (sut, burst, intent, config, highEnd, _, cd) = Make();
+        config.EnableAutoTincture = false;                       // ← only difference
+        highEnd.Setup(h => h.IsHighEndZone).Returns(true);
+        burst.Setup(b => b.IsInBurstWindow).Returns(false);
+        burst.Setup(b => b.IsBurstImminent(It.IsAny<float>())).Returns(true);
+        intent.Setup(i => i.Current).Returns(PullIntent.None);
+        intent.Setup(i => i.CountdownRemaining).Returns(1.9f);
+
+        Assert.False(sut.ShouldUseTinctureNow(burst.Object, inCombat: false, prePullPhase: true));
+    }
 }

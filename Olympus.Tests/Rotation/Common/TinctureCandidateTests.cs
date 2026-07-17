@@ -39,4 +39,15 @@ public class TinctureCandidateTests
 
         Assert.False(result);
     }
+
+    [Fact]
+    public void CanFireDuringCountdown_ReturnsTrue()
+    {
+        // TinctureCandidate opts into the countdown bypass path so it fires at -2s
+        // without needing PullIntent to have transitioned.
+        var dispatcher = new Mock<ITinctureDispatcher>();
+        var sut = new TinctureCandidate(dispatcher.Object);
+
+        Assert.True(sut.CanFireDuringCountdown);
+    }
 }

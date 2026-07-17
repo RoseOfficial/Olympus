@@ -26,9 +26,9 @@ public interface IConsumableService
     /// - Master toggle is on
     /// - Current zone is high-end
     /// - Tincture recast group is off cooldown
-    /// - Burst is active or imminent (within 5s)
+    /// - Burst is active or imminent (within 10s when prePullPhase is true, 5s otherwise)
     /// - AND one of:
-    ///   - <paramref name="prePullPhase"/> = true and PullIntent != None (Path 1)
+    ///   - <paramref name="prePullPhase"/> = true: PullIntent != None OR countdown &lt;= 2s (Path 1)
     ///   - <paramref name="prePullPhase"/> = false and inCombat = true (Path 2)
     ///
     /// Does NOT check inventory. Callers MUST call <see cref="TryGetTinctureForJob"/>

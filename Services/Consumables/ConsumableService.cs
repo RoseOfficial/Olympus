@@ -11,6 +11,9 @@ namespace Olympus.Services.Consumables;
 public sealed class ConsumableService : IConsumableService
 {
     private const float BurstImminentThresholdSeconds = 5f;
+    // Pre-pull: the opener burst window opens ~7.8s into combat; a 10s threshold covers it
+    // so IsBurstImminent returns true when SyntheticSecondsUntilBurst = 7.8f (out of combat).
+    private const float PrePullBurstImminentThresholdSeconds = 10f;
 
     private readonly ConsumablesConfig _config;
     private readonly IPullIntentService _pullIntent;
@@ -70,14 +73,23 @@ public sealed class ConsumableService : IConsumableService
         if (!_config.EnableAutoTincture) return false;
         if (!_highEnd.IsHighEndZone) return false;
 
-        var burstActive = burstWindow.IsInBurstWindow
-                          || burstWindow.IsBurstImminent(BurstImminentThresholdSeconds);
+        // Pre-pull: use a wider imminent threshold (10s) to cover the 7.8s synthetic first-burst
+        // offset returned by SyntheticSecondsUntilBurst when out of combat. In-combat: keep 5s.
+        var imminentThreshold = prePullPhase
+            ? PrePullBurstImminentThresholdSeconds
+            : BurstImminentThresholdSeconds;
+        var burstActive = burstWindow.IsInBurstWindow || burstWindow.IsBurstImminent(imminentThreshold);
         if (!burstActive) return false;
 
         if (_cooldown.GetTinctureCooldownRemaining() > 0f) return false;
 
         if (prePullPhase)
-            return _pullIntent.Current != PullIntent.None;
+        {
+            // Allow firing when a party countdown is active (countdown itself is the pull signal)
+            // OR when PullIntent has already transitioned (cast-based or queue-based signal).
+            return _pullIntent.Current != PullIntent.None
+                   || _pullIntent.CountdownRemaining is <= 2.0f;
+        }
         return inCombat;
     }
 

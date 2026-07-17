@@ -331,8 +331,9 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
 
     /// <summary>
     /// Estimates seconds until the next burst using the ~100s cycle gap from the last known end.
-    /// Before any window has been observed (solo striking dummy, pre-opener), falls back to a
-    /// synthetic cycle anchored to combat start. Returns -1 if no timing data is available.
+    /// Before any window has been observed (solo striking dummy, pre-opener), falls back to
+    /// SyntheticSecondsUntilBurst (~7.8s pre-combat). Returns -1 only when the timer-based
+    /// cycle has elapsed beyond BurstCycleGapSeconds and no new window has been observed.
     /// </summary>
     private float TimerBasedSecondsUntilBurst
     {
@@ -352,7 +353,9 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     /// first window ~7.8s into combat (opener buffs), repeating every 120s. Covers solo
     /// striking-dummy practice (no party buffs ever appear) and pre-opener pooling in
     /// real parties. Real observed windows always take precedence via _lastBurstWindowEnd.
-    /// Returns 0 while inside a synthetic window, -1 when out of combat.
+    /// Returns SyntheticFirstBurstSeconds (~7.8s) when out of combat so IsBurstImminent
+    /// is true for the pre-pull tincture window (burst is 7.8s into the fight = imminent
+    /// within a 10s pre-pull threshold). Returns 0 while inside a synthetic window.
     /// </summary>
     private float SyntheticSecondsUntilBurst
     {
@@ -360,7 +363,7 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
         {
             var elapsed = _combatEventService?.GetCombatDurationSeconds() ?? 0f;
             if (elapsed <= 0f)
-                return -1f;
+                return SyntheticFirstBurstSeconds;
 
             if (elapsed < SyntheticFirstBurstSeconds)
                 return SyntheticFirstBurstSeconds - elapsed;

@@ -87,4 +87,68 @@ public class PrePullModuleTests
         first.Verify(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>()), Times.Once);
         second.Verify(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>()), Times.Once);
     }
+
+    // -------------------------------------------------------------------------
+    // Countdown bypass: CanFireDuringCountdown=true candidates fire at <= 2s
+    // even when PullIntent is None.
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void TryDispatch_CountdownWindow_WithCountdownCandidate_Fires()
+    {
+        // Positive: PullIntent=None, countdown=1.9s, candidate opts in.
+        var (sut, intent, ctx) = Make();
+        intent.Setup(i => i.Current).Returns(PullIntent.None);
+        intent.Setup(i => i.CountdownRemaining).Returns(1.9f);
+
+        var c = new Mock<IPrePullCandidate>();
+        c.Setup(x => x.CanFireDuringCountdown).Returns(true);
+        c.Setup(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>())).Returns(true);
+        sut.Register(c.Object);
+
+        var result = sut.TryDispatch(Olympus.Data.JobRegistry.Warrior, ctx.Object);
+
+        Assert.True(result);
+        c.Verify(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryDispatch_CountdownTooFar_WithCountdownCandidate_Blocked()
+    {
+        // Negative (discriminating variable: countdown=5.0f > 2s; all else identical).
+        // Countdown > 2s and PullIntent=None → candidate must NOT be called.
+        var (sut, intent, ctx) = Make();
+        intent.Setup(i => i.Current).Returns(PullIntent.None);
+        intent.Setup(i => i.CountdownRemaining).Returns(5.0f);   // ← only difference
+
+        var c = new Mock<IPrePullCandidate>();
+        c.Setup(x => x.CanFireDuringCountdown).Returns(true);
+        c.Setup(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>())).Returns(true);
+        sut.Register(c.Object);
+
+        var result = sut.TryDispatch(Olympus.Data.JobRegistry.Warrior, ctx.Object);
+
+        Assert.False(result);
+        c.Verify(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryDispatch_CountdownWindow_WithNonCountdownCandidate_Blocked()
+    {
+        // Negative (discriminating variable: CanFireDuringCountdown=false; all else identical).
+        // Candidate does not opt in to the countdown path → must NOT be called.
+        var (sut, intent, ctx) = Make();
+        intent.Setup(i => i.Current).Returns(PullIntent.None);
+        intent.Setup(i => i.CountdownRemaining).Returns(1.9f);
+
+        var c = new Mock<IPrePullCandidate>();
+        c.Setup(x => x.CanFireDuringCountdown).Returns(false);   // ← only difference
+        c.Setup(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>())).Returns(true);
+        sut.Register(c.Object);
+
+        var result = sut.TryDispatch(Olympus.Data.JobRegistry.Warrior, ctx.Object);
+
+        Assert.False(result);
+        c.Verify(x => x.TryDispatch(It.IsAny<uint>(), It.IsAny<IRotationContext>()), Times.Never);
+    }
 }

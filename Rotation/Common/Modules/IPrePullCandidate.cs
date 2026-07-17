@@ -12,4 +12,12 @@ public interface IPrePullCandidate
     /// spent its oGCD slot (no further oGCDs this frame).
     /// </summary>
     bool TryDispatch(uint jobId, IRotationContext context);
+
+    /// <summary>
+    /// When true, this candidate may fire during a party countdown window
+    /// (IPullIntentService.CountdownRemaining &lt;= 2s) even when PullIntent is still None.
+    /// Defaults to false: most pre-pull candidates require explicit pull intent; the countdown
+    /// bypass is reserved for candidates (e.g., tincture) whose trigger IS the countdown.
+    /// </summary>
+    bool CanFireDuringCountdown => false;
 }

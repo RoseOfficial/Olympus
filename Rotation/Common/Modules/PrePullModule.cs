@@ -29,12 +29,27 @@ public sealed class PrePullModule
     /// <summary>
     /// Attempts to dispatch the first ready pre-pull candidate. Returns true if any
     /// candidate fired. Caller should treat the frame as having spent its oGCD slot.
+    ///
+    /// Two paths:
+    /// - PullIntent != None (cast- or queue-based signal): all registered candidates run.
+    /// - Countdown &lt;= 2s AND PullIntent is still None: only candidates where
+    ///   <see cref="IPrePullCandidate.CanFireDuringCountdown"/> is true are run.
+    ///   Other candidates are skipped so the countdown does not broaden their gate.
     /// </summary>
     public bool TryDispatch(uint jobId, IRotationContext context)
     {
-        if (_pullIntent.Current == PullIntent.None) return false;
+        var pullIntentActive = _pullIntent.Current != PullIntent.None;
+        var countdownActive = _pullIntent.CountdownRemaining is <= 2.0f;
+
+        if (!pullIntentActive && !countdownActive) return false;
+
         foreach (var c in _candidates)
+        {
+            // When firing via the countdown path (no PullIntent yet), only run
+            // candidates that explicitly opt in — the gate must not broaden for others.
+            if (!pullIntentActive && !c.CanFireDuringCountdown) continue;
             if (c.TryDispatch(jobId, context)) return true;
+        }
         return false;
     }
 }

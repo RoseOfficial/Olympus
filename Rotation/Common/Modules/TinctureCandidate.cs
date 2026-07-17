@@ -16,6 +16,11 @@ public sealed class TinctureCandidate : IPrePullCandidate
         _dispatcher = dispatcher;
     }
 
+    /// <inheritdoc />
+    /// Tincture opts into the countdown path so it fires at countdown &lt;= 2s without
+    /// requiring PullIntent to have transitioned (player may not yet have cast or queued).
+    public bool CanFireDuringCountdown => true;
+
     public bool TryDispatch(uint jobId, IRotationContext context)
     {
         return _dispatcher.TryDispatch(jobId, context.InCombat, prePullPhase: true);

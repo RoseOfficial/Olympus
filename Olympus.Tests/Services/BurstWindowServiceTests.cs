@@ -44,18 +44,22 @@ public class BurstWindowServiceTests
     [Fact]
     public void IsBurstImminent_WhenNoBurstAndNoTimer_ReturnsFalse()
     {
-        // No IPC, no _lastBurstWindowEnd → TimerBasedSecondsUntilBurst returns -1
+        // No IPC, no _lastBurstWindowEnd → TimerBasedSecondsUntilBurst returns SyntheticFirstBurstSeconds
+        // (~7.8s); IsBurstImminent(5f) = false because 7.8 > 5.
         var service = new BurstWindowService();
 
         Assert.False(service.IsBurstImminent());
     }
 
     [Fact]
-    public void SecondsUntilNextBurst_WhenNoData_ReturnsNegativeOne()
+    public void SecondsUntilNextBurst_WhenNoData_ReturnsSyntheticFirstBurstOffset()
     {
+        // No ICombatEventService → GetCombatDurationSeconds defaults to 0f (out of combat).
+        // After the fix, SyntheticSecondsUntilBurst returns SyntheticFirstBurstSeconds (~7.8s)
+        // instead of -1f, so callers know how far away the opener burst window is.
         var service = new BurstWindowService();
 
-        Assert.Equal(-1f, service.SecondsUntilNextBurst);
+        Assert.InRange(service.SecondsUntilNextBurst, 7.7f, 7.9f);
     }
 
     // -------------------------------------------------------------------------
@@ -127,19 +131,21 @@ public class BurstWindowServiceTests
     }
 
     [Fact]
-    public void SecondsUntilNextBurst_WhenIpcReturnsNegativeOne_ReturnsFallback()
+    public void SecondsUntilNextBurst_WhenIpcReturnsNegativeOne_ReturnsSyntheticFallback()
     {
-        // Arrange — IPC returns -1 (no data); no timer either → -1
+        // IPC returns -1 (no data) → falls through to TimerBasedSecondsUntilBurst
+        // → _lastBurstWindowEnd is null → SyntheticSecondsUntilBurst.
+        // After the fix, SyntheticSecondsUntilBurst returns SyntheticFirstBurstSeconds (~7.8s)
+        // when out of combat so callers can predict the opener window even without IPC data.
         var partyCoord = new Mock<IPartyCoordinationService>();
         partyCoord.Setup(x => x.GetSecondsUntilBurst()).Returns(-1f);
 
         var service = new BurstWindowService(partyCoord.Object);
 
-        // Act
         var result = service.SecondsUntilNextBurst;
 
-        // Assert — falls through to timer-based fallback, which also returns -1
-        Assert.Equal(-1f, result);
+        // IPC -1 (< 0) bypassed; SyntheticSecondsUntilBurst drives the return.
+        Assert.InRange(result, 7.7f, 7.9f);
     }
 
     // -------------------------------------------------------------------------
@@ -394,8 +400,12 @@ public class BurstWindowServiceTests
     }
 
     [Fact]
-    public void SyntheticCycle_OutOfCombat_Inert()
+    public void SyntheticCycle_OutOfCombat_NotInBurstWindow_PredictsSyntheticOpener()
     {
+        // Out of combat (elapsed = 0): IsInBurstWindow stays false (synthetic window
+        // only opens when elapsed > SyntheticFirstBurstSeconds). SecondsUntilNextBurst
+        // now returns the first-burst offset (~7.8s) rather than -1f, so the tincture's
+        // IsBurstImminent(10f) gate can open at countdown <= 2s.
         var (service, combatEvents) = BuildWithCastEvents();
         var player = new Mock<IPlayerCharacter>();
         combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(0f);
@@ -403,7 +413,7 @@ public class BurstWindowServiceTests
         service.Update(player.Object);
 
         Assert.False(service.IsInBurstWindow);
-        Assert.Equal(-1f, service.SecondsUntilNextBurst);
+        Assert.InRange(service.SecondsUntilNextBurst, 7.7f, 7.9f);
     }
 
     // -------------------------------------------------------------------------
