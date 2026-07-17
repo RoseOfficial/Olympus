@@ -52,4 +52,20 @@ public static class HecateAbilities
 
     // --- Role ---
     public static readonly AbilityBehavior Addle = new() { Action = RoleActions.Addle, Toggle = cfg => cfg.BlackMage.EnableAddle };
+
+    // --- Downtime maintenance ---
+    /// <summary>
+    /// Umbral Soul — self-targeted instant GCD that grants one Umbral Ice stack, one
+    /// Umbral Heart, and refreshes MP (+ Enochian/element timer). Used during combat
+    /// downtime (boss jump) when no valid enemy is targetable and the caster is in
+    /// Umbral Ice. Pressing it unconditionally preserves Enochian through longer
+    /// downtime windows — even when already at UI3 + max hearts + full MP — so
+    /// re-engage goes straight into the Fire phase. No config toggle: this is always
+    /// correct play when in Umbral Ice with no enemy.
+    /// Note: BossMod stops pushing UmbralSoul once at UI3 + max hearts + full MP
+    /// (its third condition: Ice &lt; 3 || Hearts &lt; MaxHearts || CurMP &lt; MaxMP).
+    /// Olympus deliberately departs from that to keep Enochian alive through longer
+    /// downtime windows.
+    /// </summary>
+    public static readonly AbilityBehavior UmbralSoul = new() { Action = BLMActions.UmbralSoul };
 }

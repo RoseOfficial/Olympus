@@ -56,6 +56,14 @@ public sealed class DamageModule : IIrisModule
         if (context.TargetingService.IsDamageTargetingPaused())
         {
             context.Debug.DamageState = "Paused (no target)";
+            // During combat downtime (boss jump): paint missing motifs so three instant
+            // Muse GCDs are available immediately on re-engage. Reuses TryPushPrepaintMotif
+            // (Landscape > Creature > Weapon priority, per-motif toggles). Gated by the
+            // existing PrepaintMotifs toggle — no new config field. Holy in White is
+            // intentionally excluded: it requires an enemy target (SingleEnemy action type)
+            // which does not exist during downtime; the pre-downtime dump handles
+            // white-paint overflow (Phase B3).
+            TryPushPrepaintMotif(context, scheduler);
             return;
         }
         if (context.Configuration.Targeting.SuppressDamageOnForcedMovement

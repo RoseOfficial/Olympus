@@ -50,6 +50,13 @@ public sealed class DamageModule : IHecateModule
         if (context.TargetingService.IsDamageTargetingPaused())
         {
             context.Debug.DamageState = "Paused (no target)";
+            // During combat downtime (boss jump): push Umbral Soul to maintain ice
+            // stacks, Umbral Hearts, and Enochian (element timer) so re-engage goes
+            // straight into the Fire phase. Continues even at UI3 + max hearts + full
+            // MP to keep Enochian alive through longer downtime windows. InCombat is
+            // guaranteed true here (the !InCombat guard above already returned).
+            if (context.InUmbralIce && context.Player.Level >= BLMActions.UmbralSoul.MinLevel)
+                TryPushUmbralSoul(context, scheduler);
             return;
         }
         if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
@@ -935,6 +942,16 @@ public sealed class DamageModule : IHecateModule
         if (action == BLMActions.Thunder4) return HecateAbilities.Thunder4;
         if (action == BLMActions.HighThunder2) return HecateAbilities.HighThunder2;
         return HecateAbilities.Thunder;
+    }
+
+    private static void TryPushUmbralSoul(IHecateContext context, RotationScheduler scheduler)
+    {
+        scheduler.PushGcd(HecateAbilities.UmbralSoul, context.Player.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = BLMActions.UmbralSoul.Name;
+                context.Debug.DamageState = "Umbral Soul: downtime — maintaining Umbral Ice";
+            });
     }
 
     #endregion
