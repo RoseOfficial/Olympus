@@ -82,4 +82,25 @@ public class PrePullBenisonTests
         Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
             c => c.Behavior == ApolloAbilities.DivineBenison);
     }
+
+    // 4. Defensive.EnableDivineBenison disabled -> no push (same positive setup; only per-job toggle differs).
+    [Fact]
+    public void DefensiveModule_PrePullBenison_NoPushWhenBenisonToggleOff()
+    {
+        var cfg = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        cfg.Defensive.EnableDivineBenison = false;
+        var (ph, svc) = HappyPathSetup();
+        var context = ApolloTestContext.Create(
+            config: cfg,
+            inCombat: false,
+            countdownRemaining: 4f,
+            partyHelper: ph,
+            actionService: svc);
+        var scheduler = SchedulerFactory.CreateForTest(svc);
+
+        new DefensiveModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == ApolloAbilities.DivineBenison);
+    }
 }

@@ -81,6 +81,7 @@ public sealed class HealingModule : IAthenaModule
         if (countdown == null || countdown > 8f) return;
         if (!context.Configuration.PrePull.EnablePrePullActions) return;
         if (!context.Configuration.EnableHealing) return;
+        if (!context.Configuration.Scholar.EnableAdloquium) return;
         // Only apply with Recitation active — the guaranteed crit is the point.
         // HasRecitation reads Player.StatusList; always false in unit tests (same caveat
         // as TryPrePullRecitation above and ShieldHealingHandlerSchedulerTests.cs lines 66-70).

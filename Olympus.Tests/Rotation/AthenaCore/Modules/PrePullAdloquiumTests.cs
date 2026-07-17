@@ -48,4 +48,22 @@ public class PrePullAdloquiumTests
         Assert.DoesNotContain(scheduler.InspectGcdQueue(),
             c => c.Behavior == AthenaAbilities.Adloquium);
     }
+
+    // 3. Scholar.EnableAdloquium disabled -> no push (returns before HasRecitation gate).
+    [Fact]
+    public void HealingModule_PrePullAdloquium_NoPushWhenAdloquiumToggleOff()
+    {
+        var cfg = AthenaTestContext.CreateDefaultScholarConfiguration();
+        cfg.Scholar.EnableAdloquium = false;
+        var context = AthenaTestContext.Create(
+            config: cfg,
+            inCombat: false,
+            countdownRemaining: 7f);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        new HealingModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectGcdQueue(),
+            c => c.Behavior == AthenaAbilities.Adloquium);
+    }
 }

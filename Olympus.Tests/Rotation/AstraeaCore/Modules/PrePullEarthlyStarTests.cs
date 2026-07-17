@@ -74,4 +74,25 @@ public class PrePullEarthlyStarTests
         Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
             c => c.Behavior.Action.ActionId == ASTActions.EarthlyStar.ActionId);
     }
+
+    // 4. Astrologian.EnableEarthlyStar disabled -> no push (same positive setup; only per-job toggle differs).
+    [Fact]
+    public void HealingModule_PrePullEarthlyStar_NoPushWhenEarthlyStarToggleOff()
+    {
+        var cfg = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+        cfg.Astrologian.EnableEarthlyStar = false;
+        var svc = StarReadyService();
+        var context = AstraeaTestContext.Create(
+            config: cfg,
+            inCombat: false,
+            countdownRemaining: 4f,
+            isStarPlaced: false,
+            actionService: svc);
+        var scheduler = SchedulerFactory.CreateForTest(svc);
+
+        new HealingModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == ASTActions.EarthlyStar.ActionId);
+    }
 }

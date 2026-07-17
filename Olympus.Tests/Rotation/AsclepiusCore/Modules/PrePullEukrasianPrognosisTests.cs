@@ -87,6 +87,29 @@ public class PrePullEukrasianPrognosisTests
             It.IsAny<ulong>()), Times.Never);
     }
 
+    // Per-job toggle: Sage.EnableEukrasianPrognosis disabled -> Eukrasia not dispatched.
+    [Fact]
+    public void HealingModule_PrePullEukrasia_NoDispatchWhenEukrasianPrognosisToggleOff()
+    {
+        var cfg = AsclepiusTestContext.CreateDefaultSageConfiguration();
+        cfg.Sage.EnableEukrasianPrognosis = false;
+        var svc = EukrasiaReadyService();
+        var context = AsclepiusTestContext.Create(
+            config: cfg,
+            inCombat: false,
+            countdownRemaining: 5f,
+            canExecuteGcd: true,
+            hasEukrasia: false,
+            actionService: svc);
+        var scheduler = SchedulerFactory.CreateForTest(svc);
+
+        new HealingModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        svc.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Eukrasia.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
     // Note: Phase 2 (HasEukrasia=true -> push EukrasianPrognosis to GCD queue) is not
     // unit-testable. AsclepiusContext.HasEukrasia reads AsclepiusStatusHelper.HasEukrasia(Player)
     // which iterates Player.StatusList (Dalamud native struct); mock players have StatusList=null

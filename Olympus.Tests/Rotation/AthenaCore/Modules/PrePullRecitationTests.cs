@@ -74,4 +74,26 @@ public class PrePullRecitationTests
         Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
             c => c.Behavior == AthenaAbilities.Recitation);
     }
+
+    // 4. Scholar.EnableRecitation disabled -> no push (same positive setup; only per-job toggle differs).
+    // With Recitation suppressed, TryPrePullAdloquium's HasRecitation guard also never fires —
+    // Recitation off is the upstream block that prevents the follow-on Adloquium.
+    [Fact]
+    public void HealingModule_PrePullRecitation_NoPushWhenRecitationToggleOff()
+    {
+        var cfg = AthenaTestContext.CreateDefaultScholarConfiguration();
+        cfg.Scholar.EnableRecitation = false;
+        var svc = RecitationReadyService();
+        var context = AthenaTestContext.Create(
+            config: cfg,
+            inCombat: false,
+            countdownRemaining: 9f,
+            actionService: svc);
+        var scheduler = SchedulerFactory.CreateForTest(svc);
+
+        new HealingModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == AthenaAbilities.Recitation);
+    }
 }

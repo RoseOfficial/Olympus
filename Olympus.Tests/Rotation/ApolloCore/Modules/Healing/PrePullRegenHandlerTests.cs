@@ -72,4 +72,23 @@ public class PrePullRegenHandlerTests
         Assert.DoesNotContain(scheduler.InspectGcdQueue(),
             c => c.Behavior == ApolloAbilities.Regen);
     }
+
+    // 4. Healing.EnableRegen disabled -> no push (same positive setup, only per-job toggle differs).
+    [Fact]
+    public void HealingModule_PrePullRegen_NoPushWhenRegenToggleOff()
+    {
+        var cfg = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        cfg.Healing.EnableRegen = false;
+        var context = ApolloTestContext.Create(
+            config: cfg,
+            inCombat: false,
+            countdownRemaining: 3f,
+            partyHelper: TankHelper());
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        new HealingModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectGcdQueue(),
+            c => c.Behavior == ApolloAbilities.Regen);
+    }
 }

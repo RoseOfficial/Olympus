@@ -113,6 +113,8 @@ public sealed class CardModule : IAstraeaModule
 
     private void TryPushPlayCard(IAstraeaContext context, RotationScheduler scheduler)
     {
+        if (!context.InCombat) return;
+
         var player = context.Player;
 
         if (!context.HasCard) { context.Debug.PlayState = "No cards in hand"; return; }
@@ -183,6 +185,8 @@ public sealed class CardModule : IAstraeaModule
 
     private void TryPushMinorArcana(IAstraeaContext context, RotationScheduler scheduler)
     {
+        if (!context.InCombat) return;
+
         var config = context.Configuration.Astrologian;
         var player = context.Player;
 
