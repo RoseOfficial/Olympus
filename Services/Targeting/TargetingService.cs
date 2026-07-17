@@ -354,6 +354,10 @@ public sealed class TargetingService : ITargetingService
 
     private IBattleNpc? FindTankTargetForAction(uint actionId, IPlayerCharacter player)
     {
+        // Same MT-by-proxy heuristic as FindTankTarget: prefer the tank whose target
+        // has the highest MaxHp. Pending a real enmity API.
+        var candidateEnemies = new List<IBattleNpc>(2);
+
         foreach (var member in _partyList)
         {
             if (member.GameObject is not IBattleChara chara) continue;
@@ -362,9 +366,19 @@ public sealed class TargetingService : ITargetingService
             if (targetId is 0 or 0xE0000000) continue;
             var target = _objectTable.SearchById(targetId);
             if (target is IBattleNpc enemy && IsStillValid(enemy) && IsActionInRange(actionId, player, enemy))
-                return enemy;
+                candidateEnemies.Add(enemy);
         }
-        return null;
+
+        if (candidateEnemies.Count == 0)
+            return null;
+        if (candidateEnemies.Count == 1)
+            return candidateEnemies[0];
+
+        var maxHps = new uint?[candidateEnemies.Count];
+        for (int i = 0; i < candidateEnemies.Count; i++)
+            maxHps[i] = candidateEnemies[i].MaxHp;
+        var idx = SelectMainTankCandidateIndex(maxHps);
+        return idx >= 0 ? candidateEnemies[idx] : candidateEnemies[0];
     }
 
     private IBattleNpc? FindCurrentTargetForAction(uint actionId, IPlayerCharacter player)
@@ -546,29 +560,61 @@ public sealed class TargetingService : ITargetingService
         return best;
     }
 
+    /// <summary>
+    /// Returns the index of the tank candidate whose current target has the highest MaxHp,
+    /// or -1 if all entries are null (no tank has a valid target). Serves as a
+    /// main-tank-by-proxy heuristic: the main tank almost always holds the boss, which
+    /// has significantly higher MaxHp than any add. Pending a real enmity API.
+    /// </summary>
+    /// <param name="targetMaxHps">MaxHp of each tank's current valid target, or null if
+    /// the tank has no valid target or that target is out of range.</param>
+    internal static int SelectMainTankCandidateIndex(uint?[] targetMaxHps)
+    {
+        int bestIdx = -1;
+        uint bestMaxHp = 0;
+        for (int i = 0; i < targetMaxHps.Length; i++)
+        {
+            if (targetMaxHps[i] is { } hp && hp > bestMaxHp)
+            {
+                bestMaxHp = hp;
+                bestIdx = i;
+            }
+        }
+        return bestIdx;
+    }
+
     private IBattleNpc? FindTankTarget(float maxRange, IPlayerCharacter player)
     {
-        // Find tank in party and get their target
+        // Collect all valid tank targets in party-list order. When multiple tanks have
+        // targets, SelectMainTankCandidateIndex picks the one whose target has the highest
+        // MaxHp -- a main-tank-by-proxy heuristic (boss MaxHp >> add MaxHp in any raid).
+        // Pending a real enmity API, this is the best available signal.
+        var candidateEnemies = new List<IBattleNpc>(2); // at most 2 tanks in a standard party
+
         foreach (var member in _partyList)
         {
             if (member.GameObject is not IBattleChara chara)
                 continue;
-
-            // Check if this party member is a tank
             if (!TankJobIds.Contains(chara.ClassJob.RowId))
                 continue;
-
-            // Get what the tank is targeting
             var targetId = chara.TargetObjectId;
             if (targetId is 0 or 0xE0000000)
                 continue;
-
             var target = _objectTable.SearchById(targetId);
             if (target is IBattleNpc enemy && IsValidEnemy(enemy, maxRange, player))
-                return enemy;
+                candidateEnemies.Add(enemy);
         }
 
-        return null;
+        if (candidateEnemies.Count == 0)
+            return null;
+        if (candidateEnemies.Count == 1)
+            return candidateEnemies[0];
+
+        var maxHps = new uint?[candidateEnemies.Count];
+        for (int i = 0; i < candidateEnemies.Count; i++)
+            maxHps[i] = candidateEnemies[i].MaxHp;
+        var idx = SelectMainTankCandidateIndex(maxHps);
+        return idx >= 0 ? candidateEnemies[idx] : candidateEnemies[0];
     }
 
     private IBattleNpc? FindCurrentTarget(float maxRange, IPlayerCharacter player)

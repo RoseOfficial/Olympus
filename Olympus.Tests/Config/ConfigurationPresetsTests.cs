@@ -1,4 +1,5 @@
 using Olympus.Config;
+using Olympus.Services.Targeting;
 
 namespace Olympus.Tests.Config;
 
@@ -432,5 +433,21 @@ public class ConfigurationPresetsTests
     {
         var desc = ConfigurationPresets.GetDescription(preset);
         Assert.False(string.IsNullOrWhiteSpace(desc));
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // Raid preset: enemy strategy is TankAssist
+    // ──────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Raid_SetsEnemyStrategyToTankAssist()
+    {
+        var config = new Configuration();
+        // Default is LowestHp; Raid should switch to TankAssist for co-healer and DPS follow
+        Assert.Equal(EnemyTargetingStrategy.LowestHp, config.Targeting.EnemyStrategy);
+
+        ConfigurationPresets.ApplyPreset(config, ConfigurationPreset.Raid);
+
+        Assert.Equal(EnemyTargetingStrategy.TankAssist, config.Targeting.EnemyStrategy);
     }
 }

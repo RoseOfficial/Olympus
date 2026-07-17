@@ -161,4 +161,64 @@ public sealed class TargetingServiceTests
     }
 
     #endregion
+
+    #region SelectMainTankCandidateIndex -- MT-by-proxy heuristic
+
+    [Fact]
+    public void SelectMainTankCandidateIndex_EmptyArray_ReturnsMinusOne()
+    {
+        var result = TargetingService.SelectMainTankCandidateIndex([]);
+        Assert.Equal(-1, result);
+    }
+
+    [Fact]
+    public void SelectMainTankCandidateIndex_AllNull_ReturnsMinusOne()
+    {
+        var result = TargetingService.SelectMainTankCandidateIndex([null, null]);
+        Assert.Equal(-1, result);
+    }
+
+    [Fact]
+    public void SelectMainTankCandidateIndex_SingleEntry_ReturnsZero()
+    {
+        var result = TargetingService.SelectMainTankCandidateIndex([500_000u]);
+        Assert.Equal(0, result);
+    }
+
+    [Theory]
+    [InlineData(1_000_000u, 500_000u, 0)]   // tank0 holds the boss (higher MaxHp) -> index 0
+    [InlineData(500_000u, 1_000_000u, 1)]   // tank1 holds the boss -> index 1
+    [InlineData(1_000_000u, 1_000_000u, 0)] // equal MaxHp -> first wins (stable)
+    public void SelectMainTankCandidateIndex_TwoTanks_PrefersBossTarget(
+        uint tank0MaxHp, uint tank1MaxHp, int expectedIndex)
+    {
+        var result = TargetingService.SelectMainTankCandidateIndex([tank0MaxHp, tank1MaxHp]);
+        Assert.Equal(expectedIndex, result);
+    }
+
+    [Fact]
+    public void SelectMainTankCandidateIndex_FirstTankNoTarget_ReturnsSecondIndex()
+    {
+        // MT has not yet locked on; OT is holding something -- follow the OT for now
+        var result = TargetingService.SelectMainTankCandidateIndex([null, 800_000u]);
+        Assert.Equal(1, result);
+    }
+
+    [Fact]
+    public void SelectMainTankCandidateIndex_SecondTankNoTarget_ReturnsFirstIndex()
+    {
+        // MT holds boss, OT has no target
+        var result = TargetingService.SelectMainTankCandidateIndex([1_200_000u, null]);
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void SelectMainTankCandidateIndex_ThreeTanks_ReturnsIndexOfHighest()
+    {
+        // Three tank players (unusual but possible in alliance); boss is the highest MaxHp
+        var result = TargetingService.SelectMainTankCandidateIndex([300_000u, 1_500_000u, 400_000u]);
+        Assert.Equal(1, result);
+    }
+
+    #endregion
 }

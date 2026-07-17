@@ -1,3 +1,5 @@
+using Olympus.Services.Targeting;
+
 namespace Olympus.Config;
 
 /// <summary>
@@ -44,7 +46,8 @@ public enum JobRole
 
 /// <summary>
 /// Provides preset configurations for different content types and playstyles.
-/// Presets modify behavior settings but preserve spell toggles and targeting preferences.
+/// Presets modify behavior settings but preserve spell toggles and calibration settings.
+/// The Raid preset additionally sets the enemy targeting strategy to TankAssist.
 /// </summary>
 public static class ConfigurationPresets
 {
@@ -85,7 +88,10 @@ public static class ConfigurationPresets
 
     /// <summary>
     /// Applies a preset to the configuration.
-    /// Does not modify spell toggles, targeting, debug, or calibration settings.
+    /// Does not modify spell toggles, debug, or calibration settings.
+    /// Note: the Raid preset sets <see cref="Config.TargetingConfig.EnemyStrategy"/> to
+    /// <see cref="EnemyTargetingStrategy.TankAssist"/>; all other presets leave
+    /// targeting configuration unchanged.
     /// </summary>
     /// <param name="config">The configuration to modify.</param>
     /// <param name="preset">The preset to apply.</param>
@@ -177,6 +183,11 @@ public static class ConfigurationPresets
         config.CasterShared.LucidDreamingThreshold = 0.70f;
         config.HealerShared.LucidDreamingThreshold = 0.70f;
         config.HealerShared.EnableBurstPooling = true;
+
+        // Targeting -- follow the main tank in 8-player content so co-healers and DPS
+        // hit the same enemy. TankAssistFallback (default true) covers the brief window
+        // at pull before the tank has a locked-in target.
+        config.Targeting.EnemyStrategy = EnemyTargetingStrategy.TankAssist;
     }
 
     /// <summary>
