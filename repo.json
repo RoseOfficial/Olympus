@@ -6,7 +6,9 @@
     "Punchline": "Intelligent rotation assistant for all combat jobs",
     "Description": "Olympus: An intelligent rotation assistant supporting all 21 combat jobs with healing, damage, mitigation, burst windows, party coordination, and timeline-aware fight predictions.",
     "ApplicableVersion": "any",
-    "CategoryTags": ["jobs"],
+    "CategoryTags": [
+      "jobs"
+    ],
     "RepoUrl": "https://github.com/RoseOfficial/Olympus",
     "AssemblyVersion": "4.17.2.0",
     "DalamudApiLevel": 15,
@@ -17,5 +19,25 @@
     "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v4.17.2/Olympus.zip",
     "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/v4.17.2/Olympus.zip",
     "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v4.17.2/Olympus.zip"
+  },
+  {
+    "Author": "RoseOfficial",
+    "Name": "Komos",
+    "InternalName": "Komos",
+    "Punchline": "Keep festival scenery around all year.",
+    "Description": "Client-side festival control: pick which seasonal event scenery stays active in each zone, keep events after they end, and share scene presets.",
+    "ApplicableVersion": "any",
+    "Tags": [
+      "festival",
+      "seasonal",
+      "scenery"
+    ],
+    "AssemblyVersion": "0.1.0.0",
+    "DalamudApiLevel": 15,
+    "RepoUrl": "https://github.com/RoseOfficial/Komos",
+    "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Komos/main/src/Komos/images/icon.png",
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.0/Komos.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.0/Komos.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.0/Komos.zip"
   }
 ]
