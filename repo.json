@@ -32,12 +32,12 @@
       "seasonal",
       "scenery"
     ],
-    "AssemblyVersion": "0.1.0.0",
+    "AssemblyVersion": "0.1.1.0",
     "DalamudApiLevel": 15,
     "RepoUrl": "https://github.com/RoseOfficial/Komos",
     "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Komos/main/src/Komos/images/icon.png",
-    "DownloadLinkInstall": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.0/Komos.zip",
-    "DownloadLinkTesting": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.0/Komos.zip",
-    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.0/Komos.zip"
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip"
   }
 ]
