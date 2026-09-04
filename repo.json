@@ -39,5 +39,25 @@
     "DownloadLinkInstall": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip",
     "DownloadLinkTesting": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip",
     "DownloadLinkUpdate": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip"
+  },
+  {
+    "Author": "RoseOfficial",
+    "Name": "Moirai",
+    "InternalName": "Moirai",
+    "Punchline": "The Fates, automated.",
+    "Description": "Automated FATE farming with a pure, unit-tested decision core: picks the best FATE in the zone, travels there, syncs, fights it to completion, handles collect and escort FATEs, and recovers from death and stuck states.",
+    "ApplicableVersion": "any",
+    "Tags": [
+      "fate",
+      "farming",
+      "automation"
+    ],
+    "AssemblyVersion": "0.3.0.0",
+    "DalamudApiLevel": 15,
+    "RepoUrl": "https://github.com/RoseOfficial/Moirai",
+    "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Moirai/main/src/Moirai/images/icon.png",
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.0/Moirai.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.0/Moirai.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.0/Moirai.zip"
   }
 ]
