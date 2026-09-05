@@ -56,12 +56,12 @@
       "farming",
       "automation"
     ],
-    "AssemblyVersion": "0.3.15.0",
+    "AssemblyVersion": "0.3.16.0",
     "DalamudApiLevel": 15,
     "RepoUrl": "https://github.com/RoseOfficial/Moirai",
     "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Moirai/main/src/Moirai/images/icon.png",
-    "DownloadLinkInstall": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.15/Moirai.zip",
-    "DownloadLinkTesting": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.15/Moirai.zip",
-    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.15/Moirai.zip"
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.16/Moirai.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.16/Moirai.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.16/Moirai.zip"
   }
 ]
