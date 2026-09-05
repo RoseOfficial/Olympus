@@ -22,26 +22,6 @@
   },
   {
     "Author": "RoseOfficial",
-    "Name": "Komos",
-    "InternalName": "Komos",
-    "Punchline": "Keep festival scenery around all year.",
-    "Description": "Client-side festival control: pick which seasonal event scenery stays active in each zone, keep events after they end, and share scene presets.",
-    "ApplicableVersion": "any",
-    "Tags": [
-      "festival",
-      "seasonal",
-      "scenery"
-    ],
-    "AssemblyVersion": "0.1.1.0",
-    "DalamudApiLevel": 15,
-    "RepoUrl": "https://github.com/RoseOfficial/Komos",
-    "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Komos/main/src/Komos/images/icon.png",
-    "DownloadLinkInstall": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip",
-    "DownloadLinkTesting": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip",
-    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Komos/releases/download/v0.1.1/Komos.zip"
-  },
-  {
-    "Author": "RoseOfficial",
     "Name": "Moirai",
     "InternalName": "Moirai",
     "Punchline": "The Fates, automated.",
@@ -59,5 +39,29 @@
     "DownloadLinkInstall": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.7/Moirai.zip",
     "DownloadLinkTesting": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.7/Moirai.zip",
     "DownloadLinkUpdate": "https://github.com/RoseOfficial/Moirai/releases/download/v0.3.7/Moirai.zip"
+  },
+  {
+    "Author": "RoseOfficial",
+    "Name": "Komos",
+    "InternalName": "Komos",
+    "Punchline": "Keep festival scenery around all year.",
+    "Description": "Client-side festival control: pick which seasonal event scenery stays active in each zone, keep events after they end, and share scene presets.",
+    "ApplicableVersion": "any",
+    "Tags": [
+      "festival",
+      "seasonal",
+      "scenery"
+    ],
+    "AssemblyVersion": "0.2.0.0",
+    "DalamudApiLevel": 15,
+    "RepoUrl": "https://github.com/RoseOfficial/Komos",
+    "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Komos/main/src/Komos/images/icon.png",
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Komos/releases/download/v0.2.0/Komos.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Komos/releases/download/v0.2.0/Komos.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Komos/releases/download/v0.2.0/Komos.zip",
+    "CategoryTags": [
+      "utility"
+    ],
+    "Changelog": "### Fixed\n- The event extender offers to keep an ended event only in zones that hold its scenery, and each such zone gets its own offer; before, whichever zone you stood in consumed the only offer, even with nothing there to keep\n- A queued scenery change that the game applied late, after Komos had stopped waiting for it, is no longer mistaken for server scenery, so disabling Komos restores the real server state in that case too\n\n### New\n- Keep and Dismiss buttons in the window for ended events; the chat command still works\n- Zone names in the window and in chat replies instead of bare territory numbers\n- The installer listing now carries the release notes and a category"
   }
 ]
