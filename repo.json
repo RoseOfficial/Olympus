@@ -63,5 +63,30 @@
     "DownloadLinkInstall": "https://github.com/RoseOfficial/Moirai/releases/download/v0.4.9/Moirai.zip",
     "DownloadLinkTesting": "https://github.com/RoseOfficial/Moirai/releases/download/v0.4.9/Moirai.zip",
     "DownloadLinkUpdate": "https://github.com/RoseOfficial/Moirai/releases/download/v0.4.9/Moirai.zip"
+  },
+  {
+    "Author": "RoseOfficial",
+    "Name": "Mnemosyne",
+    "InternalName": "Mnemosyne",
+    "Punchline": "Remembers what every character has done, so you don't have to.",
+    "Description": "A progress checklist for all your characters. Each character appears after you log into it once with the plugin running: its story, jobs, events, dailies and weeklies, content, collections and money, and your own tasks. See what is left on every character in one list, compare them side by side, add up their gil and currencies with gil over time, and give each character a role that decides what counts for it. Mnemosyne stores character data only on this PC. It is never uploaded anywhere. It reads the game and never writes to it; its optional switch button asks Lifestream to change character.",
+    "ApplicableVersion": "any",
+    "Tags": [
+      "characters",
+      "alts",
+      "checklist",
+      "progress"
+    ],
+    "AssemblyVersion": "0.1.0.0",
+    "DalamudApiLevel": 15,
+    "RepoUrl": "https://github.com/RoseOfficial/Mnemosyne",
+    "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Mnemosyne/main/src/Mnemosyne/images/icon.png",
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Mnemosyne/releases/download/v0.1.0/Mnemosyne.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Mnemosyne/releases/download/v0.1.0/Mnemosyne.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Mnemosyne/releases/download/v0.1.0/Mnemosyne.zip",
+    "CategoryTags": [
+      "utility"
+    ],
+    "Changelog": "### New — First Public Release\n- One window for all your characters: every character down the left, one character's checklist on the right. A character appears after you log into it once with Mnemosyne running\n- Seven categories read from the game (story, jobs, events, dailies and weeklies, content, collections, money) and My tasks, the tasks you add yourself\n- All tasks: everything still to do on any character in one list, with pin, priority, snooze until the next reset, and hide\n- All characters: a sortable table of every character, with gil, ventures ready, bag space and company seals\n- Totals: each currency added up across your characters, and a graph of your gil over time\n- Roles: give a character a role, such as a retainer mule, and only what the role tracks counts toward its number\n- One chat line at login and a count in the server info bar; optional reminders for the daily reset, events ending, Wondrous Tails, house visits and My tasks before reset\n- Export and import, to move your characters to another PC or keep a copy\n- An optional button that switches to a character through Lifestream\n- Nothing leaves your PC: Mnemosyne has no network code, does not use the Lodestone, and never writes to the game"
   }
 ]
