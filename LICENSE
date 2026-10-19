@@ -1,0 +1,18 @@
+Copyright (c) 2026 RoseOfficial. All rights reserved.
+
+This repository and its releases are not open source. You may download the
+released builds and use them for your own personal play of Final Fantasy XIV.
+
+Apart from that, and from what GitHub's Terms of Service require (viewing this
+repository, and forking it within GitHub), no permission is granted. Without
+written permission from RoseOfficial you may not copy, modify, merge, publish,
+distribute, sublicense or sell this source code or its builds, in whole or in
+part, or make works derived from them.
+
+The software is provided "as is", without warranty of any kind.
+
+Not covered by this notice: Config/DrawHelperConfig.cs, Models/AoEResult.cs,
+Services/Drawing/DrawingService.cs, Services/Targeting/AoETracker.cs,
+Services/Targeting/SmartAoEService.cs, Windows/Config/Shared/DrawHelperSection.cs,
+Windows/Debug/Tabs/SmartAoETab.cs and Windows/DrawCanvas.cs, contributed by
+nobody-lua, and their parts of other files; those belong to their author.

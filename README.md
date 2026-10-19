@@ -165,4 +165,4 @@ Issues and pull requests welcome at [GitHub](https://github.com/RoseOfficial/Oly
 
 ## License
 
-This project is provided as-is for personal use with FFXIV.
+All rights reserved. See [LICENSE](LICENSE).
